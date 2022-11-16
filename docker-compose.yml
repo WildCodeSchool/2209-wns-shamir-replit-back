@@ -23,9 +23,10 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - PGDATA=/var/lib/postgresql/data
+      - POSTGRES_DB=wildcode
+      - PGDATA=/var/lib/postgresql/data/wildcode
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data/wildcode
       - ${PWD}/postgres/home:/root
     ports:
       - "5432:5432"
