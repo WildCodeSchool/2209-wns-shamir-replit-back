@@ -7,7 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-db-data
+postgres
 .env
 node_modules
 dist
