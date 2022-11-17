@@ -1,8 +1,6 @@
 {
   "name": "replit_server",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
   "scripts": {
     "start:dev": "ts-node-dev src/index.ts",
     "start": "node src/index.js"

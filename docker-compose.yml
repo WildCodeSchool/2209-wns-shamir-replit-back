@@ -16,23 +16,29 @@ services:
       - dockerlan
     restart: always
     depends_on:
-      - bdd
+      bdd:
+        condition: service_healthy
 
   bdd:
-    image: postgres:15.1-alpine
+    build:
+      context: ./postgres/
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=wildcode
-      - PGDATA=/var/lib/postgresql/data/wildcode
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - db-data:/var/lib/postgresql/data/wildcode
+      - db-data:/var/lib/postgresql/data
       - ${PWD}/postgres/home:/root
     ports:
       - "5432:5432"
     networks:
       - dockerlan
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d wildcode -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 networks:
   dockerlan:
