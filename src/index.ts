@@ -1,43 +1,114 @@
-import { ApolloServer } from "apollo-server";
+import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { dataSource } from "./tools/utils";
 import { buildSchema } from "type-graphql";
-import {UserResolver} from "./resolvers/userResolvers";
+import { UserResolver } from "./resolvers/userResolvers";
 import authService from "./services/authService";
+import express from "express";
+import http from "http";
 
 const port = 5000;
 
-const start = async (): Promise<void> => {
-  await dataSource.initialize();
+async function listen(port: number) {
+  const app = express();
 
+  const router = express.Router();
+  router.get("/boloss", (req, res) => {
+    console.log("boloss");
+    res.send({ boloss: "boloss" });
+  });
+
+  app.use("/api", router);
+
+  const httpServer = http.createServer(app);
+
+  await dataSource.initialize();
   const schema = await buildSchema({
     resolvers: [UserResolver],
   });
 
-   const server = new ApolloServer({schema, context: ({ req }) => {
-    if (
-      req.headers.authorization === undefined ||
-      process.env.JWT_SECRET_KEY === undefined
-    ) {
-      return {};
-    } else {
-      try {
-        const bearer = req.headers.authorization.split("Bearer ")[1];
-        const userPayload = authService.verifyToken(bearer);
-
-        return { user: userPayload };
-      } catch (e) {
-        console.log(e);
+  const server = new ApolloServer({
+    schema,
+    context: ({ req }) => {
+      if (
+        req.headers.authorization === undefined ||
+        process.env.JWT_SECRET_KEY === undefined
+      ) {
         return {};
+      } else {
+        try {
+          const bearer = req.headers.authorization.split("Bearer ")[1];
+          const userPayload = authService.verifyToken(bearer);
+
+          return { user: userPayload };
+        } catch (e) {
+          console.log(e);
+          return {};
+        }
       }
-    }
-  },});
+    },
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
 
+  await server.start();
+
+  server.applyMiddleware({ app });
+
+  return new Promise((resolve, reject) => {
+    httpServer.listen(port).once("listening", resolve).once("error", reject);
+  });
+}
+
+async function main() {
   try {
-    const { url }: {url: string} = await server.listen({ port });
-    console.log(`server ready at ${url}`);
-  } catch (e) {
-    console.error(e);
+    await listen(port);
+    console.log(`🚀 Server is ready at http://localhost:${port}/graphql`);
+  } catch (err) {
+    console.error("💀 Error starting the node server", err);
   }
-};
+}
 
-start();
+void main();
+
+// import { ApolloServer } from "apollo-server";
+
+// const port = 5000;
+
+// const start = async (): Promise<void> => {
+//   await dataSource.initialize();
+
+//   const schema = await buildSchema({
+//     resolvers: [UserResolver],
+//   });
+
+//   const server = new ApolloServer({
+//     schema,
+//     context: ({ req }) => {
+//       if (
+//         req.headers.authorization === undefined ||
+//         process.env.JWT_SECRET_KEY === undefined
+//       ) {
+//         return {};
+//       } else {
+//         try {
+//           const bearer = req.headers.authorization.split("Bearer ")[1];
+//           const userPayload = authService.verifyToken(bearer);
+
+//           return { user: userPayload };
+//         } catch (e) {
+//           console.log(e);
+//           return {};
+//         }
+//       }
+//     },
+//   });
+
+//   try {
+//     const { url }: { url: string } = await server.listen({ port });
+//     console.log(`server ready at ${url}`);
+//   } catch (e) {
+//     console.error(e);
+//   }
+// };
+
+// start();
