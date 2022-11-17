@@ -23,10 +23,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: /tmp
     volumes:
-      - ${PWD}/postgres/db:/var/lib/postgresql/data
-      - ${PWD}/postgres/home:/root
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/home:/root
     ports:
       - "5432:5432"
     restart: always
@@ -39,3 +38,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+volumes:
+  postgres-data:

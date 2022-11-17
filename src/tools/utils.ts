@@ -1,11 +1,13 @@
 import { DataSource } from "typeorm";
+import { User } from "../models/user.model";
 
-const dataSource: DataSource = new DataSource({
-  type: "sqlite",
-  database: "./wildersdb.sqlite",
+export const dataSource = new DataSource({
+  type: "postgres",
+  host: "bdd",
+  port: 5432,
+  username: "wildcode",
+  password: "azeaze",
+  database: "wildcode",
   synchronize: true,
-  entities: [Wilder, Wilder_Skills, Skills],
-  // logging: ["query", "error"],
+  entities: [User],
 });
-
-export default dataSource;
