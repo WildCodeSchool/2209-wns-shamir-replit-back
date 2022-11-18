@@ -8,20 +8,25 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import http from "http";
+import * as dotenv from 'dotenv'
 import { executeCodeController } from "./controllers/executeCodeController";
 
 const port = 5000;
 
+dotenv.config();
+
+
 async function listen(port: number) {
   const app = express();
-
+  
   const router = express.Router();
+
   router.post("/executeCode", executeCodeController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
   const httpServer = http.createServer(app);
-
+  
   await dataSource.initialize();
   const schema = await buildSchema({
     resolvers: [UserResolver],
