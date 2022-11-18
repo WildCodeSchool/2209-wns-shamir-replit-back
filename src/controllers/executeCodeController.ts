@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import executeCode from "../services/vmService";
 
 export const executeCodeController = async (req: Request, res: Response) => {
-  console.log("truc", req);
-
   const { code } = req.body;
   const result = await executeCode(code);
   if (result) {
