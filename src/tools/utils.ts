@@ -1,5 +1,11 @@
 import { DataSource } from "typeorm";
-import { User } from "../models/user.model";
+import {User, 
+        CodeComment, 
+        CommentAnswer, 
+        Execution, 
+        Project, 
+        ProjectShare,
+        FileCode} from "../models/index";
 
 export const dataSource = new DataSource({
   type: "postgres",
@@ -9,5 +15,11 @@ export const dataSource = new DataSource({
   password: "azeaze",
   database: "wildcode",
   synchronize: true,
-  entities: [User],
+  entities: [ User, 
+              CodeComment, 
+              CommentAnswer, 
+              Execution, 
+              Project, 
+              ProjectShare,
+              FileCode],
 });
