@@ -11,7 +11,7 @@ export class CommentAnswer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column("varchar", {length: 300})
   comment: string;
 
   @CreateDateColumn()

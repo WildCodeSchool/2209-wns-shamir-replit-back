@@ -6,22 +6,26 @@ import { UserResolver } from "./resolvers/userResolvers";
 import authService from "./services/authService";
 import express from "express";
 import http from "http";
+import * as dotenv from 'dotenv'
 
 const port = 5000;
 
+dotenv.config();
+
+
 async function listen(port: number) {
   const app = express();
-
+  
   const router = express.Router();
   router.get("/boloss", (req, res) => {
     console.log("boloss");
     res.send({ boloss: "boloss" });
   });
-
+  
   app.use("/api", router);
-
+  
   const httpServer = http.createServer(app);
-
+  
   await dataSource.initialize();
   const schema = await buildSchema({
     resolvers: [UserResolver],

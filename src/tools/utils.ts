@@ -6,14 +6,17 @@ import {User,
         Project, 
         ProjectShare,
         FileCode} from "../models/index";
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 export const dataSource = new DataSource({
   type: "postgres",
   host: "bdd",
   port: 5432,
-  username: "wildcode",
-  password: "azeaze",
-  database: "wildcode",
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
   synchronize: true,
   entities: [ User, 
               CodeComment, 
