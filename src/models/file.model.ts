@@ -1,5 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { CodeComment } from "./code_comment.model";
 import { Project } from "./project.model";
 import { User } from "./user.model";
@@ -12,7 +18,7 @@ export class FileCode {
   id: number;
 
   @Column()
-  id_storage_file:number
+  id_storage_file: number;
 
   @Column()
   name: string;
@@ -28,7 +34,7 @@ export class FileCode {
 
   @ManyToOne(() => User, (user) => user.fileCode)
   user: User;
-  
+
   @ManyToOne(() => Project, (project) => project.file)
   project: Project;
 }

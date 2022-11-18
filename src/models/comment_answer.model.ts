@@ -1,8 +1,13 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from "typeorm";
-import {CodeComment} from "./code_comment.model";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+} from "typeorm";
+import { CodeComment } from "./code_comment.model";
 import { User } from "./user.model";
-
 
 @ObjectType()
 @Entity()
@@ -11,7 +16,7 @@ export class CommentAnswer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column("varchar", {length: 300})
+  @Column("varchar", { length: 300 })
   comment: string;
 
   @CreateDateColumn()

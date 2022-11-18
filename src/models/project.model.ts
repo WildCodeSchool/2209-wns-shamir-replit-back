@@ -1,5 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Execution } from "./execution.model";
 import { FileCode } from "./file.model";
 import { ProjectShare } from "./project_share.model";
@@ -20,7 +26,7 @@ export class Project {
 
   @Column()
   nb_likes: number;
-  
+
   @Column()
   nb_views: number;
 
@@ -29,17 +35,16 @@ export class Project {
 
   @Column()
   id_storage_number: string;
-  
+
   @OneToMany(() => FileCode, (fileCode) => fileCode.project)
   file: File[];
-  
+
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.project)
   projectShare: ProjectShare[];
-  
+
   @OneToMany(() => Execution, (execution) => execution.project)
   execution: Execution[];
 
   @ManyToOne(() => User, (user) => user.project)
   user: User;
-  
 }

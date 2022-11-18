@@ -28,23 +28,22 @@ export class User {
 
   @Column()
   date_end_subscription?: Date;
- 
+
   @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.user)
   commentAnswer: CommentAnswer[];
 
   @OneToMany(() => FileCode, (fileCode) => fileCode.user)
   fileCode: FileCode[];
-  
+
   @OneToMany(() => CodeComment, (codeComment) => codeComment.user)
   codeComment: CodeComment[];
-  
+
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.user)
   projectShare: CommentAnswer[];
-  
+
   @OneToMany(() => Execution, (execution) => execution.user)
   execution: Execution[];
 
   @OneToMany(() => Project, (project) => project.user)
   project: Project[];
-  
 }

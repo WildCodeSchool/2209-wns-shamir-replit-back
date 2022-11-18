@@ -1,5 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Project } from "./project.model";
 import { User } from "./user.model";
 
@@ -15,7 +21,7 @@ export class Execution {
 
   @Column()
   output?: string;
-  
+
   @ManyToOne(() => User, (user) => user.execution)
   user: User;
 
