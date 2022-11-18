@@ -5,7 +5,10 @@ import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/userResolvers";
 import authService from "./services/authService";
 import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
 import http from "http";
+import { executeCodeController } from "./controllers/executeCodeController";
 
 const port = 5000;
 
@@ -13,12 +16,9 @@ async function listen(port: number) {
   const app = express();
 
   const router = express.Router();
-  router.get("/boloss", (req, res) => {
-    console.log("boloss");
-    res.send({ boloss: "boloss" });
-  });
+  router.post("/executeCode", executeCodeController);
 
-  app.use("/api", router);
+  app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
   const httpServer = http.createServer(app);
 
