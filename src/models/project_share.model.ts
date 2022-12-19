@@ -17,11 +17,11 @@ export class ProjectShare {
   write: boolean;
 
   @Column()
-  comment: boolean
-  
+  comment: boolean;
+
   @ManyToOne(() => User, (user) => user.projectShare)
   user: User;
-  
+
   @ManyToOne(() => Project, (project) => project.projectShare)
   project: Project;
 }
