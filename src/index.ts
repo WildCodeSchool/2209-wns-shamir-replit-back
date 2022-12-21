@@ -2,7 +2,7 @@ import { ApolloServer, gql } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { dataSource } from "./tools/utils";
 import { buildSchema } from "type-graphql";
-import { UserResolver } from "./resolvers/userResolvers";
+import { UserResolver } from "./resolvers/userResolver";
 import authService from "./services/authService";
 import express from "express";
 import cors from "cors";
