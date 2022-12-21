@@ -26,12 +26,12 @@ export class ProjectShare {
   comment: boolean;
 
   @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
 
   @Column()
-  @ManyToOne(() => Project, { onDelete: "CASCADE" })
+  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "projectId" })
   projectId: Project["id"];
 }

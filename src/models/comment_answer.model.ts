@@ -24,12 +24,12 @@ export class CommentAnswer {
   answer_date: Date;
 
   @Column()
-  @ManyToOne(() => CodeComment, { onDelete: "CASCADE" })
+  @ManyToOne(() => CodeComment, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "codeCommentId" })
   codeCommentId: CodeComment["id"];
 
   @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
 }

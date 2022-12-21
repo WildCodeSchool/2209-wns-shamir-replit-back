@@ -41,6 +41,7 @@ export class CodeComment {
   @Column({ default: false })
   is_report?: boolean;
 
+  @Field(() => [CommentAnswer], { nullable: true })
   @OneToMany(
     () => CommentAnswer,
     (commentAnswer) => commentAnswer.codeCommentId
@@ -48,12 +49,12 @@ export class CodeComment {
   commentAnswer: CommentAnswer[];
 
   @Column()
-  @ManyToOne(() => FileCode, { onDelete: "CASCADE" })
+  @ManyToOne(() => FileCode, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "fileId" })
   fileId: FileCode["id"];
 
   @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
 }

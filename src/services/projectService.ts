@@ -11,7 +11,9 @@ const projectService = {
   },
 
   getAll: async (): Promise<Project[]> => {
-    return await repository.find();
+    return await repository.find({
+      relations: { userId: true },
+    });
   },
   create: async (
     userId: number,

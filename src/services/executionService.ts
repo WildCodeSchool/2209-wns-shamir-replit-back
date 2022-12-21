@@ -10,7 +10,9 @@ const executionService = {
   },
 
   getAll: async (): Promise<Execution[]> => {
-    return await repository.find();
+    return await repository.find({
+      relations: { userId: true, projectId: true },
+    });
   },
   create: async (
     projectId: number,
