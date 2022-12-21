@@ -19,35 +19,44 @@ export class Project {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   name: string;
 
+  @Field({ nullable: true })
   @Column()
   description?: string;
 
+  @Field()
   @Column()
   nb_likes: number;
 
+  @Field()
   @Column()
   nb_views: number;
 
+  @Field()
   @Column()
-  public: boolean;
+  isPublic: boolean;
 
+  @Field()
   @Column()
   id_storage_number: string;
 
+  @Field(() => [FileCode], { nullable: true })
   @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
   file: File[];
 
+  @Field(() => [ProjectShare], { nullable: true })
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
   projectShare: ProjectShare[];
 
+  @Field(() => [Execution], { nullable: true })
   @OneToMany(() => Execution, (execution) => execution.projectId)
   execution: Execution[];
 
   @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
 }

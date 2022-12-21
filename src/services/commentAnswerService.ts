@@ -12,7 +12,9 @@ const commentAnswerService = {
   },
 
   getAll: async (): Promise<CommentAnswer[]> => {
-    return await repository.find();
+    return await repository.find({
+      relations: { userId: true, codeCommentId: true, comment: true },
+    });
   },
   create: async (
     codeCommentId: number,

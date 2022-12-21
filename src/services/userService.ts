@@ -17,11 +17,24 @@ const userService = {
   },
 
   getById: async (userId: number) => {
-    return (await repository.findBy({ id: userId }))[0];
+    return (
+      await repository.findBy({
+        id: userId,
+      })
+    )[0];
   },
 
   getAll: async (): Promise<User[]> => {
-    return await repository.find();
+    return await repository.find({
+      relations: {
+        execution: true,
+        project: true,
+        projectShare: true,
+        fileCode: true,
+        codeComment: true,
+        commentAnswer: true,
+      },
+    });
   },
 
   /**

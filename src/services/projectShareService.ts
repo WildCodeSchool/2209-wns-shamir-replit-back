@@ -12,7 +12,12 @@ const projectShareService = {
   },
 
   getAll: async (): Promise<ProjectShare[]> => {
-    return await repository.find();
+    return await repository.find({
+      relations: {
+        userId: true,
+        projectId: true,
+      },
+    });
   },
   create: async (
     projectId: number,
