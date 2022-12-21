@@ -1,17 +1,23 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import projectService from "../services/projectService";
 
-@Resolver(Project)
+@Resolver(iProject)
 export class ProjectResolver {
   @Mutation(() => Project)
   async createProject(
     @Arg("userId") userId: number,
     @Arg("name") name: string,
     @Arg("description") description: string,
-    @Arg("isPublic") isPublic: boolean,
+    @Arg("isPublic") isPublic: boolean
   ): Promise<Project> {
-    const projectFromDB = await projectService.create(userId, name, description, isPublic);
+    const projectFromDB = await projectService.create(
+      userId,
+      name,
+      description,
+      isPublic
+    );
     console.log(projectFromDB);
     return projectFromDB;
   }
@@ -28,7 +34,7 @@ export class ProjectResolver {
 
   @Mutation(() => Project)
   async updateProject(
-    @Arg("Project") Project: Project,
+    @Arg("Project") Project: iProject,
     @Arg("ProjectId") ProjectId: number
   ): Promise<Project> {
     try {
@@ -39,11 +45,9 @@ export class ProjectResolver {
   }
 
   @Mutation(() => Project)
-  async deleteProject(
-    @Arg("ProjectId") ProjectId: number
-  ): Promise<Project> {
+  async deleteProject(@Arg("ProjectId") ProjectId: number): Promise<Project> {
     try {
-      return await projectService.delete( ProjectId);
+      return await projectService.delete(ProjectId);
     } catch (e) {
       throw new Error("Can't delete Project");
     }

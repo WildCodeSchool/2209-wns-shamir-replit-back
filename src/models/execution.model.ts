@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -22,9 +23,13 @@ export class Execution {
   @Column()
   output?: string;
 
-  @ManyToOne(() => User, (user) => user.execution)
-  user: User;
+  @Column()
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 
-  @ManyToOne(() => Project, (project) => project.execution)
-  project: Project;
+  @Column()
+  @ManyToOne(() => Project, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "projectId" })
+  projectId: Project["id"];
 }

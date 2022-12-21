@@ -6,27 +6,30 @@ const repository: Repository<Execution> = dataSource.getRepository(Execution);
 
 const executionService = {
   getById: async (executionId: number) => {
-    return await repository.findOneByOrFail({ id: executionId });
+    return (await repository.findBy({ id: executionId }))[0];
   },
 
   getAll: async (): Promise<Execution[]> => {
     return await repository.find();
   },
   create: async (
+    projectId: number,
     userId: number,
     output: string,
-    projectId: number,
     execution_date: Date
   ): Promise<Execution> => {
     const newExecution = {
+      projectId,
       userId,
       output,
-      projectId,
-      execution_date
+      execution_date,
     };
     return await repository.save(newExecution);
   },
-  update: async (execution: Execution, executionId: number): Promise<Execution> => {
+  update: async (
+    execution: Execution,
+    executionId: number
+  ): Promise<Execution> => {
     await repository.update(executionId, execution);
     return await executionService.getById(executionId);
   },

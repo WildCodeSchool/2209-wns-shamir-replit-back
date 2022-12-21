@@ -1,16 +1,20 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { CodeComment } from "../models";
+import { iCommentAnswer } from "../interfaces/InputType";
 import { CommentAnswer } from "../models/comment_answer.model";
 import commentAnswerService from "../services/commentAnswerService";
 
-@Resolver(CommentAnswer)
+@Resolver(iCommentAnswer)
 export class CommentAnswerResolver {
   @Mutation(() => CommentAnswer)
   async createCommentAnswer(
+    @Arg("codeCommentId") codeCommentId: number,
+    @Arg("userId") userId: number,
     @Arg("comment") comment: string,
     @Arg("answer_date") answerDate: Date
   ): Promise<CommentAnswer> {
     const commentAnswerFromDB = await commentAnswerService.create(
+      codeCommentId,
+      userId,
       comment,
       answerDate
     );
@@ -31,7 +35,7 @@ export class CommentAnswerResolver {
 
   @Mutation(() => CommentAnswer)
   async updateCommentAnswer(
-    @Arg("CommentAnswer") CommentAnswer: CommentAnswer,
+    @Arg("CommentAnswer") CommentAnswer: iCommentAnswer,
     @Arg("CommentAnswerId") CommentAnswerId: number
   ): Promise<CommentAnswer> {
     try {

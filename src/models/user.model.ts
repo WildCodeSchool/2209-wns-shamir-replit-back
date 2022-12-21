@@ -29,21 +29,21 @@ export class User {
   @Column()
   date_end_subscription?: Date;
 
-  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.user)
+  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.userId)
   commentAnswer: CommentAnswer[];
 
-  @OneToMany(() => FileCode, (fileCode) => fileCode.user)
+  @OneToMany(() => FileCode, (fileCode) => fileCode.userId)
   fileCode: FileCode[];
 
-  @OneToMany(() => CodeComment, (codeComment) => codeComment.user)
+  @OneToMany(() => CodeComment, (codeComment) => codeComment.userId)
   codeComment: CodeComment[];
 
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.user)
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.userId)
   projectShare: CommentAnswer[];
 
-  @OneToMany(() => Execution, (execution) => execution.user)
+  @OneToMany(() => Execution, (execution) => execution.userId)
   execution: Execution[];
 
-  @OneToMany(() => Project, (project) => project.user)
+  @OneToMany(() => Project, (project) => project.userId)
   project: Project[];
 }

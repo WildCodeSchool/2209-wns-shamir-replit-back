@@ -1,4 +1,5 @@
 import { Repository } from "typeorm";
+import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/utils";
 
@@ -6,7 +7,7 @@ const repository: Repository<Project> = dataSource.getRepository(Project);
 
 const projectService = {
   getById: async (projectId: number) => {
-    return await repository.findOneByOrFail({ id: projectId });
+    return (await repository.findBy({ id: projectId }))[0];
   },
 
   getAll: async (): Promise<Project[]> => {
@@ -29,7 +30,7 @@ const projectService = {
     };
     return await repository.save(newProject);
   },
-  update: async (project: Project, projectId: number): Promise<Project> => {
+  update: async (project: iProject, projectId: number): Promise<Project> => {
     await repository.update(projectId, project);
     return await projectService.getById(projectId);
   },
