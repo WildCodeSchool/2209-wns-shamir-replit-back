@@ -1,5 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Project } from "./project.model";
 import { User } from "./user.model";
 
@@ -19,9 +25,13 @@ export class ProjectShare {
   @Column()
   comment: boolean;
 
-  @ManyToOne(() => User, (user) => user.projectShare)
-  user: User;
+  @Column()
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 
-  @ManyToOne(() => Project, (project) => project.projectShare)
-  project: Project;
+  @Column()
+  @ManyToOne(() => Project, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "projectId" })
+  projectId: Project["id"];
 }

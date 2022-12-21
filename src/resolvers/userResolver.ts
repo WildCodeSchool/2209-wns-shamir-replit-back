@@ -1,9 +1,10 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { iUser } from "../interfaces/InputType";
 import { User } from "../models/user.model";
 import authService from "../services/authService";
 import userService from "../services/userService";
 
-@Resolver(User)
+@Resolver(iUser)
 export class UserResolver {
   @Mutation(() => User)
   async createUser(
@@ -53,7 +54,7 @@ export class UserResolver {
 
   @Mutation(() => User)
   async updateUser(
-    @Arg("User") User: User,
+    @Arg("User") User: iUser,
     @Arg("userId") userId: number
   ): Promise<User> {
     try {

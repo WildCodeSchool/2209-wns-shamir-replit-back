@@ -1,4 +1,5 @@
 import { Repository } from "typeorm";
+import { iProjectShare } from "../interfaces/InputType";
 import { ProjectShare } from "../models/project_share.model";
 import { dataSource } from "../tools/utils";
 
@@ -7,18 +8,22 @@ const repository: Repository<ProjectShare> =
 
 const projectShareService = {
   getById: async (projectShareId: number) => {
-    return await repository.findOneByOrFail({ id: projectShareId });
+    return (await repository.findBy({ id: projectShareId }))[0];
   },
 
   getAll: async (): Promise<ProjectShare[]> => {
     return await repository.find();
   },
   create: async (
+    projectId: number,
+    userId: number,
     read: boolean,
     write: boolean,
     comment: boolean
   ): Promise<ProjectShare> => {
     const newProjectShare = {
+      projectId,
+      userId,
       read,
       write,
       comment,
@@ -26,7 +31,7 @@ const projectShareService = {
     return await repository.save(newProjectShare);
   },
   update: async (
-    projectShare: ProjectShare,
+    projectShare: iProjectShare,
     projectShareId: number
   ): Promise<ProjectShare> => {
     await repository.update(projectShareId, projectShare);

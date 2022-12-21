@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from "typeorm";
 import { CodeComment } from "./code_comment.model";
 import { Project } from "./project.model";
@@ -12,7 +13,7 @@ import { User } from "./user.model";
 
 @ObjectType()
 @Entity()
-export default class FileCode {
+export class FileCode {
   @Field()
   @PrimaryGeneratedColumn()
   id: number;
@@ -26,12 +27,16 @@ export default class FileCode {
   @Column()
   language: string;
 
-  @OneToMany(() => CodeComment, (codeComment) => codeComment.file)
+  @OneToMany(() => CodeComment, (codeComment) => codeComment.fileId)
   codeComment: CodeComment[];
 
-  @ManyToOne(() => User, (user) => user.fileCode)
-  user: User;
+  @Column()
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 
-  @ManyToOne(() => Project, (project) => project.file)
-  project: Project;
+  @Column()
+  @ManyToOne(() => Project, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "projectId" })
+  projectId: Project["id"];
 }

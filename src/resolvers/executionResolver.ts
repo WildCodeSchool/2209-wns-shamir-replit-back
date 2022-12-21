@@ -1,20 +1,21 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { iExecution } from "../interfaces/InputType";
 import { Execution } from "../models/execution.model";
 import executionService from "../services/executionService";
 
-@Resolver(Execution)
+@Resolver(iExecution)
 export class ExecutionResolver {
   @Mutation(() => Execution)
   async createExecution(
-    @Arg("output") output: string,
-    @Arg("userId") userId: number,
     @Arg("projectId") projectId: number,
+    @Arg("userId") userId: number,
+    @Arg("output") output: string,
     @Arg("execution_date") execution_date: Date
   ): Promise<Execution> {
     const executionFromDB = await executionService.create(
+      projectId,
       userId,
       output,
-      projectId,
       execution_date
     );
     console.log(executionFromDB);
@@ -34,7 +35,7 @@ export class ExecutionResolver {
 
   @Mutation(() => Execution)
   async updateExecution(
-    @Arg("Execution") Execution: Execution,
+    @Arg("Execution") Execution: iExecution,
     @Arg("ExecutionId") ExecutionId: number
   ): Promise<Execution> {
     try {

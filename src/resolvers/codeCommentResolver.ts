@@ -1,11 +1,14 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { iCodeComment } from "../interfaces/InputType";
 import { CodeComment } from "../models/code_comment.model";
 import codeCommentService from "../services/codeCommentService";
 
-@Resolver(CodeComment)
+@Resolver(iCodeComment)
 export class CodeCommentResolver {
   @Mutation(() => CodeComment)
   async createCodeComment(
+    @Arg("fileId") fileId: number,
+    @Arg("userId") userId: number,
     @Arg("line_number") lineNumber: number,
     @Arg("char_number") charNumber: number,
     @Arg("char_length") charNength: number,
@@ -14,6 +17,8 @@ export class CodeCommentResolver {
     @Arg("comment_date") commentDate: boolean
   ): Promise<CodeComment> {
     const codeCommentFromDB = await codeCommentService.create(
+      fileId,
+      userId,
       lineNumber,
       charNumber,
       charNength,
@@ -38,7 +43,7 @@ export class CodeCommentResolver {
 
   @Mutation(() => CodeComment)
   async updateCodeComment(
-    @Arg("CodeComment") CodeComment: CodeComment,
+    @Arg("CodeComment") CodeComment: iCodeComment,
     @Arg("CodeCommentId") CodeCommentId: number
   ): Promise<CodeComment> {
     try {

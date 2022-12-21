@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { dataSource } from "../tools/utils";
-import FileCode from "../models/file.model";
+import { FileCode } from "../models/file.model";
 
 const fileRepo: Repository<FileCode> = dataSource.getRepository(FileCode);
 
@@ -21,7 +21,7 @@ const fileService = {
   },
 
   getById: async (fileId: number) => {
-    return await fileRepo.findOneByOrFail({ id: fileId });
+    return (await fileRepo.findBy({ id: fileId }))[0];
   },
 
   create: async (

@@ -2,6 +2,7 @@ import { Field, ObjectType } from "type-graphql";
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -36,15 +37,17 @@ export class Project {
   @Column()
   id_storage_number: string;
 
-  @OneToMany(() => FileCode, (fileCode) => fileCode.project)
+  @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
   file: File[];
 
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.project)
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
   projectShare: ProjectShare[];
 
-  @OneToMany(() => Execution, (execution) => execution.project)
+  @OneToMany(() => Execution, (execution) => execution.projectId)
   execution: Execution[];
 
-  @ManyToOne(() => User, (user) => user.project)
-  user: User;
+  @Column()
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 }
