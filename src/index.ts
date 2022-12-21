@@ -15,6 +15,7 @@ import bodyParser from "body-parser";
 import http from "http";
 import * as dotenv from "dotenv";
 import { executeCodeController } from "./controllers/executeCodeController";
+import { FileResolver } from "./resolvers/fileResolver";
 
 const port = 5000;
 
@@ -40,6 +41,7 @@ async function listen(port: number) {
       CodeCommentResolver,
       CommentAnswerResolver,
       ExecutionResolver,
+      FileResolver,
     ],
   });
 

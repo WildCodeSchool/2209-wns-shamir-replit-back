@@ -1,34 +1,41 @@
-import { Resolver, Query, Arg, Mutation, Authorized } from "type-graphql";
-import FileCode from "../models/file.model";
+import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { DeleteResult } from "typeorm";
+import { iFileCode } from "../interfaces/InputType";
+import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
 
-@Resolver(FileCode)
+@Resolver(iFileCode)
 export class FileResolver {
   @Query(() => [FileCode])
   async getAllFiles(): Promise<FileCode[]> {
     return await fileService.getAll();
   }
 
+  @Query(() => FileCode)
+  async getFileById(@Arg("id") id: number): Promise<FileCode> {
+    return await fileService.getById(id);
+  }
+
   @Mutation(() => FileCode)
   async createFile(
-    id_storage_file: number,
-    name: string,
-    userId: number,
-    projectId: number,
-    language: string
+    @Arg("userId") userId: number,
+    @Arg("projectId") projectId: number,
+    @Arg("id_storage_file") id_storage_file: number,
+    @Arg("name") name: string,
+    @Arg("language") language: string
   ): Promise<FileCode> {
     return await fileService.create(
-      id_storage_file,
-      name,
       userId,
       projectId,
+      id_storage_file,
+      name,
       language
     );
   }
 
   @Mutation(() => FileCode)
   async updateFileCode(
-    @Arg("FileCode") FileCode: FileCode,
+    @Arg("FileCode") FileCode: iFileCode,
     @Arg("FileCodeId") FileCodeId: number
   ): Promise<FileCode> {
     try {
@@ -41,7 +48,7 @@ export class FileResolver {
   @Mutation(() => FileCode)
   async deleteFileCode(
     @Arg("FileCodeId") FileCodeId: number
-  ): Promise<FileCode> {
+  ): Promise<DeleteResult> {
     try {
       return await fileService.delete(FileCodeId);
     } catch (e) {
