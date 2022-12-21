@@ -6,6 +6,7 @@ services:
       target: dev
     volumes:
       - ./src:/src
+      - ./coverage:/coverage
     command: npm run start:dev
     ports:
       - "5000:5000"

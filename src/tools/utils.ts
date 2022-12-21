@@ -1,14 +1,16 @@
 import { DataSource } from "typeorm";
-import {User, 
-        CodeComment, 
-        CommentAnswer, 
-        Execution, 
-        Project, 
-        ProjectShare,
-        FileCode} from "../models/index";
-import * as dotenv from 'dotenv'
+import {
+  User,
+  CodeComment,
+  CommentAnswer,
+  Execution,
+  Project,
+  ProjectShare,
+  FileCode,
+} from "../models/index";
+import * as dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
 export const dataSource = new DataSource({
   type: "postgres",
@@ -16,13 +18,18 @@ export const dataSource = new DataSource({
   port: 5432,
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DB,
+  database:
+    process.env.NODE_ENV === "test"
+      ? process.env.POSTGRES_DB_TEST
+      : process.env.POSTGRES_DB,
   synchronize: true,
-  entities: [ User, 
-              CodeComment, 
-              CommentAnswer, 
-              Execution, 
-              Project, 
-              ProjectShare,
-              FileCode],
+  entities: [
+    User,
+    CodeComment,
+    CommentAnswer,
+    Execution,
+    Project,
+    ProjectShare,
+    FileCode,
+  ],
 });
