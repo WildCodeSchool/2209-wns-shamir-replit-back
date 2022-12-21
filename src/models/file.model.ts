@@ -12,7 +12,7 @@ import { User } from "./user.model";
 
 @ObjectType()
 @Entity()
-export class FileCode {
+export default class FileCode {
   @Field()
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,9 +25,6 @@ export class FileCode {
 
   @Column()
   language: string;
-
-  @Column()
-  login: string;
 
   @OneToMany(() => CodeComment, (codeComment) => codeComment.file)
   codeComment: CodeComment[];

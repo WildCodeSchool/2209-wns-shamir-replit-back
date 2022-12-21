@@ -1,7 +1,6 @@
 import { Resolver, Query, Arg, Mutation, Authorized } from "type-graphql";
-import  FileCode  from "../models/file.model";
-import fileService from '../services/fileService';
-
+import FileCode from "../models/file.model";
+import fileService from "../services/fileService";
 
 @Resolver(FileCode)
 export class FileResolver {
@@ -11,8 +10,20 @@ export class FileResolver {
   }
 
   @Mutation(() => FileCode)
-  async createFile(id_storage_file: number, name: string, userId: number, projectId: number, language: string): Promise<FileCode> {
-    return await fileService.create(id_storage_file, name, userId, projectId, language);
+  async createFile(
+    id_storage_file: number,
+    name: string,
+    userId: number,
+    projectId: number,
+    language: string
+  ): Promise<FileCode> {
+    return await fileService.create(
+      id_storage_file,
+      name,
+      userId,
+      projectId,
+      language
+    );
   }
 
   @Mutation(() => FileCode)
