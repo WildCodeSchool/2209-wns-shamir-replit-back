@@ -3,22 +3,26 @@ import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { dataSource } from "./tools/utils";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/userResolver";
+import { ProjectResolver } from "./resolvers/projectResolver";
+import { ProjectShareResolver } from "./resolvers/projectShareResolver";
+import { CodeCommentResolver } from "./resolvers/codeCommentResolver";
+import { CommentAnswerResolver } from "./resolvers/commentAnswerResolver";
+import { ExecutionResolver } from "./resolvers/executionResolver";
 import authService from "./services/authService";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import http from "http";
-import * as dotenv from 'dotenv'
+import * as dotenv from "dotenv";
 import { executeCodeController } from "./controllers/executeCodeController";
 
 const port = 5000;
 
 dotenv.config();
 
-
 async function listen(port: number) {
   const app = express();
-  
+
   const router = express.Router();
 
   router.post("/executeCode", executeCodeController);
@@ -26,10 +30,17 @@ async function listen(port: number) {
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
   const httpServer = http.createServer(app);
-  
+
   await dataSource.initialize();
   const schema = await buildSchema({
-    resolvers: [UserResolver],
+    resolvers: [
+      UserResolver,
+      ProjectResolver,
+      ProjectShareResolver,
+      CodeCommentResolver,
+      CommentAnswerResolver,
+      ExecutionResolver,
+    ],
   });
 
   const server = new ApolloServer({
