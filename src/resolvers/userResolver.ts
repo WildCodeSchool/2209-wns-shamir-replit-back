@@ -19,6 +19,10 @@ export class UserResolver {
   async getAllUsers(): Promise<User[]> {
     return await userService.getAll();
   }
+  @Query(() => User)
+  async getUserById(@Arg("userId") userId: number): Promise<User> {
+    return await userService.getById(userId);
+  }
 
   @Mutation(() => String)
   async getToken(
@@ -44,6 +48,27 @@ export class UserResolver {
       }
     } catch (e) {
       throw new Error("Invalid Auth");
+    }
+  }
+
+  @Mutation(() => User)
+  async updateUser(
+    @Arg("User") User: User,
+    @Arg("userId") userId: number
+  ): Promise<User> {
+    try {
+      return await userService.update(User, userId);
+    } catch (e) {
+      throw new Error("Can't update User");
+    }
+  }
+
+  @Mutation(() => User)
+  async deleteUser(@Arg("userId") userId: number): Promise<User> {
+    try {
+      return await userService.delete(userId);
+    } catch (e) {
+      throw new Error("Can't delete User");
     }
   }
 }
