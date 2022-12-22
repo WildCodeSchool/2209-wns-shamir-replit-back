@@ -12,24 +12,38 @@ export class ProjectResolver {
     @Arg("description") description: string,
     @Arg("isPublic") isPublic: boolean
   ): Promise<Project> {
-    const projectFromDB = await projectService.create(
-      userId,
-      name,
-      description,
-      isPublic
-    );
-    console.log(projectFromDB);
-    return projectFromDB;
+    try {
+      const projectFromDB = await projectService.create(
+        userId,
+        name,
+        description,
+        isPublic
+      );
+      return projectFromDB;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't create Project");
+    }
   }
 
   @Query(() => [Project])
   async getAllProjects(): Promise<Project[]> {
-    return await projectService.getAll();
+    try {
+      return await projectService.getAll();
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find all Projects");
+    }
   }
 
   @Query(() => Project)
   async getProjectById(@Arg("projectId") projectId: number): Promise<Project> {
-    return await projectService.getById(projectId);
+    try {
+      return await projectService.getById(projectId);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find Project");
+    }
   }
 
   @Mutation(() => Project)
@@ -39,7 +53,8 @@ export class ProjectResolver {
   ): Promise<Project> {
     try {
       return await projectService.update(Project, ProjectId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't update Project");
     }
   }
@@ -48,7 +63,8 @@ export class ProjectResolver {
   async deleteProject(@Arg("ProjectId") ProjectId: number): Promise<Project> {
     try {
       return await projectService.delete(ProjectId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't delete Project");
     }
   }
