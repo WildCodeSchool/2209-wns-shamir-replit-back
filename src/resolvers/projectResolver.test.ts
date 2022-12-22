@@ -1,93 +1,11 @@
-import { ApolloServer, gql } from "apollo-server-express";
-import { Project, User } from "../models";
+import { ApolloServer } from "apollo-server-express";
+import { Project } from "../models";
 import { createApolloServer } from "../tools/createApolloServer";
-
-const queries = {
-  createUser: gql`
-    mutation CreateUser($password: String!, $email: String!) {
-      createUser(password: $password, email: $email) {
-        id
-        login
-        email
-        date_end_subscription
-        date_start_subscription
-      }
-    }
-  `,
-  createProject: gql`
-    mutation CreateProject(
-      $isPublic: Boolean!
-      $description: String!
-      $name: String!
-      $userId: Float!
-    ) {
-      createProject(
-        isPublic: $isPublic
-        description: $description
-        name: $name
-        userId: $userId
-      ) {
-        description
-        id
-        id_storage_number
-        isPublic
-        name
-        nb_views
-        nb_likes
-      }
-    }
-  `,
-  getAllProjects: gql`
-    query GetAllProjects {
-      getAllProjects {
-        description
-        id
-        id_storage_number
-        isPublic
-        name
-        nb_likes
-        nb_views
-      }
-    }
-  `,
-  getProjectById: gql`
-    query GetProjectById($projectId: Float!) {
-      getProjectById(projectId: $projectId) {
-        description
-        id
-        id_storage_number
-        isPublic
-        name
-        nb_likes
-        nb_views
-      }
-    }
-  `,
-  updateProject: gql`
-    mutation UpdateProject($projectId: Float!, $project: iProject!) {
-      updateProject(ProjectId: $projectId, Project: $project) {
-        description
-        id
-        id_storage_number
-        isPublic
-        name
-        nb_likes
-        nb_views
-      }
-    }
-  `,
-  deleteProject: gql`
-    mutation DeleteProject($projectId: Float!) {
-      deleteProject(ProjectId: $projectId) {
-        id
-      }
-    }
-  `,
-};
+import { queries } from "../tools/queries";
 
 describe("Project resolver", () => {
   let server: ApolloServer;
-  const userEmail = "email@test.test";
+  const userEmail = "email@project.project";
   const userPassword = "test";
   const projectName = "projectTest";
   const projectUpdatedName = "projectUpdated";

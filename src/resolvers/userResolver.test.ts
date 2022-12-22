@@ -1,65 +1,7 @@
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import { User } from "../models";
 import { createApolloServer } from "../tools/createApolloServer";
-
-const queries = {
-  createUser: gql`
-    mutation CreateUser($password: String!, $email: String!) {
-      createUser(password: $password, email: $email) {
-        id
-        login
-        email
-        date_end_subscription
-        date_start_subscription
-      }
-    }
-  `,
-  getAllUsers: gql`
-    query GetAllUsers {
-      getAllUsers {
-        date_end_subscription
-        date_start_subscription
-        email
-        id
-        login
-      }
-    }
-  `,
-  getUserById: gql`
-    query GetUserById($userId: Float!) {
-      getUserById(userId: $userId) {
-        email
-        id
-        login
-        date_end_subscription
-        date_start_subscription
-      }
-    }
-  `,
-  updateUser: gql`
-    mutation Mutation($userId: Float!, $user: iUser!) {
-      updateUser(userId: $userId, User: $user) {
-        date_end_subscription
-        date_start_subscription
-        email
-        id
-        login
-      }
-    }
-  `,
-  deleteUser: gql`
-    mutation Mutation($userId: Float!) {
-      deleteUser(userId: $userId) {
-        id
-      }
-    }
-  `,
-  getToken: gql`
-    query Query($password: String!, $email: String!) {
-      getToken(password: $password, email: $email)
-    }
-  `,
-};
+import { queries } from "../tools/queries";
 
 describe("User resolver", () => {
   let server: ApolloServer;

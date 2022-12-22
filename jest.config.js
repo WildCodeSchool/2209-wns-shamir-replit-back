@@ -11,5 +11,6 @@ module.exports = {
     "/coverage/",
     "/postgres/",
     "./src/interfaces/",
+    "./src/tools/queries.ts",
   ],
 };
