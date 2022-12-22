@@ -2,6 +2,7 @@ import { Arg, Mutation, Query, Resolver } from "type-graphql";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import projectService from "../services/projectService";
+import string from "string-sanitizer";
 
 @Resolver(iProject)
 export class ProjectResolver {
@@ -12,12 +13,24 @@ export class ProjectResolver {
     @Arg("description") description: string,
     @Arg("isPublic") isPublic: boolean
   ): Promise<Project> {
+
+    // On Stock un timestamp pour avoir un nom unique
+    const timeStamp = Date.now();
+    // On supprime les espaces et les caractères spéciaux du nom du projet
+    const updateName = string.sanitize.keepNumber(name);
+    // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
+    const folderName = `${timeStamp}_${updateName}_${userId}`;
+
+    // On crée le projet dans la base de données
     const projectFromDB = await projectService.create(
       userId,
       name,
       description,
-      isPublic
+      isPublic,
+      folderName
     );
+
+    await projectService.createFolder(folderName, userId);
     console.log(projectFromDB);
     return projectFromDB;
   }
