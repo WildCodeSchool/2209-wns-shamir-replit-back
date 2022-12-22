@@ -25,11 +25,11 @@ export const dataSource = new DataSource({
   synchronize: true,
   entities: [
     User,
+    Project,
+    ProjectShare,
     CodeComment,
     CommentAnswer,
     Execution,
-    Project,
-    ProjectShare,
     FileCode,
   ],
 });

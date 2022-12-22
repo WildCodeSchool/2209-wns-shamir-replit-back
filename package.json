@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start:dev": "ts-node-dev src/index.ts",
-    "test": "cross-env NODE_ENV=test npm run migrate && jest --passWithNoTests --testTimeout=10000 --forceExit",
+    "test": "export NODE_ENV=test && npm run migrate && jest --passWithNoTests --testTimeout=10000 --forceExit && export NODE_ENV=development",
     "seqtest": "cross-env NODE_ENV=test npm run migrate && jest --passWithNoTests --testTimeout=10000 --runInBand --forceExit",
     "start": "node src/index.js",
     "migrate": "ts-node-dev src/tools/dropDatabase.ts"
@@ -19,6 +19,7 @@
     "graphql": "^15.8.0",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.8.0",
+    "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.3.10",
     "vm2": "^3.9.11"
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
+    "@types/jest": "^29.2.4",
     "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.38.0",

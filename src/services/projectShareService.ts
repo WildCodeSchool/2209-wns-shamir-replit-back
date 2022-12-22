@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { iProjectShare } from "../interfaces/InputType";
 import { ProjectShare } from "../models/project_share.model";
-import { dataSource } from "../tools/utils";
+import { dataSource } from "../tools/createDataSource";
 
 const repository: Repository<ProjectShare> =
   dataSource.getRepository(ProjectShare);

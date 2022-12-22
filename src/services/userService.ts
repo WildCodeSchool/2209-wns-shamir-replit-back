@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { User } from "../models/user.model";
-import { dataSource } from "../tools/utils";
+import { dataSource } from "../tools/createDataSource";
 import * as argon2 from "argon2";
 import { iUser } from "../interfaces/InputType";
 

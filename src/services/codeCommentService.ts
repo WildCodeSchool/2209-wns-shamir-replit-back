@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { iCodeComment } from "../interfaces/InputType";
 import { CodeComment } from "../models/code_comment.model";
-import { dataSource } from "../tools/utils";
+import { dataSource } from "../tools/createDataSource";
 
 const repository: Repository<CodeComment> =
   dataSource.getRepository(CodeComment);
@@ -24,7 +24,8 @@ const codeCommentService = {
     charNength: number,
     resolved: boolean,
     comment: string,
-    commentDate: boolean
+    commentDate: Date,
+    isReport: boolean
   ): Promise<CodeComment> => {
     const newCodeComment = {
       fileId,
@@ -35,6 +36,7 @@ const codeCommentService = {
       resolved,
       comment,
       commentDate,
+      isReport,
     };
     return await repository.save(newCodeComment);
   },
