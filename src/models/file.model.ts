@@ -19,7 +19,7 @@ export class FileCode {
   id: number;
 
   @Column()
-  id_storage_file: number;
+  id_storage_file: string;
 
   @Column()
   name: string;

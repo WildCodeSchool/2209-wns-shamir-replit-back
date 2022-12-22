@@ -3,6 +3,7 @@ import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 import fs from "fs";
+import string from "string-sanitizer";
 
 const repository: Repository<Project> = dataSource.getRepository(Project);
 
@@ -48,11 +49,11 @@ const projectService = {
 
   // Folders functions
 
-  createFolder: async (folderName: string, userId: number) => {
+  createProjectFolder: async (folderName: string) => {
     // On stock le chemin du dossier dans une variable
-    const sourceDir = "./projects/";
+    const sourceDir: string = "./projects/";
     // On créer le chemin de création du dossier
-    const pathToCreate = `${sourceDir}${folderName}`;
+    const pathToCreate: string = `${sourceDir}${folderName}`;
 
     // Fonction de NodeJS qui permet de créer un dossier avec une gestion d'erreur
     try {
@@ -68,6 +69,57 @@ const projectService = {
     } catch (err) {
       console.log(
         "Un problème est survenu lors de la création d'un dossier",
+        err
+      );
+    }
+  },
+
+  deleteProjectFolder: async (folderName: string) => {
+    const sourceDir: string = "./projects/";
+    const pathToCreate: string = `${sourceDir}${folderName}`;
+    try {
+      fs.rm(pathToCreate, { recursive: true, force: true }, (err) => {
+        if (err) {
+          throw err;
+        }
+        console.log(`${pathToCreate} is deleted!`);
+      });
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // SubFolders functions
+
+  createOneSubFolder: async (
+    ProjectId: number,
+    clientPath: string,
+    subFolderName: string
+  ) => {
+    // On stock les informations du projet dans une variable
+    const project: Project = await projectService.getById(ProjectId);
+    // On nettoi le nom du sous-dossier
+    const updateSubName: string = string.sanitize.keepNumber(subFolderName);
+    // On créer un variable qui contiendra le chemin de création du sous-dossier
+    let pathToCreate: string;
+    // On Créer une gestion d'arborescence pour les sous-dossiers
+    if (clientPath) {
+      pathToCreate = `./projects/${project.id_storage_number}/${clientPath}/${updateSubName}`;
+    } else {
+      pathToCreate = `./projects/${project.id_storage_number}/${updateSubName}`;
+    }
+    try {
+      // On verifie si le dossier existe
+      if (!fs.existsSync(pathToCreate)) {
+        fs.mkdirSync(pathToCreate);
+        console.log("SubDirectory is created.");
+        return project;
+      } else {
+        console.log("SubDirectory already exists.");
+      }
+    } catch (err) {
+      console.log(
+        "Un problème est survenu lors de la création d'un sous-dossier",
         err
       );
     }

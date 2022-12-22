@@ -115,7 +115,7 @@ export class iFileCode {
   userId: number;
 
   @Field({ nullable: true })
-  id_storage_file: number;
+  id_storage_file: string;
 
   @Field({ nullable: true })
   name: string;

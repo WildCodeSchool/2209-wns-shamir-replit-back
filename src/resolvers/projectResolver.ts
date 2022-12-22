@@ -13,7 +13,6 @@ export class ProjectResolver {
     @Arg("description") description: string,
     @Arg("isPublic") isPublic: boolean
   ): Promise<Project> {
-
     // On Stock un timestamp pour avoir un nom unique
     const timeStamp = Date.now();
     // On supprime les espaces et les caractères spéciaux du nom du projet
@@ -29,8 +28,8 @@ export class ProjectResolver {
       isPublic,
       folderName
     );
-
-    await projectService.createFolder(folderName, userId);
+    // Création du dossier du projet sur le server
+    await projectService.createProjectFolder(folderName);
     console.log(projectFromDB);
     return projectFromDB;
   }
@@ -60,9 +59,33 @@ export class ProjectResolver {
   @Mutation(() => Project)
   async deleteProject(@Arg("ProjectId") ProjectId: number): Promise<Project> {
     try {
-      return await projectService.delete(ProjectId);
+      const project = await projectService.getById(ProjectId);
+      // Suppression du dossier du projet sur le server
+      await projectService.deleteProjectFolder(project.id_storage_number);
+      await projectService.delete(ProjectId);
+      return project;
     } catch (e) {
       throw new Error("Can't delete Project");
+    }
+  }
+
+  // Sous-dossier
+
+  // Création d'un sous-dossier dans le projet ciblé sur le server
+  @Mutation(() => Project)
+  async createSubFolder(
+    @Arg("ProjectId") ProjectId: number,
+    @Arg("subFolderName") subFolderName: string,
+    @Arg("clientPath") clientPath: string
+  ): Promise<Project | undefined> {
+    try {
+      return await projectService.createOneSubFolder(
+        ProjectId,
+        clientPath,
+        subFolderName
+      );
+    } catch (e) {
+      throw new Error("Can't create SubFolder");
     }
   }
 }

@@ -6,6 +6,7 @@ import { iFileCode } from "../interfaces/InputType";
 const fileRepo: Repository<FileCode> = dataSource.getRepository(FileCode);
 
 const fileService = {
+  // CRUD Classique
   getAll: async (): Promise<FileCode[]> => {
     return await fileRepo.find({
       relations: {
@@ -27,7 +28,7 @@ const fileService = {
   create: async (
     userId: number,
     projectId: number,
-    id_storage_file: number,
+    id_storage_file: string,
     name: string,
     language: string
   ): Promise<FileCode> => {
@@ -42,6 +43,11 @@ const fileService = {
 
   delete: async (fileId: number): Promise<DeleteResult> => {
     return await fileRepo.delete(fileId);
+  },
+
+  // Gestion des fichiers locaux
+  createOneFile: async (clienPath: string, fileName: string) => {
+    const sourceProjectPath = `./projects/${clienPath}/${fileName}`;
   },
 };
 

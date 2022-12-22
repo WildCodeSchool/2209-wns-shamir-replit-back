@@ -3,6 +3,7 @@ import { DeleteResult } from "typeorm";
 import { iFileCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
+import string from "string-sanitizer";
 
 @Resolver(iFileCode)
 export class FileResolver {
@@ -20,17 +21,29 @@ export class FileResolver {
   async createFile(
     @Arg("userId") userId: number,
     @Arg("projectId") projectId: number,
-    @Arg("id_storage_file") id_storage_file: number,
     @Arg("name") name: string,
-    @Arg("language") language: string
+    @Arg("language") language: string,
+    @Arg("clientPath") clienPath: string
   ): Promise<FileCode> {
+
+    // On Stock un timestamp pour avoir un nom unique
+    const timeStamp = Date.now();
+    // On supprime les espaces et les caractères spéciaux du nom du projet
+    const updateName = string.sanitize.keepNumber(name);
+    // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
+    const fileName = `${timeStamp}_${updateName}_${userId}`;
+
+
+
+    await fileService.createOneFile(clienPath, fileName);
     return await fileService.create(
       userId,
       projectId,
-      id_storage_file,
+      fileName,
       name,
       language
     );
+
   }
 
   @Mutation(() => FileCode)
