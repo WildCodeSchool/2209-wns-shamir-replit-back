@@ -1,4 +1,4 @@
-import { dataSource } from "./utils";
+import { dataSource } from "./createDataSource";
 
 const migrate = async () => {
   await dataSource.initialize();

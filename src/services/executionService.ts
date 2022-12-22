@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { Execution } from "../models/execution.model";
-import { dataSource } from "../tools/utils";
+import { dataSource } from "../tools/createDataSource";
 
 const repository: Repository<Execution> = dataSource.getRepository(Execution);
 

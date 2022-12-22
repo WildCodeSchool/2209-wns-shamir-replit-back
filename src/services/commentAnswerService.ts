@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { iCommentAnswer } from "../interfaces/InputType";
 import { CommentAnswer } from "../models/comment_answer.model";
-import { dataSource } from "../tools/utils";
+import { dataSource } from "../tools/createDataSource";
 
 const repository: Repository<CommentAnswer> =
   dataSource.getRepository(CommentAnswer);

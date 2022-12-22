@@ -14,7 +14,8 @@ export class CodeCommentResolver {
     @Arg("char_length") charNength: number,
     @Arg("resolved") resolved: boolean,
     @Arg("comment") comment: string,
-    @Arg("comment_date") commentDate: boolean
+    @Arg("comment_date") commentDate: Date,
+    @Arg("is_report") isReport: boolean
   ): Promise<CodeComment> {
     const codeCommentFromDB = await codeCommentService.create(
       fileId,
@@ -24,7 +25,8 @@ export class CodeCommentResolver {
       charNength,
       resolved,
       comment,
-      commentDate
+      commentDate,
+      isReport
     );
     console.log(codeCommentFromDB);
     return codeCommentFromDB;
