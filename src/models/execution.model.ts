@@ -17,9 +17,11 @@ export class Execution {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @CreateDateColumn()
   execution_date: Date;
 
+  @Field()
   @Column()
   output?: string;
 

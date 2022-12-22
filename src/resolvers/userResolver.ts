@@ -11,21 +11,36 @@ export class UserResolver {
     @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<User> {
-    const userFromDB = await userService.create(email, password);
-    console.log(userFromDB);
-    return userFromDB;
+    try {
+      const userFromDB = await userService.create(email, password);
+      return userFromDB;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't create User");
+    }
   }
 
   @Query(() => [User])
   async getAllUsers(): Promise<User[]> {
-    return await userService.getAll();
-  }
-  @Query(() => User)
-  async getUserById(@Arg("userId") userId: number): Promise<User> {
-    return await userService.getById(userId);
+    try {
+      return await userService.getAll();
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't get all Users");
+    }
   }
 
-  @Mutation(() => String)
+  @Query(() => User)
+  async getUserById(@Arg("userId") userId: number): Promise<User> {
+    try {
+      return await userService.getById(userId);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't get User");
+    }
+  }
+
+  @Query(() => String)
   async getToken(
     @Arg("email") email: string,
     @Arg("password") password: string
@@ -47,7 +62,8 @@ export class UserResolver {
       } else {
         throw new Error();
       }
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Invalid Auth");
     }
   }
@@ -59,7 +75,8 @@ export class UserResolver {
   ): Promise<User> {
     try {
       return await userService.update(User, userId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't update User");
     }
   }
@@ -68,7 +85,8 @@ export class UserResolver {
   async deleteUser(@Arg("userId") userId: number): Promise<User> {
     try {
       return await userService.delete(userId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't delete User");
     }
   }
