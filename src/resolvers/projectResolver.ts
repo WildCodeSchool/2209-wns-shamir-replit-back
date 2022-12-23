@@ -32,7 +32,6 @@ export class ProjectResolver {
       );
       // Création du dossier du projet sur le server
       await fileManager.createProjectFolder(folderName);
-      console.log(projectFromDB);
       return projectFromDB;
     } catch (err) {
       console.error(err);
@@ -62,11 +61,11 @@ export class ProjectResolver {
 
   @Mutation(() => Project)
   async updateProject(
-    @Arg("Project") Project: iProject,
+    @Arg("project") project: iProject,
     @Arg("projectId") projectId: number
   ): Promise<Project> {
     try {
-      return await projectService.update(Project, projectId);
+      return await projectService.update(project, projectId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");

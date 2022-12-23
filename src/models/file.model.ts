@@ -18,12 +18,15 @@ export class FileCode {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   id_storage_file: string;
 
+  @Field()
   @Column()
   name: string;
 
+  @Field()
   @Column()
   language: string;
 

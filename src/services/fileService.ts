@@ -1,4 +1,4 @@
-import {  Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { dataSource } from "../tools/createDataSource";
 import { FileCode } from "../models/file.model";
 import { iFileCode } from "../interfaces/InputType";
@@ -17,19 +17,17 @@ const fileService = {
           projectId: true,
         },
       });
-    }catch(err){
+    } catch (err) {
       console.error(err);
       throw new Error("N'a pas réussi à obtenir la liste des fichiers");
     }
-
   },
   getByName: async (name: string): Promise<FileCode | null> => {
-
     try {
       return await fileRepo.findOneBy({
         name,
       });
-    }catch(err){
+    } catch (err) {
       console.error(err);
       throw new Error("N'a pas réussi à obtenir un fichier par le nom");
     }
@@ -38,17 +36,16 @@ const fileService = {
   getById: async (fileId: number) => {
     try {
       return (await fileRepo.findBy({ id: fileId }))[0];
-    }catch(err){
+    } catch (err) {
       console.error(err);
       throw new Error("N'a pas réussi à obtenir un fichier par l'id");
     }
-   
   },
 
   create: async (
     userId: number,
     projectId: number,
-    id_storage_file: string,
+    fileName: string,
     name: string,
     language: string,
     clientPath: string,
@@ -56,6 +53,8 @@ const fileService = {
     project: Project
   ) => {
     try {
+      const id_storage_file = clientPath + fileName;
+
       const fileRequest = {
         id_storage_file,
         name,
@@ -64,12 +63,10 @@ const fileService = {
         language,
       };
 
-      await fileManager.createOneFile(
-        clientPath,
-        project,
-        id_storage_file,
-        contentData
-      );
+      if (clientPath) fileManager.createFolderTree(project, clientPath);
+
+      await fileManager.createOneFile(project, id_storage_file, contentData);
+
       return await fileRepo.save(fileRequest);
     } catch (err) {
       console.error(err);
@@ -87,13 +84,14 @@ const fileService = {
     }
   },
 
-  delete: async (fileId: number, clientPath: string, project: Project, file: FileCode) => {
+  delete: async (fileId: number, project: Project, file: FileCode) => {
     try {
-      await fileManager.deleteOneFile(clientPath, project, file);
-      return await fileRepo.delete(fileId);
+      await fileManager.deleteOneFile(project, file);
+      await fileRepo.delete(fileId);
+      return file;
     } catch (err) {
       console.error(err);
-      throw new Error("Impossible de créer le fichier");
+      throw new Error("Impossible d'effacer le fichier");
     }
   },
 };
