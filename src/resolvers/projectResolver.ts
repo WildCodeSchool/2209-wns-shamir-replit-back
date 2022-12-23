@@ -36,12 +36,22 @@ export class ProjectResolver {
 
   @Query(() => [Project])
   async getAllProjects(): Promise<Project[]> {
-    return await projectService.getAll();
+    try {
+      return await projectService.getAll();
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find all Projects");
+    }
   }
 
   @Query(() => Project)
   async getProjectById(@Arg("projectId") projectId: number): Promise<Project> {
-    return await projectService.getById(projectId);
+    try {
+      return await projectService.getById(projectId);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find Project");
+    }
   }
 
   @Mutation(() => Project)
@@ -64,7 +74,8 @@ export class ProjectResolver {
       await projectService.deleteProjectFolder(project.id_storage_number);
       await projectService.delete(projectId);
       return project;
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't delete Project");
     }
   }

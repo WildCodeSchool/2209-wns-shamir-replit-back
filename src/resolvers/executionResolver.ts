@@ -12,25 +12,40 @@ export class ExecutionResolver {
     @Arg("output") output: string,
     @Arg("execution_date") execution_date: Date
   ): Promise<Execution> {
-    const executionFromDB = await executionService.create(
-      projectId,
-      userId,
-      output,
-      execution_date
-    );
-    console.log(executionFromDB);
-    return executionFromDB;
+    try {
+      const executionFromDB = await executionService.create(
+        projectId,
+        userId,
+        output,
+        execution_date
+      );
+      return executionFromDB;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't create Execution");
+    }
   }
 
   @Query(() => [Execution])
   async getAllExecutions(): Promise<Execution[]> {
-    return await executionService.getAll();
+    try {
+      return await executionService.getAll();
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find all Executions");
+    }
   }
+
   @Query(() => Execution)
   async getExecutionById(
     @Arg("executionId") executionId: number
   ): Promise<Execution> {
-    return await executionService.getById(executionId);
+    try {
+      return await executionService.getById(executionId);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find Execution");
+    }
   }
 
   @Mutation(() => Execution)
@@ -40,7 +55,8 @@ export class ExecutionResolver {
   ): Promise<Execution> {
     try {
       return await executionService.update(Execution, ExecutionId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't update Execution");
     }
   }
@@ -51,7 +67,8 @@ export class ExecutionResolver {
   ): Promise<Execution> {
     try {
       return await executionService.delete(ExecutionId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't delete Execution");
     }
   }
