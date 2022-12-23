@@ -16,12 +16,15 @@ export class ProjectShare {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   read: boolean;
 
+  @Field()
   @Column()
   write: boolean;
 
+  @Field()
   @Column()
   comment: boolean;
 

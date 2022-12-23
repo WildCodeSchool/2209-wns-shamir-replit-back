@@ -185,4 +185,73 @@ export const queries = {
       }
     }
   `,
+  createProjectShare: gql`
+    mutation CreateProjectShare(
+      $comment: Boolean!
+      $write: Boolean!
+      $read: Boolean!
+      $userId: Float!
+      $projectId: Float!
+    ) {
+      createProjectShare(
+        comment: $comment
+        write: $write
+        read: $read
+        userId: $userId
+        projectId: $projectId
+      ) {
+        comment
+        id
+        read
+        write
+      }
+    }
+  `,
+  getAllProjectShares: gql`
+    query GetAllProjectShares {
+      getAllProjectShares {
+        comment
+        id
+        read
+        write
+      }
+    }
+  `,
+  getProjectShareById: gql`
+    query GetProjectShareById($projectShareId: Float!) {
+      getProjectShareById(projectShareId: $projectShareId) {
+        comment
+        id
+        read
+        write
+      }
+    }
+  `,
+
+  updateProjectShare: gql`
+    mutation UpdateProjectShare(
+      $projectShareId: Float!
+      $projectShare: iProjectShare!
+    ) {
+      updateProjectShare(
+        ProjectShareId: $projectShareId
+        ProjectShare: $projectShare
+      ) {
+        comment
+        id
+        read
+        write
+      }
+    }
+  `,
+  deleteProjectShare: gql`
+    mutation DeleteProjectShare($projectShareId: Float!) {
+      deleteProjectShare(ProjectShareId: $projectShareId) {
+        comment
+        id
+        read
+        write
+      }
+    }
+  `,
 };
