@@ -108,8 +108,8 @@ export const queries = {
     }
   `,
   updateProject: gql`
-    mutation UpdateProject($projectId: Float!, $project: iProject!) {
-      updateProject(ProjectId: $projectId, Project: $project) {
+    mutation Mutation($projectId: Float!, $project: iProject!) {
+      updateProject(projectId: $projectId, project: $project) {
         description
         id
         id_storage_number
@@ -121,8 +121,8 @@ export const queries = {
     }
   `,
   deleteProject: gql`
-    mutation DeleteProject($projectId: Float!) {
-      deleteProject(ProjectId: $projectId) {
+    mutation Mutation($projectId: Float!) {
+      deleteProject(projectId: $projectId) {
         id
       }
     }
@@ -251,6 +251,66 @@ export const queries = {
         id
         read
         write
+      }
+    }
+  `,
+  createFile: gql`
+    mutation Mutation(
+      $contentData: String!
+      $clientPath: String!
+      $language: String!
+      $name: String!
+      $projectId: Float!
+      $userId: Float!
+    ) {
+      createFile(
+        contentData: $contentData
+        clientPath: $clientPath
+        language: $language
+        name: $name
+        projectId: $projectId
+        userId: $userId
+      ) {
+        id
+        language
+        name
+      }
+    }
+  `,
+  getAllFiles: gql`
+    query Query {
+      getAllFiles {
+        id
+        id_storage_file
+        language
+        name
+      }
+    }
+  `,
+  getFileById: gql`
+    query Query($fileId: Float!) {
+      getFileById(fileId: $fileId) {
+        id
+        id_storage_file
+        language
+        name
+      }
+    }
+  `,
+  updateFileCode: gql`
+    mutation Mutation($fileId: Float!, $file: iFileCode!) {
+      updateFileCode(fileId: $fileId, file: $file) {
+        id
+        id_storage_file
+        language
+        name
+      }
+    }
+  `,
+  deleteFileCode: gql`
+    mutation Mutation($fileId: Float!) {
+      deleteFileCode(fileId: $fileId) {
+        id
       }
     }
   `,

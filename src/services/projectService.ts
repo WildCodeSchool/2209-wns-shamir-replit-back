@@ -2,8 +2,6 @@ import { DeleteResult, Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
-import fs from "fs";
-import string from "string-sanitizer";
 
 const repository: Repository<Project> = dataSource.getRepository(Project);
 
@@ -71,7 +69,6 @@ const projectService = {
       throw new Error("Impossible de supprimer le projet");
     }
   },
-
-  };
+};
 
 export default projectService;

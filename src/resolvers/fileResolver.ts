@@ -20,9 +20,9 @@ export class FileResolver {
   }
 
   @Query(() => FileCode)
-  async getFileById(@Arg("id") id: number): Promise<FileCode> {
+  async getFileById(@Arg("fileId") fileId: number): Promise<FileCode> {
     try {
-      return await fileService.getById(id);
+      return await fileService.getById(fileId);
     } catch (err) {
       console.error(err);
       throw new Error("N'a pas trouver un fichier par l'id : Resolver");
@@ -43,7 +43,13 @@ export class FileResolver {
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
       const updateName = string.sanitize.keepNumber(name);
-      const updateClientPath = string.sanitize.keepNumber(clientPath);
+
+      const updateClientPath = clientPath
+        .split("/")
+        .map((str) => string.sanitize.keepNumber(str))
+        .join("/")
+        .replace(/\/+/g, "/");
+
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const fileName = `${timeStamp}_${updateName}_${userId}`;
       const project: Project = await projectService.getById(projectId);
@@ -66,11 +72,11 @@ export class FileResolver {
 
   @Mutation(() => FileCode)
   async updateFileCode(
-    @Arg("FileCode") FileCode: iFileCode,
-    @Arg("FileCodeId") FileCodeId: number
+    @Arg("file") file: iFileCode,
+    @Arg("fileId") fileId: number
   ): Promise<FileCode> {
     try {
-      return await fileService.update(FileCode, FileCodeId);
+      return await fileService.update(file, fileId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update FileCode");
@@ -78,16 +84,15 @@ export class FileResolver {
   }
 
   @Mutation(() => FileCode)
-  async deleteFileCode(
-    @Arg("FileCodeId") FileCodeId: number,
-    @Arg("clientPath") clientPath: string,
-    @Arg("projectId") projectId: number
-  ): Promise<DeleteResult> {
+  async deleteFileCode(@Arg("fileId") fileId: number) {
     try {
-      const project: Project = await projectService.getById(projectId);
-      const file: FileCode = await fileService.getById(FileCodeId);
+      const file: FileCode = await fileService.getById(fileId);
 
-      return await fileService.delete(FileCodeId, clientPath, project, file);
+      const projectId = (file.projectId as unknown as Project).id;
+
+      const project: Project = await projectService.getById(projectId);
+
+      return await fileService.delete(fileId, project, file);
     } catch (err) {
       console.error(err);
       throw new Error("Can't delete FileCode");

@@ -34,6 +34,20 @@ export const fileManager = {
 
   // SubFolders functions
 
+  createFolderTree: async (project: Project, clientPath: string) => {
+    const splittedPath = clientPath.split("/").filter((str) => str.length > 0);
+
+    let fullPath = `./projects/${project.id_storage_number}/`;
+
+    splittedPath.map((folder) => {
+      const pathToCreate = `${fullPath}${folder}/`;
+
+      if (!fs.existsSync(pathToCreate)) fs.mkdirSync(pathToCreate);
+
+      fullPath = pathToCreate;
+    });
+  },
+
   createOneSubFolder: async (
     project: Project,
     clientPath: string,
@@ -60,38 +74,26 @@ export const fileManager = {
   },
 
   createOneFile: async (
-    clientPath: string,
     project: Project,
     id_storage_file: string,
     contentData: string
   ) => {
     try {
-      let pathToCreate: string;
-      if (clientPath) {
-        pathToCreate = `./projects/${project.id_storage_number}/${clientPath}/${id_storage_file}`;
-      } else {
-        pathToCreate = `./projects/${project.id_storage_number}/${id_storage_file}`;
-      }
+      let fileToCreate: string;
 
-      fs.writeFileSync(pathToCreate, contentData);
+      fileToCreate = `./projects/${project.id_storage_number}/${id_storage_file}`;
+
+      fs.writeFileSync(fileToCreate, contentData);
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de créer un fichier");
     }
   },
 
-  deleteOneFile: async (
-    clientPath: string,
-    project: Project,
-    file: FileCode
-  ) => {
+  deleteOneFile: async (project: Project, file: FileCode) => {
     try {
-      let pathToDelete: string;
-      if (clientPath) {
-        pathToDelete = `./projects/${project.id_storage_number}/${clientPath}/${file.id_storage_file}`;
-      } else {
-        pathToDelete = `./projects/${project.id_storage_number}/${file.id_storage_file}`;
-      }
+      const pathToDelete = `./projects/${project.id_storage_number}${file.id_storage_file}`;
+
       fs.unlinkSync(pathToDelete);
     } catch (err) {
       console.error(err);
