@@ -47,22 +47,22 @@ export class ProjectResolver {
   @Mutation(() => Project)
   async updateProject(
     @Arg("Project") Project: iProject,
-    @Arg("ProjectId") ProjectId: number
+    @Arg("projectId") projectId: number
   ): Promise<Project> {
     try {
-      return await projectService.update(Project, ProjectId);
+      return await projectService.update(Project, projectId);
     } catch (e) {
       throw new Error("Can't update Project");
     }
   }
 
   @Mutation(() => Project)
-  async deleteProject(@Arg("ProjectId") ProjectId: number): Promise<Project> {
+  async deleteProject(@Arg("projectId") projectId: number): Promise<Project> {
     try {
-      const project = await projectService.getById(ProjectId);
+      const project = await projectService.getById(projectId);
       // Suppression du dossier du projet sur le server
       await projectService.deleteProjectFolder(project.id_storage_number);
-      await projectService.delete(ProjectId);
+      await projectService.delete(projectId);
       return project;
     } catch (e) {
       throw new Error("Can't delete Project");
@@ -74,13 +74,13 @@ export class ProjectResolver {
   // Création d'un sous-dossier dans le projet ciblé sur le server
   @Mutation(() => Project)
   async createSubFolder(
-    @Arg("ProjectId") ProjectId: number,
+    @Arg("projectId") projectId: number,
     @Arg("subFolderName") subFolderName: string,
     @Arg("clientPath") clientPath: string
   ): Promise<Project | undefined> {
     try {
       return await projectService.createOneSubFolder(
-        ProjectId,
+        projectId,
         clientPath,
         subFolderName
       );

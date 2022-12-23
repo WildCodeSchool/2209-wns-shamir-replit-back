@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import {DeleteResult, Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
@@ -74,7 +74,7 @@ const projectService = {
     }
   },
 
-  deleteProjectFolder: async (folderName: string) => {
+  deleteProjectFolder: async (folderName: string): Promise<void> => {
     const sourceDir: string = "./projects/";
     const pathToCreate: string = `${sourceDir}${folderName}`;
     try {

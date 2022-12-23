@@ -23,9 +23,9 @@ export class FileResolver {
     @Arg("projectId") projectId: number,
     @Arg("name") name: string,
     @Arg("language") language: string,
-    @Arg("clientPath") clienPath: string
+    @Arg("clientPath") clientPath: string,
+    @Arg("contentData") contentData: string
   ): Promise<FileCode> {
-
     // On Stock un timestamp pour avoir un nom unique
     const timeStamp = Date.now();
     // On supprime les espaces et les caractères spéciaux du nom du projet
@@ -33,17 +33,16 @@ export class FileResolver {
     // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
     const fileName = `${timeStamp}_${updateName}_${userId}`;
 
-
-
-    await fileService.createOneFile(clienPath, fileName);
+    // Création du fichier sur le serveur et dans la bdd
     return await fileService.create(
       userId,
       projectId,
       fileName,
       name,
-      language
+      language,
+      clientPath,
+      contentData
     );
-
   }
 
   @Mutation(() => FileCode)
@@ -60,10 +59,12 @@ export class FileResolver {
 
   @Mutation(() => FileCode)
   async deleteFileCode(
-    @Arg("FileCodeId") FileCodeId: number
-  ): Promise<DeleteResult> {
+    @Arg("FileCodeId") FileCodeId: number,
+    @Arg("clientPath") clientPath: string,
+    @Arg("projectId") projectId: number
+  ): Promise<FileCode> {
     try {
-      return await fileService.delete(FileCodeId);
+      return await fileService.delete(FileCodeId, clientPath, projectId);
     } catch (e) {
       throw new Error("Can't delete FileCode");
     }
