@@ -4,17 +4,29 @@ import { iFileCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
 import string from "string-sanitizer";
+import { Project } from "../models";
+import projectService from "../services/projectService";
 
 @Resolver(iFileCode)
 export class FileResolver {
   @Query(() => [FileCode])
   async getAllFiles(): Promise<FileCode[]> {
-    return await fileService.getAll();
+    try {
+      return await fileService.getAll();
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas trouver les fichiers : Resolver");
+    }
   }
 
   @Query(() => FileCode)
   async getFileById(@Arg("id") id: number): Promise<FileCode> {
-    return await fileService.getById(id);
+    try {
+      return await fileService.getById(id);
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas trouver un fichier par l'id : Resolver");
+    }
   }
 
   @Mutation(() => FileCode)
@@ -26,23 +38,30 @@ export class FileResolver {
     @Arg("clientPath") clientPath: string,
     @Arg("contentData") contentData: string
   ): Promise<FileCode> {
-    // On Stock un timestamp pour avoir un nom unique
-    const timeStamp = Date.now();
-    // On supprime les espaces et les caractères spéciaux du nom du projet
-    const updateName = string.sanitize.keepNumber(name);
-    // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
-    const fileName = `${timeStamp}_${updateName}_${userId}`;
-
-    // Création du fichier sur le serveur et dans la bdd
-    return await fileService.create(
-      userId,
-      projectId,
-      fileName,
-      name,
-      language,
-      clientPath,
-      contentData
-    );
+    try {
+      // On Stock un timestamp pour avoir un nom unique
+      const timeStamp = Date.now();
+      // On supprime les espaces et les caractères spéciaux du nom du projet
+      const updateName = string.sanitize.keepNumber(name);
+      const updateClientPath = string.sanitize.keepNumber(clientPath);
+      // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
+      const fileName = `${timeStamp}_${updateName}_${userId}`;
+      const project: Project = await projectService.getById(projectId);
+      // Création du fichier sur le serveur et dans la bdd
+      return await fileService.create(
+        userId,
+        projectId,
+        fileName,
+        name,
+        language,
+        updateClientPath,
+        contentData,
+        project
+      );
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas réussi à Créer un fichier : Resolver");
+    }
   }
 
   @Mutation(() => FileCode)
@@ -52,7 +71,8 @@ export class FileResolver {
   ): Promise<FileCode> {
     try {
       return await fileService.update(FileCode, FileCodeId);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't update FileCode");
     }
   }
@@ -62,10 +82,14 @@ export class FileResolver {
     @Arg("FileCodeId") FileCodeId: number,
     @Arg("clientPath") clientPath: string,
     @Arg("projectId") projectId: number
-  ): Promise<FileCode> {
+  ): Promise<DeleteResult> {
     try {
-      return await fileService.delete(FileCodeId, clientPath, projectId);
-    } catch (e) {
+      const project: Project = await projectService.getById(projectId);
+      const file: FileCode = await fileService.getById(FileCodeId);
+
+      return await fileService.delete(FileCodeId, clientPath, project, file);
+    } catch (err) {
+      console.error(err);
       throw new Error("Can't delete FileCode");
     }
   }

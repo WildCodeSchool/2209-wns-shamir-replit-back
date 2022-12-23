@@ -1,4 +1,4 @@
-import {DeleteResult, Repository } from "typeorm";
+import { DeleteResult, Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
@@ -10,13 +10,23 @@ const repository: Repository<Project> = dataSource.getRepository(Project);
 const projectService = {
   // CRUD Classique
   getById: async (projectId: number) => {
-    return (await repository.findBy({ id: projectId }))[0];
+    try {
+      return (await repository.findBy({ id: projectId }))[0];
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de récupérer le projet");
+    }
   },
 
   getAll: async (): Promise<Project[]> => {
-    return await repository.find({
-      relations: { userId: true },
-    });
+    try {
+      return await repository.find({
+        relations: { userId: true },
+      });
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de récupérer les projets");
+    }
   },
   create: async (
     userId: number,
@@ -25,105 +35,43 @@ const projectService = {
     isPublic: boolean,
     idStorageNumber: string
   ): Promise<Project> => {
-    const newProject = {
-      userId,
-      name,
-      description,
-      isPublic,
-      nb_likes: 0,
-      nb_views: 0,
-      id_storage_number: idStorageNumber,
-    };
-    return await repository.save(newProject);
+    try {
+      const newProject = {
+        userId,
+        name,
+        description,
+        isPublic,
+        nb_likes: 0,
+        nb_views: 0,
+        id_storage_number: idStorageNumber,
+      };
+      return await repository.save(newProject);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de créer le projet");
+    }
   },
   update: async (project: iProject, projectId: number): Promise<Project> => {
-    await repository.update(projectId, project);
-    return await projectService.getById(projectId);
+    try {
+      await repository.update(projectId, project);
+      return await projectService.getById(projectId);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de mettre à jour le projet");
+    }
   },
 
   delete: async (projectId: number): Promise<Project> => {
-    const project = await projectService.getById(projectId);
-    await repository.delete(projectId);
-    return project;
-  },
-
-  // Folders functions
-
-  createProjectFolder: async (folderName: string) => {
-    // On stock le chemin du dossier dans une variable
-    const sourceDir: string = "./projects/";
-    // On créer le chemin de création du dossier
-    const pathToCreate: string = `${sourceDir}${folderName}`;
-
-    // Fonction de NodeJS qui permet de créer un dossier avec une gestion d'erreur
     try {
-      // On verifie si le dossier existe
-      console.log("On rentre dans le try, folderName", pathToCreate);
-      if (!fs.existsSync(pathToCreate)) {
-        fs.mkdirSync(pathToCreate);
-        console.log("Directory is created.");
-        return folderName;
-      } else {
-        console.log("Directory already exists.");
-      }
+      const project = await projectService.getById(projectId);
+      await repository.delete(projectId);
+      return project;
     } catch (err) {
-      console.log(
-        "Un problème est survenu lors de la création d'un dossier",
-        err
-      );
+      console.error(err);
+      throw new Error("Impossible de supprimer le projet");
     }
   },
 
-  deleteProjectFolder: async (folderName: string): Promise<void> => {
-    const sourceDir: string = "./projects/";
-    const pathToCreate: string = `${sourceDir}${folderName}`;
-    try {
-      fs.rm(pathToCreate, { recursive: true, force: true }, (err) => {
-        if (err) {
-          throw err;
-        }
-        console.log(`${pathToCreate} is deleted!`);
-      });
-    } catch (err) {
-      throw err;
-    }
-  },
-
-  // SubFolders functions
-
-  createOneSubFolder: async (
-    ProjectId: number,
-    clientPath: string,
-    subFolderName: string
-  ) => {
-    // On stock les informations du projet dans une variable
-    const project: Project = await projectService.getById(ProjectId);
-    // On nettoi le nom du sous-dossier
-    const updateSubName: string = string.sanitize.keepNumber(subFolderName);
-    // On créer un variable qui contiendra le chemin de création du sous-dossier
-    let pathToCreate: string;
-    // On Créer une gestion d'arborescence pour les sous-dossiers
-    if (clientPath) {
-      pathToCreate = `./projects/${project.id_storage_number}/${clientPath}/${updateSubName}`;
-    } else {
-      pathToCreate = `./projects/${project.id_storage_number}/${updateSubName}`;
-    }
-    try {
-      // On verifie si le dossier existe
-      if (!fs.existsSync(pathToCreate)) {
-        fs.mkdirSync(pathToCreate);
-        console.log("SubDirectory is created.");
-        return project;
-      } else {
-        console.log("SubDirectory already exists.");
-      }
-    } catch (err) {
-      console.log(
-        "Un problème est survenu lors de la création d'un sous-dossier",
-        err
-      );
-    }
-  },
-};
+  };
 
 export default projectService;
