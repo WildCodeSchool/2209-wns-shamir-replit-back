@@ -17,7 +17,7 @@ const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
     .map((project) => project.file.map((file) => file.id))
     .flat();
 
-const isAllowedcomment = (
+export const isAllowedcomment = (
   codeComment: CodeComment,
   allowedProjectFileIds: number[]
 ) => {

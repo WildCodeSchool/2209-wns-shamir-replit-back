@@ -7,6 +7,7 @@ import codeCommentService from "../services/codeCommentService";
 import commentAnswerService from "../services/commentAnswerService";
 import projectService from "../services/projectService";
 import { TokenPayload } from "../tools/createApolloServer";
+import { isAllowedcomment } from "./codeCommentResolver";
 
 const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
   (await projectService.getAll())
@@ -44,7 +45,14 @@ export class CommentAnswerResolver {
     @Arg("answer_date") answerDate: Date,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CommentAnswer> {
-    if (userId !== ctx.id) throw new Error("non authorisé");
+    const codeComment = await codeCommentService.getById(codeCommentId);
+
+    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+    if (
+      !isAllowedcomment(codeComment, allowedProjectFileIds) ||
+      userId !== ctx.id
+    )
+      throw new Error("non authorisé");
 
     const commentAnswerFromDB = await commentAnswerService.create(
       codeCommentId,
