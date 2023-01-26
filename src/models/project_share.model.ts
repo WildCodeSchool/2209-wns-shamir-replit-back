@@ -39,10 +39,12 @@ export class ProjectShare {
   // projectId: Project["id"];
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.projectShare)
-  user: User;
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 
   @Field(() => Project)
-  @ManyToOne(() => Project, (project) => project.projectShare)
-  project: Project;
+  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "projectId" })
+  projectId: Project["id"];
 }

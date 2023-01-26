@@ -5,7 +5,6 @@ import { CodeComment } from "../models";
 import { CommentAnswer } from "../models/comment_answer.model";
 import codeCommentService from "../services/codeCommentService";
 import commentAnswerService from "../services/commentAnswerService";
-import fileService from "../services/fileService";
 import projectService from "../services/projectService";
 import { TokenPayload } from "../tools/createApolloServer";
 
@@ -13,9 +12,9 @@ const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
   (await projectService.getAll())
     .filter(
       (project) =>
-        project.user.id === ctx.id ||
+        project.userId === ctx.id ||
         project.isPublic ||
-        project.projectShare.map((pshare) => pshare.user.id === ctx.id)
+        project.projectShare.map((pshare) => pshare.userId === ctx.id)
     )
     .map((project) => project.file.map((file) => file.id))
     .flat();

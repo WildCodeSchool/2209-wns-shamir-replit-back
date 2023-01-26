@@ -6,16 +6,17 @@ const repository: Repository<Execution> = dataSource.getRepository(Execution);
 
 const executionService = {
   getById: async (executionId: number): Promise<Execution[]> => {
-    return await repository.find({relations: {user: true, project: true},
+    return await repository.find({
+      relations: { userId: true, projectId: true },
       where: {
-        id: executionId
+        id: executionId,
       },
-    })
+    });
   },
 
   getAll: async (): Promise<Execution[]> => {
     return await repository.find({
-      relations: { user: true, project: true },
+      relations: { userId: true, projectId: true },
     });
   },
   create: async (
@@ -37,11 +38,11 @@ const executionService = {
     executionId: number
   ): Promise<Execution> => {
     await repository.update(executionId, execution);
-    return await executionService.getById(executionId);
+    return (await executionService.getById(executionId))[0];
   },
 
   delete: async (executionId: number): Promise<Execution> => {
-    const execution = await executionService.getById(executionId);
+    const execution = (await executionService.getById(executionId))[0];
     await repository.delete(executionId);
     return execution;
   },

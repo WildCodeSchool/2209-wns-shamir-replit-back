@@ -32,11 +32,12 @@ export class ExecutionResolver {
   }
 
   @Query(() => [Execution])
-  async getAllExecutions(  @Ctx() ctx: Context<TokenPayload>
+  async getAllExecutions(
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution[]> {
     try {
-      const exe = await executionService.getAll();
-      return exe.filter(x => x.id === ctx.id)    
+      const executions = await executionService.getAll();
+      return executions.filter((execution) => execution.id === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Executions");
@@ -49,8 +50,12 @@ export class ExecutionResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-      const exec = await executionService.getById(executionId);
-      return exec.filter((exe) => exe.user.id === ctx.id);   } catch (err) {
+      const execution = (await executionService.getById(executionId))[0];
+
+      if (execution.userId !== ctx.id) throw new Error("not allowed");
+
+      return execution;
+    } catch (err) {
       console.error(err);
       throw new Error("Can't find Execution");
     }
@@ -58,11 +63,15 @@ export class ExecutionResolver {
 
   @Mutation(() => Execution)
   async updateExecution(
-    @Arg("Execution") Execution: iExecution,
-    @Arg("ExecutionId") ExecutionId: number
+    @Arg("Execution") execution: iExecution,
+    @Arg("ExecutionId") executionId: number,
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-      return await executionService.update(Execution, ExecutionId);
+      const execution = (await executionService.getById(executionId))[0];
+      if (execution.userId !== ctx.id) throw new Error("not allowed");
+
+      return await executionService.update(execution, executionId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Execution");
@@ -71,10 +80,14 @@ export class ExecutionResolver {
 
   @Mutation(() => Execution)
   async deleteExecution(
-    @Arg("ExecutionId") ExecutionId: number
+    @Arg("ExecutionId") executionId: number,
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-      return await executionService.delete(ExecutionId);
+      const execution = (await executionService.getById(executionId))[0];
+      if (execution.userId !== ctx.id) throw new Error("not allowed");
+
+      return await executionService.delete(executionId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't delete Execution");

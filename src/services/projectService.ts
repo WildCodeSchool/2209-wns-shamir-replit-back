@@ -21,7 +21,7 @@ const projectService = {
   getAll: async (): Promise<Project[]> => {
     try {
       return await repository.find({
-        relations: { user: true },
+        relations: { userId: true },
       });
     } catch (err) {
       console.error(err);

@@ -63,7 +63,7 @@ export class ProjectResolver {
     try {
       const projects = await projectService.getAll();
       return projects.filter((project) =>
-        project.projectShare.map((pshare) => pshare.user.id).includes(ctx.id)
+        project.projectShare.map((pshare) => pshare.userId).includes(ctx.id)
       );
     } catch (err) {
       console.error(err);
@@ -75,7 +75,7 @@ export class ProjectResolver {
   async getAllProjects(@Ctx() ctx: Context<TokenPayload>): Promise<Project[]> {
     try {
       const projects = await projectService.getAll();
-      return projects.filter((project) => project.user.id === ctx.id);
+      return projects.filter((project) => project.userId === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Projects");
@@ -89,7 +89,7 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const projects = await projectService.getById(projectId);
-      return projects.filter((project) => project.user.id === ctx.id);
+      return projects.filter((project) => project.userId === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find Project");
@@ -104,7 +104,7 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const [_project] = await projectService.getById(projectId);
-      if (_project.user.id !== ctx.id) throw new Error("userId not allowed");
+      if (_project.userId !== ctx.id) throw new Error("userId not allowed");
       return await projectService.update(project, projectId);
     } catch (err) {
       console.error(err);
@@ -121,7 +121,7 @@ export class ProjectResolver {
       const [project] = await projectService.getById(projectId);
       // Suppression du dossier du projet sur le server
 
-      if (project.user.id !== ctx.id) throw new Error("userId not allowed");
+      if (project.userId !== ctx.id) throw new Error("userId not allowed");
 
       await fileManager.deleteProjectFolder(project.id_storage_number);
       await projectService.delete(projectId);

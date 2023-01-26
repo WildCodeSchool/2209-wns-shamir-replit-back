@@ -24,7 +24,7 @@ export class ProjectShareResolver {
         write,
         comment
       );
-      if (userId === ctx.id) return projectShareFromDB
+      if (userId === ctx.id) return projectShareFromDB;
       else throw new Error("id not allowed");
     } catch (error) {
       console.error(error);
@@ -33,10 +33,12 @@ export class ProjectShareResolver {
   }
 
   @Query(() => [ProjectShare])
-  async getAllProjectShares( @Ctx() ctx: Context<TokenPayload>): Promise<ProjectShare[]> {
+  async getAllProjectShares(
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<ProjectShare[]> {
     try {
-      const proj = await projectShareService.getAll();
-      return proj.filter(x => x.id === ctx.id)
+      const projectShares = await projectShareService.getAll();
+      return projectShares.filter((projectShare) => projectShare.id === ctx.id);
     } catch (error) {
       console.error(error);
       throw new Error("can't get all projectsShare");
@@ -49,7 +51,8 @@ export class ProjectShareResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      if (projectShareId === ctx.id) return await projectShareService.getById(projectShareId);
+      if (projectShareId === ctx.id)
+        return await projectShareService.getById(projectShareId);
       else throw new Error("id not allowed");
     } catch (error) {
       console.error(error);
@@ -64,7 +67,8 @@ export class ProjectShareResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      if (ProjectShareId === ctx.id) return await projectShareService.update(ProjectShare, ProjectShareId);
+      if (ProjectShareId === ctx.id)
+        return await projectShareService.update(ProjectShare, ProjectShareId);
       else throw new Error("id not allowed");
     } catch (e) {
       console.error(e);
@@ -77,10 +81,10 @@ export class ProjectShareResolver {
   async deleteProjectShare(
     @Arg("ProjectShareId") ProjectShareId: number,
     @Ctx() ctx: Context<TokenPayload>
-
   ): Promise<ProjectShare> {
     try {
-      if (ProjectShareId === ctx.id) return await projectShareService.delete(ProjectShareId);
+      if (ProjectShareId === ctx.id)
+        return await projectShareService.delete(ProjectShareId);
       else throw new Error("id not allowed");
     } catch (e) {
       console.error(e);
