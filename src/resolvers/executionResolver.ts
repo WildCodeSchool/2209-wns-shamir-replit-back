@@ -49,9 +49,8 @@ export class ExecutionResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-     
-      const projects = await projectService.getById(projectId);
-      return projects.filter((project) => project.user.id === ctx.id);   } catch (err) {
+      const exec = await executionService.getById(executionId);
+      return exec.filter((exe) => exe.user.id === ctx.id);   } catch (err) {
       console.error(err);
       throw new Error("Can't find Execution");
     }

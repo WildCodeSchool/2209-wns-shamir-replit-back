@@ -37,7 +37,6 @@ export class ProjectShareResolver {
     try {
       const proj = await projectShareService.getAll();
       return proj.filter(x => x.id === ctx.id)
-      return await projectShareService.getAll();
     } catch (error) {
       console.error(error);
       throw new Error("can't get all projectsShare");
