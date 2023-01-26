@@ -45,7 +45,7 @@ export class Project {
 
   @Field(() => [FileCode], { nullable: true })
   @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
-  file: File[];
+  file: FileCode[];
 
   @Field(() => [ProjectShare], { nullable: true })
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
@@ -55,8 +55,13 @@ export class Project {
   @OneToMany(() => Execution, (execution) => execution.projectId)
   execution: Execution[];
 
-  @Column()
-  @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
+  // @Column()
+  // @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "userId" })
+  // userId: User["id"];
+
+  @Field(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
 }

@@ -53,7 +53,7 @@ export class User {
   @OneToMany(() => Execution, (execution) => execution.userId)
   execution: Execution[];
 
-  @Field(() => [Project], { nullable: true })
+  @Field(() => [Project])
   @OneToMany(() => Project, (project) => project.userId)
   project: Project[];
 }

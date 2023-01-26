@@ -31,7 +31,7 @@ const executeCode = async (code: string) => {
     vm.run(resultScript);
     return consoleOutput;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 

@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
 import { DeleteResult } from "typeorm";
 import { iFileCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
@@ -6,13 +6,16 @@ import fileService from "../services/fileService";
 import string from "string-sanitizer";
 import { Project } from "../models";
 import projectService from "../services/projectService";
+import { Context } from "apollo-server-core";
+import { TokenPayload } from "../tools/createApolloServer";
 
 @Resolver(iFileCode)
 export class FileResolver {
   @Query(() => [FileCode])
-  async getAllFiles(): Promise<FileCode[]> {
+  async getAllFiles(@Ctx() ctx: Context<TokenPayload>): Promise<FileCode[]> {
     try {
-      return await fileService.getAll();
+      const files = await fileService.getAll();
+      return files.filter((file) => file.userId === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("N'a pas trouver les fichiers : Resolver");
@@ -20,9 +23,14 @@ export class FileResolver {
   }
 
   @Query(() => FileCode)
-  async getFileById(@Arg("fileId") fileId: number): Promise<FileCode> {
+  async getFileById(
+    @Arg("fileId") fileId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<FileCode> {
     try {
-      return await fileService.getById(fileId);
+      const file = await fileService.getById(fileId);
+      if (file.userId !== ctx.id) throw new Error("non authorisé");
+      return file;
     } catch (err) {
       console.error(err);
       throw new Error("N'a pas trouver un fichier par l'id : Resolver");
@@ -36,9 +44,12 @@ export class FileResolver {
     @Arg("name") name: string,
     @Arg("language") language: string,
     @Arg("clientPath") clientPath: string,
-    @Arg("contentData") contentData: string
+    @Arg("contentData") contentData: string,
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<FileCode> {
     try {
+      if (userId !== ctx.id) throw new Error("non authorisé");
+
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
@@ -52,7 +63,7 @@ export class FileResolver {
 
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const fileName = `${timeStamp}_${updateName}_${userId}`;
-      const project: Project = await projectService.getById(projectId);
+      const project: Project = (await projectService.getById(projectId))[0];
       // Création du fichier sur le serveur et dans la bdd
       return await fileService.create(
         userId,
@@ -73,9 +84,13 @@ export class FileResolver {
   @Mutation(() => FileCode)
   async updateFileCode(
     @Arg("file") file: iFileCode,
-    @Arg("fileId") fileId: number
+    @Arg("fileId") fileId: number,
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<FileCode> {
     try {
+      const _file = await fileService.getById(fileId);
+      if (_file.userId !== ctx.id) throw new Error("non authorisé");
+
       return await fileService.update(file, fileId);
     } catch (err) {
       console.error(err);
@@ -84,13 +99,19 @@ export class FileResolver {
   }
 
   @Mutation(() => FileCode)
-  async deleteFileCode(@Arg("fileId") fileId: number) {
+  async deleteFileCode(
+    @Arg("fileId") fileId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ) {
     try {
+      const _file = await fileService.getById(fileId);
+      if (_file.userId !== ctx.id) throw new Error("non authorisé");
+
       const file: FileCode = await fileService.getById(fileId);
 
       const projectId = (file.projectId as unknown as Project).id;
 
-      const project: Project = await projectService.getById(projectId);
+      const project: Project = (await projectService.getById(projectId))[0];
 
       return await fileService.delete(fileId, project, file);
     } catch (err) {
