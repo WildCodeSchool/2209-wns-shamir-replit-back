@@ -51,12 +51,16 @@ const userService = {
    * @param password user password
    * @returns
    */
-  create: async (email: string, password: string): Promise<User> => {
+  create: async (
+    email: string,
+    password: string,
+    login: string
+  ): Promise<User> => {
     const newUser = new User();
     newUser.email = email;
 
     newUser.password_hash = await argon2.hash(password);
-    newUser.login = "login";
+    newUser.login = login;
     return await repository.save(newUser);
   },
   update: async (user: iUser, userId: number): Promise<User[]> => {

@@ -45,7 +45,7 @@ export class Project {
 
   @Field(() => [FileCode], { nullable: true })
   @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
-  file: File[];
+  file: FileCode[];
 
   @Field(() => [ProjectShare], { nullable: true })
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.project)

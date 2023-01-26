@@ -26,12 +26,10 @@ export class Execution {
   output?: string;
 
   @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  @ManyToOne(() => User, (user) => user.execution)
+  user: User
 
   @Column()
-  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "projectId" })
-  projectId: Project["id"];
+  @ManyToOne(() => Project, (project) => project.execution)
+  project: Project
 }

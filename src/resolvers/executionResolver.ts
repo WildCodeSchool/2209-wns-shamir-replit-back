@@ -1,7 +1,9 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Context } from "apollo-server-core";
+import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { iExecution } from "../interfaces/InputType";
 import { Execution } from "../models/execution.model";
 import executionService from "../services/executionService";
+import { TokenPayload } from "../tools/createApolloServer";
 
 @Resolver(iExecution)
 export class ExecutionResolver {
@@ -10,9 +12,12 @@ export class ExecutionResolver {
     @Arg("projectId") projectId: number,
     @Arg("userId") userId: number,
     @Arg("output") output: string,
-    @Arg("execution_date") execution_date: Date
+    @Arg("execution_date") execution_date: Date,
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
+      if (userId !== ctx.id) throw new Error("userId not allowed");
+
       const executionFromDB = await executionService.create(
         projectId,
         userId,
@@ -27,9 +32,11 @@ export class ExecutionResolver {
   }
 
   @Query(() => [Execution])
-  async getAllExecutions(): Promise<Execution[]> {
+  async getAllExecutions(  @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Execution[]> {
     try {
-      return await executionService.getAll();
+      const exe = await executionService.getAll();
+      return exe.filter(x => x.id === ctx.id)    
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Executions");
@@ -38,11 +45,13 @@ export class ExecutionResolver {
 
   @Query(() => Execution)
   async getExecutionById(
-    @Arg("executionId") executionId: number
+    @Arg("executionId") executionId: number,
+    @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-      return await executionService.getById(executionId);
-    } catch (err) {
+     
+      const projects = await projectService.getById(projectId);
+      return projects.filter((project) => project.user.id === ctx.id);   } catch (err) {
       console.error(err);
       throw new Error("Can't find Execution");
     }

@@ -15,6 +15,11 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+export type TokenPayload = {
+  email: string;
+  id: number;
+};
+
 export const createApolloServer = async (
   httpServer?: http.Server<
     typeof http.IncomingMessage,
@@ -53,11 +58,13 @@ export const createApolloServer = async (
               const bearer = req?.headers.authorization.split("Bearer ")[1];
               console.log("BEARER : ", bearer);
 
-              const userPayload = authService.verifyToken(bearer);
+              const userPayload = authService.verifyToken(
+                bearer
+              ) as TokenPayload;
 
               console.log("userPayload", userPayload);
 
-              return { user: userPayload };
+              return userPayload;
             } catch (e) {
               console.log("err", e);
               return {};
