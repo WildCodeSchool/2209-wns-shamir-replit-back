@@ -32,7 +32,6 @@ const userService = {
   },
 
   getAll: async (): Promise<User[]> => {
-    console.log("getAll inside userService");
     return await repository.find({
       relations: {
         execution: true,

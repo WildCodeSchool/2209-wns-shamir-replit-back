@@ -56,17 +56,14 @@ export const createApolloServer = async (
           } else {
             try {
               const bearer = req?.headers.authorization.split("Bearer ")[1];
-              console.log("BEARER : ", bearer);
 
               const userPayload = authService.verifyToken(
                 bearer
               ) as TokenPayload;
 
-              console.log("userPayload", userPayload);
-
               return userPayload;
             } catch (e) {
-              console.log("err", e);
+              console.error("err", e);
               return {};
             }
           }

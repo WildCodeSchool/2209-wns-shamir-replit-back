@@ -52,7 +52,6 @@ export class CommentAnswerResolver {
       comment,
       answerDate
     );
-    console.log(commentAnswerFromDB);
     return commentAnswerFromDB;
   }
 

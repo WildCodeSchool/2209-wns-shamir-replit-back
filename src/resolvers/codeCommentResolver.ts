@@ -56,7 +56,6 @@ export class CodeCommentResolver {
       commentDate,
       isReport
     );
-    console.log(codeCommentFromDB);
     return codeCommentFromDB;
   }
 
