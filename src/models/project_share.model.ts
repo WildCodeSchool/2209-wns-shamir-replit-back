@@ -28,13 +28,21 @@ export class ProjectShare {
   @Column()
   comment: boolean;
 
-  @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  // @Column()
+  // @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "userId" })
+  // userId: User["id"];
 
-  @Column()
-  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "projectId" })
-  projectId: Project["id"];
+  // @Column()
+  // @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "projectId" })
+  // projectId: Project["id"];
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.projectShare)
+  user: User;
+
+  @Field(() => Project)
+  @ManyToOne(() => Project, (project) => project.projectShare)
+  project: Project;
 }

@@ -52,7 +52,7 @@ export class FileResolver {
 
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const fileName = `${timeStamp}_${updateName}_${userId}`;
-      const project: Project = await projectService.getById(projectId);
+      const project: Project = (await projectService.getById(projectId))[0];
       // Création du fichier sur le serveur et dans la bdd
       return await fileService.create(
         userId,
@@ -90,7 +90,7 @@ export class FileResolver {
 
       const projectId = (file.projectId as unknown as Project).id;
 
-      const project: Project = await projectService.getById(projectId);
+      const project: Project = (await projectService.getById(projectId))[0];
 
       return await fileService.delete(fileId, project, file);
     } catch (err) {

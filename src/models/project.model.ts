@@ -48,15 +48,19 @@ export class Project {
   file: File[];
 
   @Field(() => [ProjectShare], { nullable: true })
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.project)
   projectShare: ProjectShare[];
 
   @Field(() => [Execution], { nullable: true })
   @OneToMany(() => Execution, (execution) => execution.projectId)
   execution: Execution[];
 
-  @Column()
-  @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  // @Column()
+  // @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "userId" })
+  // userId: User["id"];
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.project)
+  user: User;
 }

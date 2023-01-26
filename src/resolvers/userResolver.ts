@@ -21,8 +21,14 @@ export class UserResolver {
   }
 
   @Query(() => [User])
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers(
+    parent: any,
+    args: any,
+    contextValue: any,
+    info: any
+  ): Promise<User[]> {
     try {
+      console.log("contextValue", contextValue);
       return await userService.getAll();
     } catch (err) {
       console.error(err);
@@ -30,8 +36,8 @@ export class UserResolver {
     }
   }
 
-  @Query(() => User)
-  async getUserById(@Arg("userId") userId: number): Promise<User> {
+  @Query(() => [User])
+  async getUserById(@Arg("userId") userId: number): Promise<User[]> {
     try {
       return await userService.getById(userId);
     } catch (err) {
@@ -54,6 +60,7 @@ export class UserResolver {
       ) {
         // Créer un nouveau token => signer un token
         const token = authService.signJwt({
+          id: userFromDB.id,
           email: userFromDB.email,
         });
 
@@ -72,7 +79,7 @@ export class UserResolver {
   async updateUser(
     @Arg("User") User: iUser,
     @Arg("userId") userId: number
-  ): Promise<User> {
+  ): Promise<User[]> {
     try {
       return await userService.update(User, userId);
     } catch (err) {
@@ -82,7 +89,7 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  async deleteUser(@Arg("userId") userId: number): Promise<User> {
+  async deleteUser(@Arg("userId") userId: number): Promise<User[]> {
     try {
       return await userService.delete(userId);
     } catch (err) {

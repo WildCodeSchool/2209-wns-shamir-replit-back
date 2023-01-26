@@ -11,6 +11,7 @@ import {
 import * as dotenv from "dotenv";
 
 dotenv.config();
+console.log(process.env);
 
 export const dataSource = new DataSource({
   type: "postgres",

@@ -50,7 +50,9 @@ export class ProjectResolver {
   }
 
   @Query(() => Project)
-  async getProjectById(@Arg("projectId") projectId: number): Promise<Project> {
+  async getProjectById(
+    @Arg("projectId") projectId: number
+  ): Promise<Project[]> {
     try {
       return await projectService.getById(projectId);
     } catch (err) {
@@ -63,7 +65,7 @@ export class ProjectResolver {
   async updateProject(
     @Arg("project") project: iProject,
     @Arg("projectId") projectId: number
-  ): Promise<Project> {
+  ): Promise<Project[]> {
     try {
       return await projectService.update(project, projectId);
     } catch (err) {
@@ -75,7 +77,7 @@ export class ProjectResolver {
   @Mutation(() => Project)
   async deleteProject(@Arg("projectId") projectId: number): Promise<Project> {
     try {
-      const project = await projectService.getById(projectId);
+      const [project] = await projectService.getById(projectId);
       // Suppression du dossier du projet sur le server
 
       await fileManager.deleteProjectFolder(project.id_storage_number);
@@ -98,7 +100,7 @@ export class ProjectResolver {
   ): Promise<Project | undefined> {
     try {
       // On stock les informations du projet dans une variable
-      const project: Project = await projectService.getById(projectId);
+      const project: any = await projectService.getById(projectId);
       return await fileManager.createOneSubFolder(
         project,
         clientPath,

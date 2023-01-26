@@ -7,19 +7,21 @@ const repository: Repository<Project> = dataSource.getRepository(Project);
 
 const projectService = {
   // CRUD Classique
-  getById: async (projectId: number) => {
-    try {
-      return (await repository.findBy({ id: projectId }))[0];
-    } catch (err) {
-      console.error(err);
-      throw new Error("Impossible de récupérer le projet");
-    }
+
+  getById: async (projectId: number): Promise<Project[]> => {
+    return await repository.find({
+      relations: {
+        execution: true,
+        projectShare: true,
+      },
+      where: { id: projectId },
+    });
   },
 
   getAll: async (): Promise<Project[]> => {
     try {
       return await repository.find({
-        relations: { userId: true },
+        relations: { user: true },
       });
     } catch (err) {
       console.error(err);
@@ -49,7 +51,7 @@ const projectService = {
       throw new Error("Impossible de créer le projet");
     }
   },
-  update: async (project: iProject, projectId: number): Promise<Project> => {
+  update: async (project: iProject, projectId: number): Promise<Project[]> => {
     try {
       await repository.update(projectId, project);
       return await projectService.getById(projectId);
@@ -61,7 +63,7 @@ const projectService = {
 
   delete: async (projectId: number): Promise<Project> => {
     try {
-      const project = await projectService.getById(projectId);
+      const [project] = await projectService.getById(projectId);
       await repository.delete(projectId);
       return project;
     } catch (err) {

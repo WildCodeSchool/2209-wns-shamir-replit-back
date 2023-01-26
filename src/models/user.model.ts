@@ -46,14 +46,14 @@ export class User {
   codeComment: CodeComment[];
 
   @Field(() => [ProjectShare], { nullable: true })
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.userId)
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.user)
   projectShare: CommentAnswer[];
 
   @Field(() => [Execution], { nullable: true })
   @OneToMany(() => Execution, (execution) => execution.userId)
   execution: Execution[];
 
-  @Field(() => [Project], { nullable: true })
-  @OneToMany(() => Project, (project) => project.userId)
+  @Field(() => [Project])
+  @OneToMany(() => Project, (project) => project.user)
   project: Project[];
 }

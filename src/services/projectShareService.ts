@@ -14,8 +14,8 @@ const projectShareService = {
   getAll: async (): Promise<ProjectShare[]> => {
     return await repository.find({
       relations: {
-        userId: true,
-        projectId: true,
+        user: true,
+        project: true,
       },
     });
   },

@@ -50,12 +50,16 @@ export const createApolloServer = async (
             return {};
           } else {
             try {
-              const bearer = req.headers.authorization.split("Bearer ")[1];
+              const bearer = req?.headers.authorization.split("Bearer ")[1];
+              console.log("BEARER : ", bearer);
+
               const userPayload = authService.verifyToken(bearer);
+
+              console.log("userPayload", userPayload);
 
               return { user: userPayload };
             } catch (e) {
-              console.log(e);
+              console.log("err", e);
               return {};
             }
           }
