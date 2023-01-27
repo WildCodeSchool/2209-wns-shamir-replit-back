@@ -61,7 +61,10 @@ export class Project {
   // userId: User["id"];
 
   @Field(() => User)
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  @ManyToOne(() => User, (user) => user.id, {
+    onDelete: "CASCADE",
+    eager: false,
+  })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
 }

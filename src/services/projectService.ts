@@ -1,5 +1,6 @@
 import { DeleteResult, Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
+import { User } from "../models";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 
