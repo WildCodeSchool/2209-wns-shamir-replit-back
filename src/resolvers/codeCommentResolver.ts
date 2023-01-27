@@ -31,7 +31,6 @@ export class CodeCommentResolver {
   @Mutation(() => CodeComment)
   async createCodeComment(
     @Arg("fileId") fileId: number,
-    @Arg("userId") userId: number,
     @Arg("line_number") lineNumber: number,
     @Arg("char_number") charNumber: number,
     @Arg("char_length") charNength: number,
@@ -41,47 +40,62 @@ export class CodeCommentResolver {
     @Arg("is_report") isReport: boolean,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CodeComment> {
-    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-    if (!allowedProjectFileIds.includes(fileId) || userId !== ctx.id)
-      throw new Error("not authorized");
+    try {
+      const userId = ctx.id;
 
-    const codeCommentFromDB = await codeCommentService.create(
-      fileId,
-      userId,
-      lineNumber,
-      charNumber,
-      charNength,
-      resolved,
-      comment,
-      commentDate,
-      isReport
-    );
-    return codeCommentFromDB;
+      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      if (!allowedProjectFileIds.includes(fileId) || userId !== ctx.id)
+        throw new Error("not authorized");
+
+      const codeCommentFromDB = await codeCommentService.create(
+        fileId,
+        userId,
+        lineNumber,
+        charNumber,
+        charNength,
+        resolved,
+        comment,
+        commentDate,
+        isReport
+      );
+      return codeCommentFromDB;
+    } catch (e) {
+      throw new Error("Can't createCodeComment");
+    }
   }
 
   @Query(() => [CodeComment])
   async getAllCodeComments(
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CodeComment[]> {
-    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+    try {
+      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
 
-    const codeComments = await codeCommentService.getAll();
+      const codeComments = await codeCommentService.getAll();
 
-    return codeComments.filter((codeComment) =>
-      isAllowedcomment(codeComment, allowedProjectFileIds)
-    );
+      return codeComments.filter((codeComment) =>
+        isAllowedcomment(codeComment, allowedProjectFileIds)
+      );
+    } catch (e) {
+      throw new Error("Can't getAllCodeComments");
+    }
   }
+
   @Query(() => CodeComment)
   async getCodeCommentById(
     @Arg("codeCommentId") codeCommentId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CodeComment> {
-    const codeComment = await codeCommentService.getById(codeCommentId);
-    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-    if (!isAllowedcomment(codeComment, allowedProjectFileIds))
-      throw new Error("not authorized");
+    try {
+      const codeComment = await codeCommentService.getById(codeCommentId);
+      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      if (!isAllowedcomment(codeComment, allowedProjectFileIds))
+        throw new Error("not authorized");
 
-    return codeComment;
+      return codeComment;
+    } catch (e) {
+      throw new Error("Can't getCodeCommentById");
+    }
   }
 
   @Mutation(() => CodeComment)

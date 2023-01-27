@@ -11,14 +11,14 @@ import { TokenPayload } from "../tools/createApolloServer";
 export class ProjectResolver {
   @Mutation(() => Project)
   async createProject(
-    @Arg("userId") userId: number,
     @Arg("name") name: string,
     @Arg("description") description: string,
     @Arg("isPublic") isPublic: boolean,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Project> {
     try {
-      if (userId !== ctx.id) throw new Error("userId not allowed");
+      const userId = ctx.id;
+
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet

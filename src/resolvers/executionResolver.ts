@@ -10,13 +10,12 @@ export class ExecutionResolver {
   @Mutation(() => Execution)
   async createExecution(
     @Arg("projectId") projectId: number,
-    @Arg("userId") userId: number,
     @Arg("output") output: string,
     @Arg("execution_date") execution_date: Date,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-      if (userId !== ctx.id) throw new Error("userId not allowed");
+      const userId = ctx.id;
 
       const executionFromDB = await executionService.create(
         projectId,

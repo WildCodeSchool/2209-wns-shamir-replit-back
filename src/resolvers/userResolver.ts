@@ -52,8 +52,7 @@ export class UserResolver {
   @Query(() => String)
   async getToken(
     @Arg("email") email: string,
-    @Arg("password") password: string,
-    @Ctx() ctx: Context<TokenPayload>
+    @Arg("password") password: string
   ): Promise<String> {
     try {
       // Récupérer l'utilisateur dans la bdd suivant l'email
@@ -82,12 +81,11 @@ export class UserResolver {
   @Mutation(() => User)
   async updateUser(
     @Arg("User") User: iUser,
-    @Arg("userId") userId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<User[]> {
     try {
-      if (userId === ctx.id) return await userService.update(User, userId);
-      else throw new Error("id not allowed");
+      const userId = ctx.id;
+      return await userService.update(User, userId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update User");
@@ -95,13 +93,10 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  async deleteUser(
-    @Arg("userId") userId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<User[]> {
+  async deleteUser(@Ctx() ctx: Context<TokenPayload>): Promise<User[]> {
     try {
-      if (userId === ctx.id) return await userService.delete(userId);
-      else throw new Error("id not allowed");
+      const userId = ctx.id;
+      return await userService.delete(userId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't delete User");
