@@ -39,7 +39,6 @@ export class FileResolver {
 
   @Mutation(() => FileCode)
   async createFile(
-    @Arg("userId") userId: number,
     @Arg("projectId") projectId: number,
     @Arg("name") name: string,
     @Arg("language") language: string,
@@ -48,7 +47,7 @@ export class FileResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<FileCode> {
     try {
-      if (userId !== ctx.id) throw new Error("non authorisé");
+      const userId = ctx.id;
 
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();

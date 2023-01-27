@@ -2,6 +2,7 @@ import { Context } from "apollo-server-core";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { iProjectShare } from "../interfaces/InputType";
 import { ProjectShare } from "../models/project_share.model";
+import projectService from "../services/projectService";
 import projectShareService from "../services/projectShareService";
 import { TokenPayload } from "../tools/createApolloServer";
 
@@ -10,13 +11,14 @@ export class ProjectShareResolver {
   @Mutation(() => ProjectShare)
   async createProjectShare(
     @Arg("projectId") projectId: number,
-    @Arg("userId") userId: number,
     @Arg("read") read: boolean,
     @Arg("write") write: boolean,
     @Arg("comment") comment: boolean,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
+      const userId = ctx.id;
+
       const projectShareFromDB = await projectShareService.create(
         projectId,
         userId,
@@ -24,8 +26,7 @@ export class ProjectShareResolver {
         write,
         comment
       );
-      if (userId === ctx.id) return projectShareFromDB;
-      else throw new Error("id not allowed");
+      return projectShareFromDB;
     } catch (error) {
       console.error(error);
       throw new Error("can't create projectShare");
@@ -38,7 +39,10 @@ export class ProjectShareResolver {
   ): Promise<ProjectShare[]> {
     try {
       const projectShares = await projectShareService.getAll();
-      return projectShares.filter((projectShare) => projectShare.id === ctx.id);
+
+      return projectShares.filter(
+        (projectShare) => projectShare.userId === ctx.id
+      );
     } catch (error) {
       console.error(error);
       throw new Error("can't get all projectsShare");
@@ -51,7 +55,11 @@ export class ProjectShareResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      if (projectShareId === ctx.id)
+      const { userId } = (await projectShareService.getAll()).filter(
+        (pshare) => pshare.id === projectShareId
+      )[0];
+
+      if (userId === ctx.id)
         return await projectShareService.getById(projectShareId);
       else throw new Error("id not allowed");
     } catch (error) {
@@ -62,13 +70,17 @@ export class ProjectShareResolver {
 
   @Mutation(() => ProjectShare)
   async updateProjectShare(
-    @Arg("ProjectShare") ProjectShare: iProjectShare,
-    @Arg("ProjectShareId") ProjectShareId: number,
+    @Arg("ProjectShare") projectShare: iProjectShare,
+    @Arg("ProjectShareId") projectShareId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      if (ProjectShareId === ctx.id)
-        return await projectShareService.update(ProjectShare, ProjectShareId);
+      const { userId } = (await projectShareService.getAll()).filter(
+        (pshare) => pshare.id === projectShareId
+      )[0];
+
+      if (userId === ctx.id)
+        return await projectShareService.update(projectShare, projectShareId);
       else throw new Error("id not allowed");
     } catch (e) {
       console.error(e);
@@ -79,12 +91,16 @@ export class ProjectShareResolver {
 
   @Mutation(() => ProjectShare)
   async deleteProjectShare(
-    @Arg("ProjectShareId") ProjectShareId: number,
+    @Arg("ProjectShareId") projectShareId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      if (ProjectShareId === ctx.id)
-        return await projectShareService.delete(ProjectShareId);
+      const { userId } = (await projectShareService.getAll()).filter(
+        (pshare) => pshare.id === projectShareId
+      )[0];
+
+      if (userId === ctx.id)
+        return await projectShareService.delete(projectShareId);
       else throw new Error("id not allowed");
     } catch (e) {
       console.error(e);

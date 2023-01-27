@@ -40,41 +40,51 @@ export class CommentAnswerResolver {
   @Mutation(() => CommentAnswer)
   async createCommentAnswer(
     @Arg("codeCommentId") codeCommentId: number,
-    @Arg("userId") userId: number,
     @Arg("comment") comment: string,
     @Arg("answer_date") answerDate: Date,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CommentAnswer> {
-    const codeComment = await codeCommentService.getById(codeCommentId);
+    try {
+      const userId = ctx.id;
 
-    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-    if (
-      !isAllowedcomment(codeComment, allowedProjectFileIds) ||
-      userId !== ctx.id
-    )
-      throw new Error("non authorisé");
+      const codeComment = await codeCommentService.getById(codeCommentId);
 
-    const commentAnswerFromDB = await commentAnswerService.create(
-      codeCommentId,
-      userId,
-      comment,
-      answerDate
-    );
-    return commentAnswerFromDB;
+      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      if (!isAllowedcomment(codeComment, allowedProjectFileIds))
+        throw new Error("non authorisé");
+
+      const commentAnswerFromDB = await commentAnswerService.create(
+        codeCommentId,
+        userId,
+        comment,
+        answerDate
+      );
+      return commentAnswerFromDB;
+    } catch (e) {
+      throw new Error("Can't createCommentAnswer");
+    }
   }
 
   @Query(() => [CommentAnswer])
   async getAllCommentAnswers(
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CommentAnswer[]> {
-    const commentAnswers = await commentAnswerService.getAll();
-    const codeComments = await codeCommentService.getAll();
+    try {
+      const commentAnswers = await commentAnswerService.getAll();
+      const codeComments = await codeCommentService.getAll();
 
-    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
 
-    return commentAnswers.filter((commentAnswer) =>
-      isAllowedcommentAnswer(commentAnswer, codeComments, allowedProjectFileIds)
-    );
+      return commentAnswers.filter((commentAnswer) =>
+        isAllowedcommentAnswer(
+          commentAnswer,
+          codeComments,
+          allowedProjectFileIds
+        )
+      );
+    } catch (e) {
+      throw new Error("Can't getAllCommentAnswers");
+    }
   }
 
   @Query(() => CommentAnswer)
@@ -82,15 +92,23 @@ export class CommentAnswerResolver {
     @Arg("commentAnswerId") commentAnswerId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CommentAnswer> {
-    const commentAnswer = await commentAnswerService.getById(commentAnswerId);
-    const codeComments = await codeCommentService.getAll();
+    try {
+      const commentAnswer = await commentAnswerService.getById(commentAnswerId);
+      const codeComments = await codeCommentService.getAll();
 
-    const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-    if (
-      isAllowedcommentAnswer(commentAnswer, codeComments, allowedProjectFileIds)
-    )
-      return commentAnswer;
-    else throw new Error("not allowed");
+      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      if (
+        isAllowedcommentAnswer(
+          commentAnswer,
+          codeComments,
+          allowedProjectFileIds
+        )
+      )
+        return commentAnswer;
+      else throw new Error("not allowed");
+    } catch (e) {
+      throw new Error("Can't getCommentAnswerById");
+    }
   }
 
   @Mutation(() => CommentAnswer)

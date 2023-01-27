@@ -6,19 +6,26 @@ import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
+import { User } from "../models";
+
+type ReqProject = Omit<Project, "userId"> & {
+  userId: User;
+};
 
 @Resolver(iProject)
 export class ProjectResolver {
   @Mutation(() => Project)
   async createProject(
-    @Arg("userId") userId: number,
     @Arg("name") name: string,
     @Arg("description") description: string,
     @Arg("isPublic") isPublic: boolean,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Project> {
     try {
-      if (userId !== ctx.id) throw new Error("userId not allowed");
+      const userId = ctx.id;
+
+      console.log("createProject userId", userId, typeof userId);
+
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
@@ -63,7 +70,7 @@ export class ProjectResolver {
     try {
       const projects = await projectService.getAll();
       return projects.filter((project) =>
-        project.projectShare.map((pshare) => pshare.userId).includes(ctx.id)
+        project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
       );
     } catch (err) {
       console.error(err);
@@ -72,10 +79,14 @@ export class ProjectResolver {
   }
 
   @Query(() => [Project])
-  async getAllProjects(@Ctx() ctx: Context<TokenPayload>): Promise<Project[]> {
+  async getAllProjects(
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<ReqProject[]> {
     try {
-      const projects = await projectService.getAll();
-      return projects.filter((project) => project.userId === ctx.id);
+      const projects =
+        (await projectService.getAll()) as unknown as ReqProject[];
+
+      return projects.filter((project) => project.userId?.id === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Projects");
