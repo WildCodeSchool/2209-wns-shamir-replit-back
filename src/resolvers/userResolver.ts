@@ -53,7 +53,7 @@ export class UserResolver {
   async getToken(
     @Arg("email") email: string,
     @Arg("password") password: string
-  ): Promise<String> {
+  ): Promise<string> {
     try {
       // Récupérer l'utilisateur dans la bdd suivant l'email
       const userFromDB = await userService.getByEmail(email);
@@ -69,7 +69,7 @@ export class UserResolver {
         });
         console.log({ token });
         // Renvoyer le token
-        return token;
+        return JSON.stringify({ token, userId: userFromDB.id });
       } else {
         throw new Error();
       }

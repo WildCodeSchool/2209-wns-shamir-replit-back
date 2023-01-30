@@ -7,6 +7,7 @@ import {
   Project,
   ProjectShare,
   FileCode,
+  Like,
 } from "../models/index";
 import * as dotenv from "dotenv";
 
@@ -31,5 +32,6 @@ export const dataSource = new DataSource({
     CommentAnswer,
     Execution,
     FileCode,
+    Like,
   ],
 });
