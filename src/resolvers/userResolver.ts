@@ -66,7 +66,6 @@ export class UserResolver {
           id: userFromDB.id,
           email: userFromDB.email,
         });
-
         // Renvoyer le token
         return JSON.stringify({ token, userId: userFromDB.id });
       } else {

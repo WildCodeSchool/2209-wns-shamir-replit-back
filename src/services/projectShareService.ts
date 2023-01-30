@@ -48,6 +48,13 @@ const projectShareService = {
     await repository.delete(projectShareId);
     return projectShare;
   },
+
+  // Recup la liste des projectShare par l'idProjet
+  getUserCanEdit: async (projectId: number) => {
+    const listOfUser = await repository.findBy({ projectId: projectId });
+    const userCanEdit = listOfUser.filter((item) => item.write === true);
+    return userCanEdit;
+  },
 };
 
 export default projectShareService;
