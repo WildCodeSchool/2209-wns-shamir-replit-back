@@ -16,9 +16,6 @@ export class iProject {
   description: string;
 
   @Field({ nullable: true })
-  nb_likes: number;
-
-  @Field({ nullable: true })
   nb_views: number;
 
   @Field({ nullable: true })
@@ -101,6 +98,18 @@ export class iProjectShare {
 
   @Field({ nullable: true })
   comment: boolean;
+}
+
+@InputType()
+export class iLike {
+  @Field({ nullable: true })
+  id: number;
+
+  @Field({ nullable: true })
+  projectId: number;
+
+  @Field({ nullable: true })
+  userId: number;
 }
 
 @InputType()

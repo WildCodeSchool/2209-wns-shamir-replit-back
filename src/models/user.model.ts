@@ -4,6 +4,7 @@ import { CodeComment } from "./code_comment.model";
 import { CommentAnswer } from "./comment_answer.model";
 import { Execution } from "./execution.model";
 import { FileCode } from "./file.model";
+import { Like } from "./like.model";
 import { Project } from "./project.model";
 import { ProjectShare } from "./project_share.model";
 
@@ -48,6 +49,10 @@ export class User {
   @Field(() => [ProjectShare], { nullable: true })
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.userId)
   projectShare: CommentAnswer[];
+
+  @Field(() => [Like], { nullable: true })
+  @OneToMany(() => Like, (like) => like.projectId)
+  like: Like[];
 
   @Field(() => [Execution], { nullable: true })
   @OneToMany(() => Execution, (execution) => execution.userId)

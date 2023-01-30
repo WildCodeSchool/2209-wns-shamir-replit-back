@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Execution } from "./execution.model";
 import { FileCode } from "./file.model";
+import { Like } from "./like.model";
 import { ProjectShare } from "./project_share.model";
 import { User } from "./user.model";
 
@@ -29,10 +30,6 @@ export class Project {
 
   @Field()
   @Column()
-  nb_likes: number;
-
-  @Field()
-  @Column()
   nb_views: number;
 
   @Field()
@@ -50,6 +47,10 @@ export class Project {
   @Field(() => [ProjectShare], { nullable: true })
   @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
   projectShare: ProjectShare[];
+
+  @Field(() => [Like], { nullable: true })
+  @OneToMany(() => Like, (like) => like.projectId)
+  like: Like[];
 
   @Field(() => [Execution], { nullable: true })
   @OneToMany(() => Execution, (execution) => execution.projectId)

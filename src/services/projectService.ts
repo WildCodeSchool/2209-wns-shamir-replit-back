@@ -1,6 +1,5 @@
-import { DeleteResult, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
-import { User } from "../models";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 
@@ -14,6 +13,8 @@ const projectService = {
       relations: {
         execution: true,
         projectShare: true,
+        userId: true,
+        like: true,
       },
       where: { id: projectId },
     });
@@ -22,7 +23,7 @@ const projectService = {
   getAll: async (): Promise<Project[]> => {
     try {
       return await repository.find({
-        relations: { userId: true },
+        relations: { userId: true, like: true },
       });
     } catch (err) {
       console.error(err);
@@ -42,7 +43,6 @@ const projectService = {
         name,
         description,
         isPublic,
-        nb_likes: 0,
         nb_views: 0,
         id_storage_number: idStorageNumber,
       };
@@ -52,7 +52,10 @@ const projectService = {
       throw new Error("Impossible de créer le projet");
     }
   },
-  update: async (project: iProject, projectId: number): Promise<Project[]> => {
+  update: async (
+    project: Partial<iProject>,
+    projectId: number
+  ): Promise<Project[]> => {
     try {
       await repository.update(projectId, project);
       return await projectService.getById(projectId);

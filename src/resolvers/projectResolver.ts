@@ -1,15 +1,22 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
+import { Like } from "../models/like.model";
 import projectService from "../services/projectService";
 import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
 import { User } from "../models";
+import likeService from "../services/likeService";
 
 type ReqProject = Omit<Project, "userId"> & {
   userId: User;
+};
+
+type ReqLike = Omit<Like, "userId" | "projectId"> & {
+  userId: User;
+  projectId: Project;
 };
 
 @Resolver(iProject)
@@ -23,8 +30,6 @@ export class ProjectResolver {
   ): Promise<Project> {
     try {
       const userId = ctx.id;
-
-      console.log("createProject userId", userId, typeof userId);
 
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
@@ -56,7 +61,13 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const projects = await projectService.getAll();
-      return projects.filter((project) => project.isPublic);
+      return projects
+        .filter((project) => project.isPublic)
+        .sort((proA, proB) => {
+          if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
+          if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
+          return 0;
+        });
     } catch (err) {
       console.error(err);
       throw new Error("Can't find public Projects");
@@ -69,9 +80,15 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const projects = await projectService.getAll();
-      return projects.filter((project) =>
-        project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
-      );
+      return projects
+        .filter((project) =>
+          project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
+        )
+        .sort((proA, proB) => {
+          if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
+          if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
+          return 0;
+        });
     } catch (err) {
       console.error(err);
       throw new Error("Can't find shared with me Projects");
@@ -86,7 +103,13 @@ export class ProjectResolver {
       const projects =
         (await projectService.getAll()) as unknown as ReqProject[];
 
-      return projects.filter((project) => project.userId?.id === ctx.id);
+      return projects
+        .filter((project) => project.userId?.id === ctx.id)
+        .sort((proA, proB) => {
+          if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
+          if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
+          return 0;
+        });
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Projects");
@@ -104,6 +127,90 @@ export class ProjectResolver {
     } catch (err) {
       console.error(err);
       throw new Error("Can't find Project");
+    }
+  }
+
+  @Mutation(() => Project)
+  async addLike(
+    @Arg("projectId") projectId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project> {
+    try {
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (_project.userId.id !== ctx.id || !_project.isPublic)
+        throw new Error("userId not allowed");
+
+      const alreadyLiked =
+        _project.like.filter((lik) => lik.userId === ctx.id).length > 0;
+
+      if (!alreadyLiked) await likeService.create(projectId, ctx.id);
+
+      return (await projectService.getById(projectId))[0];
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't update Project");
+    }
+  }
+
+  @Mutation(() => Project)
+  async removeLike(
+    @Arg("projectId") projectId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<ReqProject> {
+    try {
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (_project.userId.id !== ctx.id || !_project.isPublic)
+        throw new Error("userId not allowed");
+
+      const likes = (await likeService.getAll()) as unknown as ReqLike[];
+
+      const filteredLike = likes.filter(
+        (like) => like.userId.id === ctx.id && like.projectId.id === projectId
+      );
+
+      const alreadyLiked = filteredLike.length > 0;
+
+      if (alreadyLiked) {
+        likeService.delete(filteredLike[0].id);
+        return {
+          ..._project,
+          like: [
+            ..._project.like.filter((like) => like.id === filteredLike[0].id),
+          ],
+        };
+      }
+      return _project;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't update Project");
+    }
+  }
+
+  @Mutation(() => Project)
+  async addView(
+    @Arg("projectId") projectId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project[]> {
+    try {
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (_project.userId.id !== ctx.id && !_project.isPublic)
+        throw new Error("userId not allowed");
+      return await projectService.update(
+        { nb_views: _project.nb_views + 1 },
+        projectId
+      );
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't update Project");
     }
   }
 
