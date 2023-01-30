@@ -56,7 +56,7 @@ export const createApolloServer = async (
           } else {
             try {
               const bearer = req?.headers.authorization.split("Bearer ")[1];
-              
+
               const userPayload = authService.verifyToken(
                 bearer
               ) as TokenPayload;

@@ -57,7 +57,6 @@ export class UserResolver {
     try {
       // Récupérer l'utilisateur dans la bdd suivant l'email
       const userFromDB = await userService.getByEmail(email);
-      console.log({ userFromDB });
       // Vérifier que ce sont les même mots de passe
       if (
         await authService.verifyPassword(password, userFromDB.password_hash)
@@ -67,7 +66,6 @@ export class UserResolver {
           id: userFromDB.id,
           email: userFromDB.email,
         });
-        console.log({ token });
         // Renvoyer le token
         return JSON.stringify({ token, userId: userFromDB.id });
       } else {
