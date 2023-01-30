@@ -56,7 +56,7 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const projects = await projectService.getAll();
-      return projects.filter((project) => project.isPublic);
+      return projects.filter((project) => project.isPublic).reverse();
     } catch (err) {
       console.error(err);
       throw new Error("Can't find public Projects");
@@ -69,9 +69,11 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const projects = await projectService.getAll();
-      return projects.filter((project) =>
-        project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
-      );
+      return projects
+        .filter((project) =>
+          project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
+        )
+        .reverse();
     } catch (err) {
       console.error(err);
       throw new Error("Can't find shared with me Projects");
@@ -86,7 +88,9 @@ export class ProjectResolver {
       const projects =
         (await projectService.getAll()) as unknown as ReqProject[];
 
-      return projects.filter((project) => project.userId?.id === ctx.id);
+      return projects
+        .filter((project) => project.userId?.id === ctx.id)
+        .reverse();
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Projects");
@@ -104,6 +108,54 @@ export class ProjectResolver {
     } catch (err) {
       console.error(err);
       throw new Error("Can't find Project");
+    }
+  }
+
+/// not good need to add a new table !!!
+  @Mutation(() => Project)
+  async addLike(
+    @Arg("projectId") projectId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project[]> {
+    try {
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (_project.userId.id !== ctx.id) throw new Error("userId not allowed");
+      return await projectService.update(
+        { nb_likes: _project.nb_likes + 1 },
+        projectId
+      );
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't update Project");
+    }
+  }
+
+  @Mutation(() => Project)
+  async addView(
+    @Arg("projectId") projectId: number,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project[]> {
+    try {
+      console.log("addView", projectId);
+
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      console.log("_project", _project);
+
+      if (_project.userId.id !== ctx.id && !_project.isPublic)
+        throw new Error("userId not allowed");
+      return await projectService.update(
+        { nb_views: _project.nb_views + 1 },
+        projectId
+      );
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't update Project");
     }
   }
 
