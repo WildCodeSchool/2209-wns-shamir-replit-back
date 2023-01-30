@@ -1,10 +1,16 @@
 import { Context } from "apollo-server-core";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { iProjectShare } from "../interfaces/InputType";
+import { Project, User } from "../models";
 import { ProjectShare } from "../models/project_share.model";
 import projectService from "../services/projectService";
 import projectShareService from "../services/projectShareService";
 import { TokenPayload } from "../tools/createApolloServer";
+
+type ReqProject = Omit<Project, "userId"> & {
+  userId: User;
+  // id_storage_number: string;
+};
 
 @Resolver(iProjectShare)
 export class ProjectShareResolver {
@@ -14,10 +20,20 @@ export class ProjectShareResolver {
     @Arg("read") read: boolean,
     @Arg("write") write: boolean,
     @Arg("comment") comment: boolean,
+    @Arg("userId") userId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      const userId = ctx.id;
+      const askerId = ctx.id;
+      const [proj] = (await projectService.getAll()).filter(
+        (projet) => projet.id === projectId
+      ) as unknown as ReqProject[];
+      // console.log({ proj });
+      // throw new Error("Wesh boloss");
+
+      console.log({ askerId, proj });
+
+      if (proj.userId.id !== askerId) throw new Error("id not allowed");
 
       const projectShareFromDB = await projectShareService.create(
         projectId,

@@ -53,6 +53,7 @@ const fileService = {
     project: Project
   ) => {
     try {
+
       const id_storage_file = clientPath + fileName;
 
       const fileRequest = {

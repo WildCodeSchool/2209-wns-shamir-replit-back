@@ -4,6 +4,7 @@ import { Project } from "../models/project.model";
 import projectService from "../services/projectService";
 import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
+import fileService from "../services/fileService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
 import { User } from "../models";
@@ -24,8 +25,6 @@ export class ProjectResolver {
     try {
       const userId = ctx.id;
 
-      console.log("createProject userId", userId, typeof userId);
-
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
@@ -43,6 +42,23 @@ export class ProjectResolver {
       );
       // Création du dossier du projet sur le server
       await fileManager.createProjectFolder(folderName);
+
+      // On supprime les espaces et les caractères spéciaux du nom du projet
+
+      const fileName = `${timeStamp}_index_${userId}`;
+      // On crée le nom du fichier avec le timestamp, le nom du projet et l'id de l'utilisateur
+
+      await fileService.create(
+        userId,
+        projectFromDB.id,
+        fileName,
+        "index",
+        "js",
+        "",
+        "Console.log('Enter Text')",
+        projectFromDB
+      );
+
       return projectFromDB;
     } catch (err) {
       console.error(err);
