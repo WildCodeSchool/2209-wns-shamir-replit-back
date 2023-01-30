@@ -138,11 +138,9 @@ export class FileResolver {
     // Verifier si le fichier appartient bien à l'utilisateur
 
     const projectShare = await projectShareService.getUserCanEdit(projectId);
-    console.log("projectSahre in file resolver", projectShare);
     const thisUserCanEdit = projectShare.filter(
       (share) => share.userId === ctx.id
     );
-    console.log("thisUserCanEdit", thisUserCanEdit);
 
     const _file = (await fileService.getById(fileId)) as unknown as ReqFile;
     if (_file.userId.id !== ctx.id && thisUserCanEdit.length === 0)

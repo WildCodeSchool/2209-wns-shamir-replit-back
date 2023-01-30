@@ -28,10 +28,6 @@ export class ProjectShareResolver {
       const [proj] = (await projectService.getAll()).filter(
         (projet) => projet.id === projectId
       ) as unknown as ReqProject[];
-      // console.log({ proj });
-      // throw new Error("Wesh boloss");
-
-      console.log({ askerId, proj });
 
       if (proj.userId.id !== askerId) throw new Error("id not allowed");
 
