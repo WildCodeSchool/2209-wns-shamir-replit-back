@@ -1,6 +1,5 @@
-import { DeleteResult, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
-import { User } from "../models";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 
@@ -14,6 +13,7 @@ const projectService = {
       relations: {
         execution: true,
         projectShare: true,
+        userId: true,
       },
       where: { id: projectId },
     });
@@ -52,7 +52,10 @@ const projectService = {
       throw new Error("Impossible de créer le projet");
     }
   },
-  update: async (project: iProject, projectId: number): Promise<Project[]> => {
+  update: async (
+    project: Partial<iProject>,
+    projectId: number
+  ): Promise<Project[]> => {
     try {
       await repository.update(projectId, project);
       return await projectService.getById(projectId);

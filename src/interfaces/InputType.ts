@@ -104,6 +104,18 @@ export class iProjectShare {
 }
 
 @InputType()
+export class iLike {
+  @Field({ nullable: true })
+  id: number;
+
+  @Field({ nullable: true })
+  projectId: number;
+
+  @Field({ nullable: true })
+  userId: number;
+}
+
+@InputType()
 export class iFileCode {
   @Field({ nullable: true })
   id: number;
