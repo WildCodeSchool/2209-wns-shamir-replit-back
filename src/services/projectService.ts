@@ -14,6 +14,7 @@ const projectService = {
         execution: true,
         projectShare: true,
         userId: true,
+        like: true,
       },
       where: { id: projectId },
     });
@@ -22,7 +23,7 @@ const projectService = {
   getAll: async (): Promise<Project[]> => {
     try {
       return await repository.find({
-        relations: { userId: true },
+        relations: { userId: true, like: true },
       });
     } catch (err) {
       console.error(err);
@@ -42,7 +43,6 @@ const projectService = {
         name,
         description,
         isPublic,
-        nb_likes: 0,
         nb_views: 0,
         id_storage_number: idStorageNumber,
       };

@@ -16,9 +16,6 @@ export class iProject {
   description: string;
 
   @Field({ nullable: true })
-  nb_likes: number;
-
-  @Field({ nullable: true })
   nb_views: number;
 
   @Field({ nullable: true })

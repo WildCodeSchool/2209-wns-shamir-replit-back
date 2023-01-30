@@ -30,10 +30,6 @@ export class Project {
 
   @Field()
   @Column()
-  nb_likes: number;
-
-  @Field()
-  @Column()
   nb_views: number;
 
   @Field()
