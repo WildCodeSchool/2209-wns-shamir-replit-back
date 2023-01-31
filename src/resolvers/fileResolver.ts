@@ -17,6 +17,10 @@ type ReqFile = Omit<File, "userId"> & {
   id_storage_file: string;
 };
 
+type ReqProject = Omit<Project, "userId"> & {
+  userId: User;
+};
+
 @Resolver(iFileCode)
 export class FileResolver {
   @Query(() => [FileCode])
@@ -162,5 +166,35 @@ export class FileResolver {
       success: true,
     };
     return JSON.stringify(result);
+  }
+
+  @Query(() => [FileCode])
+  async getFilesByProjectId(
+    @Arg("projectId") projectId: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<FileCode[]> {
+    try {
+      const projId = parseInt(projectId, 10)
+      const project = (await projectService.getById(
+        projId
+      )) as unknown as ReqProject[];
+
+      const projectShare = await projectShareService.getUserCanEdit(projId);
+      const thisUserCanEdit = projectShare.filter(
+        (share) => share.userId === ctx.id
+      );
+
+      if (project[0].userId.id !== ctx.id && thisUserCanEdit.length === 0)
+        throw new Error("non authorisé");
+
+      const files = await fileService.getAllFilesByProId(projId);
+
+      console.log("coucou je suis un tableau de fichier: ", files);
+
+      return files;
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas trouver un fichier par l'id : Resolver");
+    }
   }
 }
