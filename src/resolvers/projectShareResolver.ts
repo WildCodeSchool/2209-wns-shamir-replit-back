@@ -12,6 +12,11 @@ type ReqProject = Omit<Project, "userId"> & {
   // id_storage_number: string;
 };
 
+type ReqProjectShare = Omit<ProjectShare, "projectId"> & {
+  projectId: Project;
+  // id_storage_number: string;
+};
+
 @Resolver(iProjectShare)
 export class ProjectShareResolver {
   @Mutation(() => ProjectShare)
@@ -87,9 +92,17 @@ export class ProjectShareResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      const { userId } = (await projectShareService.getAll()).filter(
-        (pshare) => pshare.id === projectShareId
-      )[0];
+      const projectId = (
+        (await projectShareService.getAll()).filter(
+          (pshare) => pshare.id === projectShareId
+        ) as unknown[] as ReqProjectShare[]
+      )[0].projectId.id;
+
+      const userId = (
+        (await projectService.getAll()).filter(
+          (project) => project.id === projectId
+        ) as unknown[] as ReqProject[]
+      )[0].userId.id;
 
       if (userId === ctx.id)
         return await projectShareService.update(projectShare, projectShareId);
