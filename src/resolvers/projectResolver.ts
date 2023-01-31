@@ -210,7 +210,7 @@ export class ProjectResolver {
     }
   }
 
-  @Mutation(() => Project)
+  @Mutation(() => [Project])
   async addView(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
