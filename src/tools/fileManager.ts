@@ -73,6 +73,7 @@ export const fileManager = {
     }
   },
 
+  // Files functions
   createOneFile: async (
     project: Project,
     id_storage_file: string,
@@ -98,6 +99,21 @@ export const fileManager = {
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de créer le fichier");
+    }
+  },
+
+  updateContentData: async (
+    project: Project,
+    id_storage_file: string,
+    contentData: string
+  ) => {
+    try {
+      let fileToUpdate: string;
+      fileToUpdate = `./projects/${project.id_storage_number}/${id_storage_file}`;
+      fs.writeFileSync(fileToUpdate, contentData);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de modifier le fichier");
     }
   },
 };

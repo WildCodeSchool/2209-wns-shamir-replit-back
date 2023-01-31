@@ -8,6 +8,14 @@ import { Project } from "../models";
 import projectService from "../services/projectService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
+import { fileManager } from "../tools/fileManager";
+import { User } from "../models";
+import projectShareService from "../services/projectShareService";
+
+type ReqFile = Omit<File, "userId"> & {
+  userId: User;
+  id_storage_file: string;
+};
 
 @Resolver(iFileCode)
 export class FileResolver {
@@ -117,5 +125,42 @@ export class FileResolver {
       console.error(err);
       throw new Error("Can't delete FileCode");
     }
+  }
+
+  @Mutation(() => String)
+  async updateCodeFile(
+    @Arg("projectId") projectId: number,
+    @Arg("fileId") fileId: number,
+    @Arg("contentData") contentData: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ) {
+    // de l'id du fichier pour verifier si le fichier existe
+    // Verifier si le fichier appartient bien à l'utilisateur
+
+    const projectShare = await projectShareService.getUserCanEdit(projectId);
+    const thisUserCanEdit = projectShare.filter(
+      (share) => share.userId === ctx.id
+    );
+
+    const _file = (await fileService.getById(fileId)) as unknown as ReqFile;
+    if (_file.userId.id !== ctx.id && thisUserCanEdit.length === 0)
+      throw new Error("non authorisé");
+
+    // Verifier si le fichier existe bien dans la bdd
+    // Verifier si le fichier existe bien sur le serveur
+    if (!_file.id_storage_file)
+      throw new Error("Pas de fichier sur le serveur");
+
+    const project: Project = (await projectService.getById(projectId))[0];
+
+    await fileManager.updateContentData(
+      project,
+      _file.id_storage_file,
+      contentData
+    );
+    const result = {
+      success: true,
+    };
+    return JSON.stringify(result);
   }
 }
