@@ -28,7 +28,16 @@ export class UserResolver {
   async getAllUsers(@Ctx() ctx: Context<TokenPayload>): Promise<User[]> {
     try {
       const users = await userService.getAll();
-      return users.filter((user) => user.id === ctx.id);
+      return users.map((user) => {
+        const altUser = user;
+
+        if (user.id !== ctx.id) {
+          altUser.date_start_subscription = undefined;
+          altUser.date_end_subscription = undefined;
+        }
+
+        return altUser;
+      });
     } catch (err) {
       console.error(err);
       throw new Error("Can't get all Users");
