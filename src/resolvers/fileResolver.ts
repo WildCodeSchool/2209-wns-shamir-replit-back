@@ -1,6 +1,6 @@
 import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
 import { DeleteResult } from "typeorm";
-import { iFileCode } from "../interfaces/InputType";
+import { iFileCode, iFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
 import string from "string-sanitizer";
@@ -11,10 +11,15 @@ import { TokenPayload } from "../tools/createApolloServer";
 import { fileManager } from "../tools/fileManager";
 import { User } from "../models";
 import projectShareService from "../services/projectShareService";
+import { FilesCodeData, ProjToCodeFIle } from "../interfaces/IFiles";
 
 type ReqFile = Omit<File, "userId"> & {
   userId: User;
   id_storage_file: string;
+};
+
+type ReqProject = Omit<Project, "userId"> & {
+  userId: User;
 };
 
 @Resolver(iFileCode)
@@ -127,6 +132,65 @@ export class FileResolver {
     }
   }
 
+  @Query(() => [FileCode])
+  async getFilesByProjectId(
+    @Arg("projectId") projectId: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<FileCode[]> {
+    try {
+      const projId = parseInt(projectId, 10);
+      const project = (await projectService.getById(
+        projId
+      )) as unknown as ReqProject[];
+
+      const projectShare = await projectShareService.getUserCanEdit(projId);
+      const thisUserCanEdit = projectShare.filter(
+        (share) => share.userId === ctx.id
+      );
+
+      if (project[0].userId.id !== ctx.id && thisUserCanEdit.length === 0)
+        throw new Error("non authorisé");
+
+      const files = await fileService.getAllFilesByProId(projId);
+
+      return files;
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas trouver un fichier par l'id : Resolver");
+    }
+  }
+
+  @Query(() => [iFilesWithCode])
+  async getCodeFiles(
+    @Arg("projectId") projectId: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<iFilesWithCode[]> {
+    try {
+      const projId = parseInt(projectId, 10);
+      const [project] = (await projectService.getById(
+        projId
+      )) as unknown as ReqProject[];
+
+      if (project.userId.id !== ctx.id) throw new Error("non authorisé");
+      const files = await fileService.getAllFilesByProId(projId);
+
+      const minProject: ProjToCodeFIle = {
+        projectId: project.id,
+        path: project.id_storage_number,
+      };
+
+      const result: iFilesWithCode[] = await fileManager.getArrayCodeFile(
+        minProject,
+        files
+      );
+
+      return result;
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas trouver un fichier par l'id : Resolver");
+    }
+  }
+
   @Mutation(() => String)
   async updateCodeFile(
     @Arg("projectId") projectId: number,
@@ -134,33 +198,36 @@ export class FileResolver {
     @Arg("contentData") contentData: string,
     @Ctx() ctx: Context<TokenPayload>
   ) {
-    // de l'id du fichier pour verifier si le fichier existe
-    // Verifier si le fichier appartient bien à l'utilisateur
+    try {
+      // de l'id du fichier pour verifier si le fichier existe
+      // Verifier si le fichier appartient bien à l'utilisateur
+      const projectShare = await projectShareService.getUserCanEdit(projectId);
+      const thisUserCanEdit = projectShare.filter(
+        (share) => share.userId === ctx.id
+      );
 
-    const projectShare = await projectShareService.getUserCanEdit(projectId);
-    const thisUserCanEdit = projectShare.filter(
-      (share) => share.userId === ctx.id
-    );
+      const _file = (await fileService.getById(fileId)) as unknown as ReqFile;
+      if (_file.userId.id !== ctx.id && thisUserCanEdit.length === 0)
+        throw new Error("non authorisé");
 
-    const _file = (await fileService.getById(fileId)) as unknown as ReqFile;
-    if (_file.userId.id !== ctx.id && thisUserCanEdit.length === 0)
-      throw new Error("non authorisé");
+      // Verifier si le fichier existe bien dans la bdd
+      // Verifier si le fichier existe bien sur le serveur
+      if (!_file.id_storage_file)
+        throw new Error("Pas de fichier sur le serveur");
 
-    // Verifier si le fichier existe bien dans la bdd
-    // Verifier si le fichier existe bien sur le serveur
-    if (!_file.id_storage_file)
-      throw new Error("Pas de fichier sur le serveur");
+      const project: Project = (await projectService.getById(projectId))[0];
 
-    const project: Project = (await projectService.getById(projectId))[0];
-
-    await fileManager.updateContentData(
-      project,
-      _file.id_storage_file,
-      contentData
-    );
-    const result = {
-      success: true,
-    };
-    return JSON.stringify(result);
+      await fileManager.updateContentData(
+        project.id_storage_number,
+        _file.id_storage_file,
+        contentData
+      );
+      const result = {
+        success: true,
+      };
+      return JSON.stringify(result);
+    } catch (err) {
+      throw new Error("Une erreur est survenue lors de l'update du code");
+    }
   }
 }

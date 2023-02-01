@@ -60,7 +60,6 @@ export const createApolloServer = async (
               const userPayload = authService.verifyToken(
                 bearer
               ) as TokenPayload;
-
               return userPayload;
             } catch (e) {
               console.error("err", e);
