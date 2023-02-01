@@ -62,7 +62,7 @@ export class ProjectResolver {
         "index",
         "js",
         "",
-        "Console.log('Enter Text')",
+        "console.log('Enter Text')",
         projectFromDB
       );
 
