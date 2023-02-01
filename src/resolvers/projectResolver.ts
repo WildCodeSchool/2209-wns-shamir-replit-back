@@ -62,7 +62,7 @@ export class ProjectResolver {
         "index",
         "js",
         "",
-        "Console.log('Enter Text')",
+        "console.log('Enter Text')",
         projectFromDB
       );
 
@@ -255,13 +255,15 @@ export class ProjectResolver {
   async deleteProject(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project> {
+  ): Promise<ReqProject> {
     try {
-      const [project] = await projectService.getById(projectId);
+      const [project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (project.userId.id !== ctx.id) throw new Error("userId not allowed");
+
       // Suppression du dossier du projet sur le server
-
-      if (project.userId !== ctx.id) throw new Error("userId not allowed");
-
       await fileManager.deleteProjectFolder(project.id_storage_number);
       await projectService.delete(projectId);
       return project;
