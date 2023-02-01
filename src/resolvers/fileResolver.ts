@@ -164,19 +164,12 @@ export class FileResolver {
   async getCodeFiles(
     @Arg("projectId") projectId: string,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<FilesCodeData[]> {
+  ): Promise<iFilesWithCode[]> {
     try {
       const projId = parseInt(projectId, 10);
       const [project] = (await projectService.getById(
         projId
       )) as unknown as ReqProject[];
-
-      // const projectShare = await projectShareService.getUserCanEdit(projId);
-      // const thisUserCanEdit = projectShare.filter(
-      //   (share) => share.userId === ctx.id
-      // );
-
-      // if (project[0].userId.id !== ctx.id && thisUserCanEdit.length === 0)
 
       if (project.userId.id !== ctx.id) throw new Error("non authorisé");
       const files = await fileService.getAllFilesByProId(projId);
@@ -208,7 +201,6 @@ export class FileResolver {
     try {
       // de l'id du fichier pour verifier si le fichier existe
       // Verifier si le fichier appartient bien à l'utilisateur
-      console.log("*********************************",projectId, fileId, contentData)
       const projectShare = await projectShareService.getUserCanEdit(projectId);
       const thisUserCanEdit = projectShare.filter(
         (share) => share.userId === ctx.id

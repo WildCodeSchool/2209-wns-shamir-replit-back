@@ -2,7 +2,7 @@ import fs from "fs";
 import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
 import { iFilesWithCode } from "../interfaces/InputType";
-import { ProjToCodeFIle } from "../interfaces/IFiles";
+import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 
 export const fileManager = {
   // Folders functions
@@ -110,7 +110,6 @@ export const fileManager = {
     contentData: string
   ) => {
     try {
-      console.log("-----------------------------------",projectPath, filepath, contentData)
       let fileToUpdate: string;
       fileToUpdate = `./projects/${projectPath}/${filepath}`;
       fs.writeFileSync(fileToUpdate, contentData);
@@ -122,11 +121,10 @@ export const fileManager = {
 
   getArrayCodeFile: async (project: ProjToCodeFIle, files: FileCode[]) => {
     try {
-
       let tempPath: string;
 
-      const codeData: iFilesWithCode[] = files.map((item) => {
-        const fileWithCode: iFilesWithCode = {
+      const codeData: FilesCodeData[] = files.map((item) => {
+        const fileWithCode: FilesCodeData = {
           id: item.id,
           projectId: project.projectId,
           name: item.name,
@@ -139,7 +137,6 @@ export const fileManager = {
         fileWithCode.code = result;
         return fileWithCode;
       });
-
 
       return codeData;
     } catch (err) {
