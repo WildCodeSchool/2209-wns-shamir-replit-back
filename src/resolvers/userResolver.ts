@@ -34,6 +34,7 @@ export class UserResolver {
         if (user.id !== ctx.id) {
           altUser.date_start_subscription = undefined;
           altUser.date_end_subscription = undefined;
+          altUser.email = "";
         }
 
         return altUser;
