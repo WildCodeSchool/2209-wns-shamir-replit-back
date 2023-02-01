@@ -19,7 +19,7 @@ export class iProject {
   nb_views: number;
 
   @Field({ nullable: true })
-  public: boolean;
+  isPublic: boolean;
 
   @Field({ nullable: true })
   id_storage_number: string;
