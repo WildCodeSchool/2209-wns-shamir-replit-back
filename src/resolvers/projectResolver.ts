@@ -8,7 +8,7 @@ import { fileManager } from "../tools/fileManager";
 import fileService from "../services/fileService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
-import { User } from "../models";
+import { ProjectShare, User } from "../models";
 import likeService from "../services/likeService";
 
 type ReqProject = Omit<Project, "userId"> & {
@@ -18,6 +18,13 @@ type ReqProject = Omit<Project, "userId"> & {
 type ReqLike = Omit<Like, "userId" | "projectId"> & {
   userId: User;
   projectId: Project;
+};
+
+type ReqShare = Omit<Project, "userId" | "projectShare"> & {
+  userId: User;
+  projectShare: (Omit<ProjectShare, "userId"> & {
+    userId: User;
+  })[];
 };
 
 @Resolver(iProject)
@@ -76,9 +83,11 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getPublicProjects(
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<ReqProject[]> {
     try {
-      const projects = await projectService.getAll();
+      const projects =
+        (await projectService.getAll()) as unknown as ReqProject[];
+
       return projects
         .filter((project) => project.isPublic)
         .sort((proA, proB) => {
@@ -95,12 +104,15 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getSharedWithMeProjects(
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<ReqShare[]> {
     try {
-      const projects = await projectService.getAll();
+      const projects = (await projectService.getAll()) as unknown as ReqShare[];
+
       return projects
         .filter((project) =>
-          project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
+          project.projectShare
+            .map((pshare) => pshare.userId.id)
+            .includes(ctx.id)
         )
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
