@@ -232,15 +232,18 @@ export class ProjectResolver {
     }
   }
 
-  @Mutation(() => Project)
+  @Mutation(() => [Project])
   async updateProject(
     @Arg("project") project: iProject,
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Project[]> {
     try {
-      const [_project] = await projectService.getById(projectId);
-      if (_project.userId !== ctx.id) throw new Error("userId not allowed");
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (_project.userId.id !== ctx.id) throw new Error("userId not allowed");
       return await projectService.update(project, projectId);
     } catch (err) {
       console.error(err);
