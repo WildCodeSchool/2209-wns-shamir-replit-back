@@ -28,6 +28,7 @@ export class UserResolver {
   async getAllUsers(@Ctx() ctx: Context<TokenPayload>): Promise<User[]> {
     try {
       const users = await userService.getAll();
+
       return users.map((user) => {
         const altUser = user;
 
