@@ -5,9 +5,10 @@ import { Like } from "../models/like.model";
 import projectService from "../services/projectService";
 import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
+import fileService from "../services/fileService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
-import { User } from "../models";
+import { ProjectShare, User } from "../models";
 import likeService from "../services/likeService";
 import { query } from "express";
 import userService from "../services/userService";
@@ -19,6 +20,13 @@ type ReqProject = Omit<Project, "userId"> & {
 type ReqLike = Omit<Like, "userId" | "projectId"> & {
   userId: User;
   projectId: Project;
+};
+
+type ReqShare = Omit<Project, "userId" | "projectShare"> & {
+  userId: User;
+  projectShare: (Omit<ProjectShare, "userId"> & {
+    userId: User;
+  })[];
 };
 
 @Resolver(iProject)
@@ -50,6 +58,23 @@ export class ProjectResolver {
       );
       // Création du dossier du projet sur le server
       await fileManager.createProjectFolder(folderName);
+
+      // On supprime les espaces et les caractères spéciaux du nom du projet
+
+      const fileName = `${timeStamp}_index_${userId}`;
+      // On crée le nom du fichier avec le timestamp, le nom du projet et l'id de l'utilisateur
+
+      await fileService.create(
+        userId,
+        projectFromDB.id,
+        fileName,
+        "index",
+        "js",
+        "",
+        "console.log('Enter Text')",
+        projectFromDB
+      );
+
       return projectFromDB;
     } catch (err) {
       console.error(err);
@@ -60,11 +85,13 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getPublicProjects(
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<ReqProject[]> {
     try {
-      const projects = await projectService.getAll();
+      const projects =
+        (await projectService.getAll()) as unknown as ReqProject[];
+
       return projects
-        .filter((project) => project.isPublic)
+        .filter((project) => project.isPublic && project.userId.id !== ctx.id)
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
           if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
@@ -79,12 +106,15 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getSharedWithMeProjects(
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<ReqShare[]> {
     try {
-      const projects = await projectService.getAll();
+      const projects = (await projectService.getAll()) as unknown as ReqShare[];
+
       return projects
         .filter((project) =>
-          project.projectShare?.map((pshare) => pshare.userId).includes(ctx.id)
+          project.projectShare
+            .map((pshare) => pshare.userId.id)
+            .includes(ctx.id)
         )
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
@@ -194,7 +224,7 @@ export class ProjectResolver {
     }
   }
 
-  @Mutation(() => Project)
+  @Mutation(() => [Project])
   async addView(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
@@ -216,15 +246,18 @@ export class ProjectResolver {
     }
   }
 
-  @Mutation(() => Project)
+  @Mutation(() => [Project])
   async updateProject(
     @Arg("project") project: iProject,
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Project[]> {
     try {
-      const [_project] = await projectService.getById(projectId);
-      if (_project.userId !== ctx.id) throw new Error("userId not allowed");
+      const [_project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (_project.userId.id !== ctx.id) throw new Error("userId not allowed");
       return await projectService.update(project, projectId);
     } catch (err) {
       console.error(err);
@@ -236,13 +269,15 @@ export class ProjectResolver {
   async deleteProject(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project> {
+  ): Promise<ReqProject> {
     try {
-      const [project] = await projectService.getById(projectId);
+      const [project] = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
+
+      if (project.userId.id !== ctx.id) throw new Error("userId not allowed");
+
       // Suppression du dossier du projet sur le server
-
-      if (project.userId !== ctx.id) throw new Error("userId not allowed");
-
       await fileManager.deleteProjectFolder(project.id_storage_number);
       await projectService.delete(projectId);
       return project;

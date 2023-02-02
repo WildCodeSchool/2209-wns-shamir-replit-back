@@ -1,6 +1,8 @@
 import fs from "fs";
 import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
+import { iFilesWithCode } from "../interfaces/InputType";
+import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 
 export const fileManager = {
   // Folders functions
@@ -73,6 +75,7 @@ export const fileManager = {
     }
   },
 
+  // Files functions
   createOneFile: async (
     project: Project,
     id_storage_file: string,
@@ -98,6 +101,48 @@ export const fileManager = {
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de créer le fichier");
+    }
+  },
+
+  updateContentData: async (
+    projectPath: string,
+    filepath: string,
+    contentData: string
+  ) => {
+    try {
+      let fileToUpdate: string;
+      fileToUpdate = `./projects/${projectPath}/${filepath}`;
+      fs.writeFileSync(fileToUpdate, contentData);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de modifier le fichier");
+    }
+  },
+
+  getArrayCodeFile: async (project: ProjToCodeFIle, files: FileCode[]) => {
+    try {
+      let tempPath: string;
+
+      const codeData: FilesCodeData[] = files.map((item) => {
+        const fileWithCode: FilesCodeData = {
+          id: item.id,
+          projectId: project.projectId,
+          name: item.name,
+          language: item.language,
+          code: "",
+        };
+
+        tempPath = `./projects/${project.path}/${item.id_storage_file}`;
+        const result = fs.readFileSync(tempPath, { encoding: "utf8" });
+        fileWithCode.code = result;
+        return fileWithCode;
+      });
+
+      return codeData;
+    } catch (err) {
+      throw new Error(
+        "Impossible de recupérer le code d'un ou de plusieurs fichiers"
+      );
     }
   },
 };

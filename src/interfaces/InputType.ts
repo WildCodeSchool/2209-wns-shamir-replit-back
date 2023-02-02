@@ -1,4 +1,4 @@
-import { Field, InputType } from "type-graphql";
+import { Field, InputType, ObjectType } from "type-graphql";
 import "reflect-metadata";
 
 @InputType()
@@ -19,7 +19,7 @@ export class iProject {
   nb_views: number;
 
   @Field({ nullable: true })
-  public: boolean;
+  isPublic: boolean;
 
   @Field({ nullable: true })
   id_storage_number: string;
@@ -167,4 +167,23 @@ export class iCommentAnswer {
 
   @Field({ nullable: true })
   answer_date: Date;
+}
+
+@InputType()
+@ObjectType()
+export class iFilesWithCode {
+  @Field({ nullable: true })
+  id: number;
+
+  @Field({ nullable: true })
+  projectId: number;
+
+  @Field({ nullable: true })
+  name: string;
+
+  @Field({ nullable: true })
+  language: string;
+
+  @Field({ nullable: true })
+  code: string;
 }

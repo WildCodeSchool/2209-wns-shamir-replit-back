@@ -1,12 +1,23 @@
 import { Context } from "apollo-server-core";
 import { Arg, Ctx, Mutation, Query, Resolver, ID } from "type-graphql";
 import { iProjectShare } from "../interfaces/InputType";
+import { Project, User } from "../models";
 import { ProjectShare } from "../models/project_share.model";
 import projectService from "../services/projectService";
 import projectShareService from "../services/projectShareService";
 import { TokenPayload } from "../tools/createApolloServer";
 import userService from "../services/userService";
 import { Project } from "../models/project.model";
+
+type ReqProject = Omit<Project, "userId"> & {
+  userId: User;
+  // id_storage_number: string;
+};
+
+type ReqProjectShare = Omit<ProjectShare, "projectId"> & {
+  projectId: Project;
+  // id_storage_number: string;
+};
 
 @Resolver(iProjectShare)
 export class ProjectShareResolver {
@@ -16,10 +27,16 @@ export class ProjectShareResolver {
     @Arg("read") read: boolean,
     @Arg("write") write: boolean,
     @Arg("comment") comment: boolean,
+    @Arg("userId") userId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      const userId = ctx.id;
+      const askerId = ctx.id;
+      const [proj] = (await projectService.getAll()).filter(
+        (projet) => projet.id === projectId
+      ) as unknown as ReqProject[];
+
+      if (proj.userId.id !== askerId) throw new Error("id not allowed");
 
       const projectShareFromDB = await projectShareService.create(
         projectId,
@@ -77,9 +94,17 @@ export class ProjectShareResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      const { userId } = (await projectShareService.getAll()).filter(
-        (pshare) => pshare.id === projectShareId
-      )[0];
+      const projectId = (
+        (await projectShareService.getAll()).filter(
+          (pshare) => pshare.id === projectShareId
+        ) as unknown[] as ReqProjectShare[]
+      )[0].projectId.id;
+
+      const userId = (
+        (await projectService.getAll()).filter(
+          (project) => project.id === projectId
+        ) as unknown[] as ReqProject[]
+      )[0].userId.id;
 
       if (userId === ctx.id)
         return await projectShareService.update(projectShare, projectShareId);
