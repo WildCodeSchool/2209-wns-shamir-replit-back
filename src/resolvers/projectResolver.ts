@@ -109,10 +109,12 @@ export class ProjectResolver {
       const projects = (await projectService.getAll()) as unknown as ReqShare[];
 
       return projects
-        .filter((project) =>
-          project.projectShare
-            .map((pshare) => pshare.userId.id)
-            .includes(ctx.id)
+        .filter(
+          (project) =>
+            project.userId.id !== ctx.id &&
+            project.projectShare
+              .map((pshare) => pshare.userId.id)
+              .includes(ctx.id)
         )
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
@@ -133,8 +135,14 @@ export class ProjectResolver {
       const projects =
         (await projectService.getAll()) as unknown as ReqProject[];
 
+      console.log(
+        "projects",
+        projects.map((pro) => pro.userId)
+      );
+      console.log("ctx", ctx.id);
+
       return projects
-        .filter((project) => project.userId?.id === ctx.id)
+        .filter((project) => project.userId.id === ctx.id)
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
           if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
