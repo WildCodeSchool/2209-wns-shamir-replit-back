@@ -23,7 +23,7 @@ export default {
     }
 
     return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-      expiresIn: "7d",
+      expiresIn: "7h",
     });
   },
 

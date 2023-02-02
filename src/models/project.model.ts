@@ -68,4 +68,6 @@ export class Project {
   })
   @JoinColumn({ name: "userId" })
   userId: User["id"];
+  // static userId: User;
+  // static userId: User;
 }

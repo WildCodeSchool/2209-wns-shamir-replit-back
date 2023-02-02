@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   back:
     build:
@@ -10,7 +10,7 @@ services:
       - ./projects:/projects
     command: npm run start:dev
     ports:
-      - "5000:5000"
+      - "${BACK_PORT}:5004"
     environment:
       NODE_ENV: development
       DEBUG: nodejs-docker-express:*
@@ -32,14 +32,16 @@ services:
       - "5432:5432"
     restart: always
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"
-        ]
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
 volumes:
   postgres-data:

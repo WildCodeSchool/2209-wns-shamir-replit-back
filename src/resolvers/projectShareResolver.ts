@@ -1,10 +1,12 @@
 import { Context } from "apollo-server-core";
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver, ID } from "type-graphql";
 import { iProjectShare } from "../interfaces/InputType";
 import { ProjectShare } from "../models/project_share.model";
 import projectService from "../services/projectService";
 import projectShareService from "../services/projectShareService";
 import { TokenPayload } from "../tools/createApolloServer";
+import userService from "../services/userService";
+import { Project } from "../models/project.model";
 
 @Resolver(iProjectShare)
 export class ProjectShareResolver {

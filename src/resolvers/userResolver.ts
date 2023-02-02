@@ -16,6 +16,7 @@ export class UserResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<User> {
     try {
+      console.log("dans userresolver ligne 19 ", email, password, login);
       const userFromDB = await userService.create(email, password, login);
       return userFromDB;
     } catch (err) {

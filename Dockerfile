@@ -2,7 +2,7 @@ FROM node:18 as base
 
 WORKDIR /src
 COPY package*.json /
-EXPOSE 5000
+EXPOSE 5004
 
 FROM base as production
 ENV NODE_ENV=production

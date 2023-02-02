@@ -1,9 +1,8 @@
-import { Repository } from "typeorm";
+import { Repository, Entity } from "typeorm";
 import { User } from "../models/user.model";
 import { dataSource } from "../tools/createDataSource";
 import * as argon2 from "argon2";
 import { iUser } from "../interfaces/InputType";
-import { runInNewContext } from "vm";
 
 const repository: Repository<User> = dataSource.getRepository(User);
 
@@ -16,6 +15,10 @@ const userService = {
   getByEmail: async (email: string) => {
     return await repository.findOneByOrFail({ email });
   },
+
+  // getOne: async (user: User): Promise<User> => {
+  //   return await repository.getId(user);
+  // },
 
   getById: async (userId: number): Promise<User[]> => {
     return await repository.find({

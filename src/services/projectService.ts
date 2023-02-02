@@ -2,6 +2,7 @@ import { Repository } from "typeorm";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
+import { User } from "../models";
 
 const repository: Repository<Project> = dataSource.getRepository(Project);
 
@@ -17,6 +18,15 @@ const projectService = {
         like: true,
       },
       where: { id: projectId },
+    });
+  },
+
+  getByUserId: async (userId: number): Promise<Project[]> => {
+    return await repository.find({
+      relations: {
+        userId: true,
+      },
+      where: { userId: userId },
     });
   },
 

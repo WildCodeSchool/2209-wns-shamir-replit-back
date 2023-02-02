@@ -6,10 +6,9 @@ import { executeCodeController } from "./controllers/executeCodeController";
 import http from "http";
 import { createApolloServer } from "./tools/createApolloServer";
 import "reflect-metadata";
-
-const port = 5000;
-
 dotenv.config();
+
+const port = parseInt(process.env.BACK_PORT || "5004", 10);
 
 async function listen(port: number) {
   const app = express();

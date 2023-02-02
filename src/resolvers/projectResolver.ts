@@ -9,6 +9,8 @@ import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
 import { User } from "../models";
 import likeService from "../services/likeService";
+import { query } from "express";
+import userService from "../services/userService";
 
 type ReqProject = Omit<Project, "userId"> & {
   userId: User;
@@ -274,6 +276,17 @@ export class ProjectResolver {
     } catch (err) {
       console.error(err);
       throw new Error("Can't create SubFolder");
+    }
+  }
+  @Query(() => Project)
+  async getProjectByUserId(
+    @Arg("userId") userId: number
+    // @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project[] | undefined> {
+    try {
+      return await projectService.getByUserId(userId);
+    } catch (e) {
+      console.error(e);
     }
   }
 }
