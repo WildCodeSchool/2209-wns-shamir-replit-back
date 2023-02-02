@@ -135,12 +135,6 @@ export class ProjectResolver {
       const projects =
         (await projectService.getAll()) as unknown as ReqProject[];
 
-      console.log(
-        "projects",
-        projects.map((pro) => pro.userId)
-      );
-      console.log("ctx", ctx.id);
-
       return projects
         .filter((project) => project.userId.id === ctx.id)
         .sort((proA, proB) => {
