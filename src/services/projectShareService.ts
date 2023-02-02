@@ -55,6 +55,16 @@ const projectShareService = {
     const userCanEdit = listOfUser.filter((item) => item.write === true);
     return userCanEdit;
   },
+
+  // Recup la liste des projectShare par l'idProjet
+  getUserCanView: async (projectId: number) => {
+    const listOfUser = await repository.findBy({ projectId: projectId });
+    const userCanEdit = listOfUser.filter(
+      (item) =>
+        item.read === true || item.write === true || item.comment === true
+    );
+    return userCanEdit;
+  },
 };
 
 export default projectShareService;

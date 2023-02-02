@@ -143,12 +143,16 @@ export class FileResolver {
         projId
       )) as unknown as ReqProject[];
 
-      const projectShare = await projectShareService.getUserCanEdit(projId);
-      const thisUserCanEdit = projectShare.filter(
+      const projectShare = await projectShareService.getUserCanView(projId);
+      const thisUserCanView = projectShare.filter(
         (share) => share.userId === ctx.id
       );
 
-      if (project[0].userId.id !== ctx.id && thisUserCanEdit.length === 0)
+      if (
+        !project[0].isPublic &&
+        project[0].userId.id !== ctx.id &&
+        thisUserCanView.length === 0
+      )
         throw new Error("non authorisé");
 
       const files = await fileService.getAllFilesByProId(projId);
@@ -171,7 +175,17 @@ export class FileResolver {
         projId
       )) as unknown as ReqProject[];
 
-      if (project.userId.id !== ctx.id) throw new Error("non authorisé");
+      const projectShare = await projectShareService.getUserCanView(projId);
+      const thisUserCanView = projectShare.filter(
+        (share) => share.userId === ctx.id
+      );
+
+      if (
+        !project.isPublic &&
+        project.userId.id !== ctx.id &&
+        thisUserCanView.length === 0
+      )
+        throw new Error("non authorisé");
       const files = await fileService.getAllFilesByProId(projId);
 
       const minProject: ProjToCodeFIle = {

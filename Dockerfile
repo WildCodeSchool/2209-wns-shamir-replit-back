@@ -1,7 +1,7 @@
 FROM node:18 as base
 
-WORKDIR /src
-COPY package*.json /
+WORKDIR /back
+COPY package*.json /back
 EXPOSE 5000
 
 FROM base as production
@@ -13,5 +13,7 @@ CMD ["node", "src/index.js"]
 FROM base as dev
 ENV NODE_ENV=development
 RUN npm install
-COPY . /
+COPY src /back/src
+COPY .env /back/
+COPY tsconfig.json /back/
 CMD ["ts-node-dev", "src/index.ts"]

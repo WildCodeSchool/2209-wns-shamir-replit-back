@@ -109,10 +109,12 @@ export class ProjectResolver {
       const projects = (await projectService.getAll()) as unknown as ReqShare[];
 
       return projects
-        .filter((project) =>
-          project.projectShare
-            .map((pshare) => pshare.userId.id)
-            .includes(ctx.id)
+        .filter(
+          (project) =>
+            project.userId.id !== ctx.id &&
+            project.projectShare
+              .map((pshare) => pshare.userId.id)
+              .includes(ctx.id)
         )
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
@@ -134,7 +136,7 @@ export class ProjectResolver {
         (await projectService.getAll()) as unknown as ReqProject[];
 
       return projects
-        .filter((project) => project.userId?.id === ctx.id)
+        .filter((project) => project.userId.id === ctx.id)
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
           if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
@@ -168,9 +170,14 @@ export class ProjectResolver {
     try {
       const [_project] = (await projectService.getById(
         projectId
-      )) as unknown as ReqProject[];
+      )) as unknown as ReqShare[];
 
-      if (_project.userId.id !== ctx.id || !_project.isPublic)
+      if (
+        !_project.isPublic &&
+        _project.userId.id !== ctx.id &&
+        !_project.projectShare.filter((pshare) => pshare.userId.id === ctx.id)
+          .length
+      )
         throw new Error("userId not allowed");
 
       const alreadyLiked =
@@ -189,13 +196,18 @@ export class ProjectResolver {
   async removeLike(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ReqProject> {
+  ): Promise<ReqShare> {
     try {
       const [_project] = (await projectService.getById(
         projectId
-      )) as unknown as ReqProject[];
+      )) as unknown as ReqShare[];
 
-      if (_project.userId.id !== ctx.id || !_project.isPublic)
+      if (
+        !_project.isPublic &&
+        _project.userId.id !== ctx.id &&
+        !_project.projectShare.filter((pshare) => pshare.userId.id === ctx.id)
+          .length
+      )
         throw new Error("userId not allowed");
 
       const likes = (await likeService.getAll()) as unknown as ReqLike[];
@@ -230,9 +242,14 @@ export class ProjectResolver {
     try {
       const [_project] = (await projectService.getById(
         projectId
-      )) as unknown as ReqProject[];
+      )) as unknown as ReqShare[];
 
-      if (_project.userId.id !== ctx.id && !_project.isPublic)
+      if (
+        !_project.isPublic &&
+        _project.userId.id !== ctx.id &&
+        !_project.projectShare.filter((pshare) => pshare.userId.id === ctx.id)
+          .length
+      )
         throw new Error("userId not allowed");
       return await projectService.update(
         { nb_views: _project.nb_views + 1 },
