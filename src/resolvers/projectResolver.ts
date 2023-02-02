@@ -89,7 +89,7 @@ export class ProjectResolver {
         (await projectService.getAll()) as unknown as ReqProject[];
 
       return projects
-        .filter((project) => project.isPublic)
+        .filter((project) => project.isPublic && project.userId.id !== ctx.id)
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
           if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
