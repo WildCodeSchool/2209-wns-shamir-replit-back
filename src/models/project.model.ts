@@ -40,6 +40,10 @@ export class Project {
   @Column()
   id_storage_number: string;
 
+  // @Field()
+  // @Column()
+  // userId: number;
+
   @Field(() => [FileCode], { nullable: true })
   @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
   file: FileCode[];
@@ -62,12 +66,17 @@ export class Project {
   // userId: User["id"];
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.id, {
+  @ManyToOne(() => User, (user) => user.project, {
     onDelete: "CASCADE",
-    eager: false,
+    eager: true,
   })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
-  // static userId: User;
-  // static userId: User;
+  user: User;
+
+  // @Field(() => User)
+  // @ManyToOne(() => User, (user) => user.id, {
+  //   onDelete: "CASCADE",
+  //   eager: false,
+  // })
+  // @JoinColumn({ name: "userId" })
+  // userId: User["id"];
 }

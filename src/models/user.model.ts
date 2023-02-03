@@ -59,6 +59,6 @@ export class User {
   execution: Execution[];
 
   @Field(() => [Project])
-  @OneToMany(() => Project, (project) => project.userId)
+  @OneToMany(() => Project, (project) => project.user)
   project: Project[];
 }

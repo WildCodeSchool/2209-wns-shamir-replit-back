@@ -7,7 +7,6 @@ import projectService from "../services/projectService";
 import projectShareService from "../services/projectShareService";
 import { TokenPayload } from "../tools/createApolloServer";
 import userService from "../services/userService";
-import { Project } from "../models/project.model";
 
 type ReqProject = Omit<Project, "userId"> & {
   userId: User;

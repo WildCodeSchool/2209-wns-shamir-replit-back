@@ -13,7 +13,7 @@ const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
   (await projectService.getAll())
     .filter(
       (project) =>
-        project.userId === ctx.id ||
+        project.user.id === ctx.id ||
         project.isPublic ||
         project.projectShare.map((pshare) => pshare.userId === ctx.id)
     )

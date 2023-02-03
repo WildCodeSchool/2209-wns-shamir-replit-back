@@ -3,6 +3,7 @@ import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 import { User } from "../models";
+import { ID } from "type-graphql";
 
 const repository: Repository<Project> = dataSource.getRepository(Project);
 
@@ -14,7 +15,7 @@ const projectService = {
       relations: {
         execution: true,
         projectShare: true,
-        userId: true,
+        user: true,
         like: true,
       },
       where: { id: projectId },
@@ -24,16 +25,16 @@ const projectService = {
   getByUserId: async (userId: number): Promise<Project[]> => {
     return await repository.find({
       relations: {
-        userId: true,
+        user: true,
       },
-      where: { userId: userId },
+      where: { user: { id: userId } },
     });
   },
 
   getAll: async (): Promise<Project[]> => {
     try {
       return await repository.find({
-        relations: { userId: true, like: true, projectShare: true },
+        relations: { user: true, like: true },
       });
     } catch (err) {
       console.error(err);

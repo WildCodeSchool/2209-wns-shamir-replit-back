@@ -1,4 +1,4 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver, ID } from "type-graphql";
 import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { Like } from "../models/like.model";
@@ -91,7 +91,7 @@ export class ProjectResolver {
         (await projectService.getAll()) as unknown as ReqProject[];
 
       return projects
-        .filter((project) => project.isPublic && project.userId.id !== ctx.id)
+        .filter((project) => project.isPublic && project.user.id !== ctx.id)
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
           if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
@@ -136,7 +136,7 @@ export class ProjectResolver {
         (await projectService.getAll()) as unknown as ReqProject[];
 
       return projects
-        .filter((project) => project.userId?.id === ctx.id)
+        .filter((project) => project.user.id === ctx.id)
         .sort((proA, proB) => {
           if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
           if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
@@ -155,7 +155,7 @@ export class ProjectResolver {
   ): Promise<Project[]> {
     try {
       const projects = await projectService.getById(projectId);
-      return projects.filter((project) => project.userId === ctx.id);
+      return projects.filter((project) => project.user.id === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find Project");
@@ -313,15 +313,17 @@ export class ProjectResolver {
       throw new Error("Can't create SubFolder");
     }
   }
-  @Query(() => Project)
+  @Query(() => [Project])
   async getProjectByUserId(
     @Arg("userId") userId: number
     // @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[] | undefined> {
+  ): Promise<Project[]> {
     try {
-      return await projectService.getByUserId(userId);
+      const projectByuserId = await projectService.getByUserId(userId);
+      return projectByuserId;
     } catch (e) {
       console.error(e);
+      throw new Error("ca marche pas ");
     }
   }
 }

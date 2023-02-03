@@ -65,9 +65,13 @@ export class UserResolver {
     @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<string> {
+    console.log("ca passe ici ! ");
+
     try {
       // Récupérer l'utilisateur dans la bdd suivant l'email
       const userFromDB = await userService.getByEmail(email);
+
+      console.log("userfromdb", userFromDB);
       // Vérifier que ce sont les même mots de passe
       if (
         await authService.verifyPassword(password, userFromDB.password_hash)
