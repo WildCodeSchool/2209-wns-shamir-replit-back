@@ -4,7 +4,7 @@ import { iFileCode, iFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
 import string from "string-sanitizer";
-import { Project } from "../models";
+import { Project, ProjectShare } from "../models";
 import projectService from "../services/projectService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
@@ -20,6 +20,11 @@ type ReqFile = Omit<File, "userId"> & {
 
 type ReqProject = Omit<Project, "userId"> & {
   userId: User;
+};
+
+type ReqProjectShare = Omit<ProjectShare, "userId" | "projectId"> & {
+  userId: User;
+  projectId: Project;
 };
 
 @Resolver(iFileCode)
@@ -143,9 +148,12 @@ export class FileResolver {
         projId
       )) as unknown as ReqProject[];
 
-      const projectShare = await projectShareService.getUserCanView(projId);
-      const thisUserCanView = projectShare.filter(
-        (share) => share.userId === ctx.id
+      const projectShares =
+        (await projectShareService.getAll()) as unknown as ReqProjectShare[];
+
+      const thisUserCanView = projectShares.filter(
+        (pshare) =>
+          pshare.projectId.id === projId && pshare.userId.id === ctx.id
       );
 
       if (
@@ -175,9 +183,12 @@ export class FileResolver {
         projId
       )) as unknown as ReqProject[];
 
-      const projectShare = await projectShareService.getUserCanView(projId);
-      const thisUserCanView = projectShare.filter(
-        (share) => share.userId === ctx.id
+      const projectShares =
+        (await projectShareService.getAll()) as unknown as ReqProjectShare[];
+
+      const thisUserCanView = projectShares.filter(
+        (pshare) =>
+          pshare.projectId.id === projId && pshare.userId.id === ctx.id
       );
 
       if (
@@ -186,6 +197,7 @@ export class FileResolver {
         thisUserCanView.length === 0
       )
         throw new Error("non authorisé");
+
       const files = await fileService.getAllFilesByProId(projId);
 
       const minProject: ProjToCodeFIle = {
@@ -215,9 +227,14 @@ export class FileResolver {
     try {
       // de l'id du fichier pour verifier si le fichier existe
       // Verifier si le fichier appartient bien à l'utilisateur
-      const projectShare = await projectShareService.getUserCanEdit(projectId);
-      const thisUserCanEdit = projectShare.filter(
-        (share) => share.userId === ctx.id
+      const projectShares =
+        (await projectShareService.getAll()) as unknown as ReqProjectShare[];
+
+      const thisUserCanEdit = projectShares.filter(
+        (pshare) =>
+          pshare.projectId.id === projectId &&
+          pshare.userId.id === ctx.id &&
+          pshare.write
       );
 
       const _file = (await fileService.getById(fileId)) as unknown as ReqFile;
