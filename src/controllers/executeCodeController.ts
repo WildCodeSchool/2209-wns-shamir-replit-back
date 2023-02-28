@@ -3,7 +3,7 @@ import executeCode from "../services/vmService";
 
 export const executeCodeController = async (req: Request, res: Response) => {
   const { code } = req.body;
-  const result = await executeCode(code);
+  const result = await executeCode(code);    
   if (result) {
     res.send(result);
   } else {
