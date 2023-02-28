@@ -11,7 +11,7 @@ import { TokenPayload } from "../tools/createApolloServer";
 import { ProjectShare, User } from "../models";
 import likeService from "../services/likeService";
 
-type ReqProject = Omit<Project, "userId"> & {
+export type ReqProject = Omit<Project, "userId"> & {
   userId: User;
 };
 
@@ -314,15 +314,18 @@ export class ProjectResolver {
   ): Promise<Project | undefined> {
     try {
       // On stock les informations du projet dans une variable
-      const project: any = await projectService.getById(projectId);
+      const project = (await projectService.getById(
+        projectId
+      )) as unknown as ReqProject[];
 
-      if (project[0].user.id !== ctx.id) throw new Error("userId not allowed");
+      if (project[0].userId.id !== ctx.id)
+        throw new Error("userId not allowed");
 
-      return await fileManager.createOneSubFolder(
-        project,
-        clientPath,
-        subFolderName
-      );
+      return await fileManager.createOneSubFolder({
+        project: project[0],
+        clientPath: clientPath,
+        subFolderName: subFolderName,
+      });
     } catch (err) {
       console.error(err);
       throw new Error("Can't create SubFolder");

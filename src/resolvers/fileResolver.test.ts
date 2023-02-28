@@ -1,7 +1,6 @@
 import { ApolloServer } from "apollo-server-express";
 import { createApolloServer } from "../tools/createApolloServer";
 import { queries } from "../tools/queries";
-import { ProjectShare } from "../models/project_share.model";
 import { FileCode } from "../models";
 
 describe("File resolver", () => {

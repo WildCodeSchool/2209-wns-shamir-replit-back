@@ -6,18 +6,16 @@ import { dataSource } from "../tools/createDataSource";
 const repository: Repository<Like> = dataSource.getRepository(Like);
 
 const likeService = {
-  getById: async (likeId: number) => {
-    return (await repository.findBy({ id: likeId }))[0];
-  },
+  getById: async (likeId: number) =>
+    (await repository.findBy({ id: likeId }))[0],
 
-  getAll: async (): Promise<Like[]> => {
-    return await repository.find({
+  getAll: async (): Promise<Like[]> =>
+    await repository.find({
       relations: {
         userId: true,
         projectId: true,
       },
-    });
-  },
+    }),
   create: async (projectId: number, userId: number): Promise<Like> => {
     const newLike = {
       projectId,

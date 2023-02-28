@@ -3,7 +3,6 @@ import { User } from "../models/user.model";
 import { dataSource } from "../tools/createDataSource";
 import * as argon2 from "argon2";
 import { iUser } from "../interfaces/InputType";
-import { runInNewContext } from "vm";
 
 const repository: Repository<User> = dataSource.getRepository(User);
 
@@ -13,12 +12,11 @@ const userService = {
    * @param email user email
    * @returns
    */
-  getByEmail: async (email: string) => {
-    return await repository.findOneByOrFail({ email });
-  },
+  getByEmail: async (email: string) =>
+    await repository.findOneByOrFail({ email }),
 
-  getById: async (userId: number): Promise<User[]> => {
-    return await repository.find({
+  getById: async (userId: number): Promise<User[]> =>
+    await repository.find({
       relations: {
         execution: true,
         project: true,
@@ -28,11 +26,10 @@ const userService = {
         commentAnswer: true,
       },
       where: { id: userId },
-    });
-  },
+    }),
 
-  getAll: async (): Promise<User[]> => {
-    return await repository.find({
+  getAll: async (): Promise<User[]> =>
+    await repository.find({
       relations: {
         execution: true,
         project: true,
@@ -41,8 +38,7 @@ const userService = {
         codeComment: true,
         commentAnswer: true,
       },
-    });
-  },
+    }),
 
   /**
    * Create a new user in the database.

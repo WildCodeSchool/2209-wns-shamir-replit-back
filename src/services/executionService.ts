@@ -5,20 +5,18 @@ import { dataSource } from "../tools/createDataSource";
 const repository: Repository<Execution> = dataSource.getRepository(Execution);
 
 const executionService = {
-  getById: async (executionId: number): Promise<Execution[]> => {
-    return await repository.find({
+  getById: async (executionId: number): Promise<Execution[]> =>
+    await repository.find({
       relations: { userId: true, projectId: true },
       where: {
         id: executionId,
       },
-    });
-  },
+    }),
 
-  getAll: async (): Promise<Execution[]> => {
-    return await repository.find({
+  getAll: async (): Promise<Execution[]> =>
+    await repository.find({
       relations: { userId: true, projectId: true },
-    });
-  },
+    }),
   create: async (
     projectId: number,
     userId: number,

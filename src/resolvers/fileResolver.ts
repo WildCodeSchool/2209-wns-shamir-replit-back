@@ -1,5 +1,4 @@
 import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
-import { DeleteResult } from "typeorm";
 import { iFileCode, iFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
@@ -11,7 +10,7 @@ import { TokenPayload } from "../tools/createApolloServer";
 import { fileManager } from "../tools/fileManager";
 import { User } from "../models";
 import projectShareService from "../services/projectShareService";
-import { FilesCodeData, ProjToCodeFIle } from "../interfaces/IFiles";
+import { ProjToCodeFIle } from "../interfaces/IFiles";
 
 type ReqFile = Omit<File, "userId"> & {
   userId: User;

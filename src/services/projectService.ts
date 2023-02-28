@@ -8,8 +8,8 @@ const repository: Repository<Project> = dataSource.getRepository(Project);
 const projectService = {
   // CRUD Classique
 
-  getById: async (projectId: number): Promise<Project[]> => {
-    return await repository.find({
+  getById: async (projectId: number): Promise<Project[]> =>
+    await repository.find({
       relations: {
         execution: true,
         projectShare: true,
@@ -17,8 +17,7 @@ const projectService = {
         like: true,
       },
       where: { id: projectId },
-    });
-  },
+    }),
 
   getAll: async (): Promise<Project[]> => {
     try {
