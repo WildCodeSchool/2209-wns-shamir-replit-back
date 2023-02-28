@@ -24,7 +24,7 @@ export const isAllowedcomment = (
   const fileId = codeComment.fileId;
 
   return allowedProjectFileIds.includes(fileId);
-};                            
+};
 
 @Resolver(iCodeComment)
 export class CodeCommentResolver {
