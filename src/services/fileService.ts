@@ -44,7 +44,7 @@ const fileService = {
 
   getAllFilesByProId: async (projectId: number): Promise<FileCode[]> => {
     try {
-      const result = await fileRepo.findBy({ projectId: projectId })
+      const result = await fileRepo.findBy({ projectId: projectId });
       return result;
     } catch (err) {
       console.error(err);

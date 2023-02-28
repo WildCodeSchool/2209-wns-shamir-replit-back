@@ -6,7 +6,8 @@
     "test": "export NODE_ENV=test && npm run migrate && jest --passWithNoTests --testTimeout=10000 --forceExit && export NODE_ENV=development",
     "seqtest": "export NODE_ENV=test && npm run migrate && jest --passWithNoTests --testTimeout=10000 --runInBand --forceExit && export NODE_ENV=development",
     "start": "node src/index.js",
-    "migrate": "ts-node-dev src/tools/dropDatabase.ts"
+    "migrate": "ts-node-dev src/tools/dropDatabase.ts",
+    "lint": "npx eslint 'src/**'"
   },
   "dependencies": {
     "apollo-server-core": "^3.11.1",
