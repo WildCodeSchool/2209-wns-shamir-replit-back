@@ -1,0 +1,21 @@
+name: "pull request on branch dev"
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  eslint-check:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: install node
+        uses: actions/setup-node@v3
+
+      - name: run lint
+        run: |
+          npm install
+          npm run link
