@@ -7,18 +7,16 @@ const repository: Repository<ProjectShare> =
   dataSource.getRepository(ProjectShare);
 
 const projectShareService = {
-  getById: async (projectShareId: number) => {
-    return (await repository.findBy({ id: projectShareId }))[0];
-  },
+  getById: async (projectShareId: number) =>
+    (await repository.findBy({ id: projectShareId }))[0],
 
-  getAll: async (): Promise<ProjectShare[]> => {
-    return await repository.find({
+  getAll: async (): Promise<ProjectShare[]> =>
+    await repository.find({
       relations: {
         userId: true,
         projectId: true,
       },
-    });
-  },
+    }),
   create: async (
     projectId: number,
     userId: number,

@@ -12,8 +12,7 @@ export class UserResolver {
   async createUser(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Arg("login") login: string,
-    @Ctx() ctx: Context<TokenPayload>
+    @Arg("login") login: string
   ): Promise<User> {
     try {
       const userFromDB = await userService.create(email, password, login);

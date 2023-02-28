@@ -7,15 +7,13 @@ const repository: Repository<CodeComment> =
   dataSource.getRepository(CodeComment);
 
 const codeCommentService = {
-  getById: async (codeCommentId: number) => {
-    return (await repository.findBy({ id: codeCommentId }))[0];
-  },
+  getById: async (codeCommentId: number) =>
+    (await repository.findBy({ id: codeCommentId }))[0],
 
-  getAll: async (): Promise<CodeComment[]> => {
-    return await repository.find({
+  getAll: async (): Promise<CodeComment[]> =>
+    await repository.find({
       relations: { userId: true, fileId: true },
-    });
-  },
+    }),
   create: async (
     fileId: number,
     userId: number,
