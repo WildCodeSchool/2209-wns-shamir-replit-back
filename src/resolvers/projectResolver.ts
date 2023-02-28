@@ -162,6 +162,20 @@ export class ProjectResolver {
     }
   }
 
+  @Query(() => [Project])
+  async getProjectByUserId(
+    @Arg("userId") userId: number
+    // @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project[]> {
+    try {
+      const projectByuserId = await projectService.getByUserId(userId);
+      return projectByuserId;
+    } catch (e) {
+      console.error(e);
+      throw new Error("ca marche pas ");
+    }
+  }
+
   @Mutation(() => Project)
   async addLike(
     @Arg("projectId") projectId: number,
