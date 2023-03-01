@@ -124,72 +124,72 @@ export class FileResolver {
     }
   }
 
-  // @Query(() => [iFilesWithCode])
-  // async getCodeFiles(
-  //   @Arg("projectId") projectId: string,
-  //   @Ctx() ctx: Context<TokenPayload>
-  // ): Promise<iFilesWithCode[]> {
-  //   try {
-  //     const projId = parseInt(projectId, 10);
-  //     const [project] = await projectService.getByProjId(projId);
+  @Query(() => [IFilesWithCode])
+  async getCodeFiles(
+    @Arg("projectId") projectId: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<IFilesWithCode[]> {
+    try {
+      const projId = parseInt(projectId, 10);
+      const project = await projectService.getByProjId(ctx.id, projId);
 
-  //     if (project.user.id !== ctx.id) throw new Error("non authorisé");
-  //     const files = await fileService.getAllFilesByProId(projId);
+      if (!project) throw new Error("non authorisé");
+      const files = await fileService.getAllFilesByProjId(projId);
 
-  //     const minProject: ProjToCodeFIle = {
-  //       projectId: project.id,
-  //       path: project.id_storage_number,
-  //     };
+      const minProject: ProjToCodeFIle = {
+        projectId: project.id,
+        path: project.id_storage_number,
+      };
 
-  //     const result: iFilesWithCode[] = await fileManager.getArrayCodeFile(
-  //       minProject,
-  //       files
-  //     );
+      const result: IFilesWithCode[] = await fileManager.getArrayCodeFile(
+        minProject,
+        files
+      );
 
-  //     return result;
-  //   } catch (err) {
-  //     console.error(err);
-  //     throw new Error("N'a pas trouver un fichier par l'id : Resolver");
-  //   }
-  // }
+      return result;
+    } catch (err) {
+      console.error(err);
+      throw new Error("N'a pas trouver un fichier par l'id : Resolver");
+    }
+  }
 
-  // @Mutation(() => String)
-  // async updateCodeFile(
-  //   @Arg("projectId") projectId: number,
-  //   @Arg("fileId") fileId: number,
-  //   @Arg("contentData") contentData: string,
-  //   @Ctx() ctx: Context<TokenPayload>
-  // ) {
-  //   try {
-  //     // de l'id du fichier pour verifier si le fichier existe
-  //     // Verifier si le fichier appartient bien à l'utilisateur
-  //     const projectShare = await projectShareService.getUserCanEdit(projectId);
-  //     const thisUserCanEdit = projectShare.filter(
-  //       (share) => share.user.id === ctx.id
-  //     );
+  @Mutation(() => String)
+  async updateCodeFile(
+    @Arg("projectId") projectId: number,
+    @Arg("fileId") fileId: number,
+    @Arg("contentData") contentData: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ) {
+    try {
+      // de l'id du fichier pour verifier si le fichier existe
+      // Verifier si le fichier appartient bien à l'utilisateur
+      const canEdit = await projectShareService.getUserCanEdit(
+        ctx.id,
+        projectId
+      );
 
-  //     const _file = await fileService.getById(fileId);
-  //     if (_file.user.id !== ctx.id && thisUserCanEdit.length === 0)
-  //       throw new Error("non authorisé");
+      const file = await fileService.getById(ctx.id, fileId);
+      if (!file || canEdit.length === 0) throw new Error("non authorisé");
 
-  //     // Verifier si le fichier existe bien dans la bdd
-  //     // Verifier si le fichier existe bien sur le serveur
-  //     if (!_file.id_storage_file)
-  //       throw new Error("Pas de fichier sur le serveur");
+      // Verifier si le fichier existe bien dans la bdd
+      // Verifier si le fichier existe bien sur le serveur
+      if (!file.id_storage_file)
+        throw new Error("Pas de fichier sur le serveur");
 
-  //     const project: Project = (await projectService.getByProjId(projectId))[0];
+      const project = await projectService.getByProjId(ctx.id, projectId);
+      if (!project) throw new Error("proj dont exist");
 
-  //     await fileManager.updateContentData(
-  //       project.id_storage_number,
-  //       _file.id_storage_file,
-  //       contentData
-  //     );
-  //     const result = {
-  //       success: true,
-  //     };
-  //     return JSON.stringify(result);
-  //   } catch (err) {
-  //     throw new Error("Une erreur est survenue lors de l'update du code");
-  //   }
-  //}
+      await fileManager.updateContentData(
+        project.id_storage_number,
+        file.id_storage_file,
+        contentData
+      );
+      const result = {
+        success: true,
+      };
+      return JSON.stringify(result);
+    } catch (err) {
+      throw new Error("Une erreur est survenue lors de l'update du code");
+    }
+  }
 }

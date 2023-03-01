@@ -1,6 +1,5 @@
 import { Field, InputType, ObjectType, Query } from "type-graphql";
 import "reflect-metadata";
-import { FileCode } from "../models";
 
 @InputType()
 export class IProject {
@@ -64,13 +63,7 @@ export class ICodeComment {
 @InputType()
 export class IProjectShare {
   @Field({ nullable: true })
-  id: number;
-
-  @Field({ nullable: true })
   projectId: number;
-
-  @Field({ nullable: true })
-  userId: number;
 
   @Field({ nullable: true })
   read: boolean;

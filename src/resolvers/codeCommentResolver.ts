@@ -49,8 +49,6 @@ export class CodeCommentResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CodeComment | null> {
     try {
-      console.log(data);
-
       return await codeCommentService.update(data, ctx.id, codeCommentId);
     } catch (e) {
       throw new Error("Can't update CodeComment");
