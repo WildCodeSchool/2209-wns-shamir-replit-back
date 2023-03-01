@@ -12,6 +12,7 @@ import http from "http";
 import authService from "../services/authService";
 import { dataSource } from "./createDataSource";
 import * as dotenv from "dotenv";
+import { LikeResolver } from "../resolvers/likeResolver";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ export const createApolloServer = async (
       // CommentAnswerResolver,
       ExecutionResolver,
       FileResolver,
+      LikeResolver,
     ],
   });
 

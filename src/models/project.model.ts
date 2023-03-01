@@ -24,9 +24,9 @@ export class Project {
   @Column()
   name: string;
 
-  @Field({ nullable: true })
+  @Field()
   @Column()
-  description?: string;
+  description: string;
 
   @Field()
   @Column()
@@ -56,7 +56,7 @@ export class Project {
   @OneToMany(() => Execution, (execution) => execution.project)
   execution: Execution[];
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.project, {
     onDelete: "CASCADE",
     eager: true,

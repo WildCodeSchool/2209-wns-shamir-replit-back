@@ -1,7 +1,7 @@
 import fs from "fs";
 import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
-import { iFilesWithCode } from "../interfaces/InputType";
+import { IFilesWithCode } from "../interfaces/InputType";
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 
 export const fileManager = {
@@ -93,9 +93,11 @@ export const fileManager = {
     }
   },
 
-  deleteOneFile: async (project: Project, file: FileCode) => {
+  deleteOneFile: async (project: Project | null, file: FileCode) => {
     try {
-      const pathToDelete = `./projects/${project.id_storage_number}${file.id_storage_file}`;
+      const pathToDelete = `./projects/${project!.id_storage_number}${
+        file.id_storage_file
+      }`;
 
       fs.unlinkSync(pathToDelete);
     } catch (err) {

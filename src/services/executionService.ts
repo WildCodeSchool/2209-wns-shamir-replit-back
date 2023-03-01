@@ -1,50 +1,68 @@
 import { Repository } from "typeorm";
+import { IExecution } from "../interfaces/InputType";
+import { Project, User } from "../models";
 import { Execution } from "../models/execution.model";
+import { ProjectResolver } from "../resolvers/projectResolver";
 import { dataSource } from "../tools/createDataSource";
 
-const repository: Repository<Execution> = dataSource.getRepository(Execution);
+const execRepo: Repository<Execution> = dataSource.getRepository(Execution);
+const userRepo: Repository<User> = dataSource.getRepository(User);
+const projectRepo: Repository<Project> = dataSource.getRepository(Project);
 
 const executionService = {
-  getById: async (executionId: number): Promise<Execution[]> => {
-    return await repository.find({
+  getById: async (
+    uid: number,
+    executionId: number
+  ): Promise<Execution | null> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    if (user === null) throw new Error("inputs null");
+
+    return await execRepo.findOne({
       relations: { user: true, project: true },
       where: {
         id: executionId,
+        user: user,
       },
     });
   },
 
-  getAll: async (): Promise<Execution[]> => {
-    return await repository.find({
+  getAll: async (uid: number): Promise<Execution[]> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    if (user === null) throw new Error("inputs null");
+    return await execRepo.find({
       relations: { user: true, project: true },
+      where: { user: user },
     });
   },
-  create: async (
-    projectId: number,
-    userId: number,
-    output: string,
-    execution_date: Date
-  ): Promise<Execution> => {
-    const newExecution = {
-      projectId,
-      userId,
-      output,
-      execution_date,
-    };
-    return await repository.save(newExecution);
+  create: async (data: IExecution, uid: number): Promise<Execution> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    const project = await projectRepo.findOneBy({ id: data.projectId });
+    if (user === null) throw new Error("user null");
+    if (project === null) throw new Error("project null");
+
+    return await execRepo.save({ ...data, user, project });
   },
   update: async (
-    execution: Execution,
+    execution: IExecution,
+    uid: number,
     executionId: number
-  ): Promise<Execution> => {
-    await repository.update(executionId, execution);
-    return (await executionService.getById(executionId))[0];
+  ): Promise<Execution | null> => {
+    const exec = await executionService.getById(uid, executionId);
+    if (exec === null) throw new Error("fu");
+    await execRepo.update(executionId, execution);
+    return await execRepo.findOneBy({
+      id: executionId,
+    });
   },
 
-  delete: async (executionId: number): Promise<Execution> => {
-    const execution = (await executionService.getById(executionId))[0];
-    await repository.delete(executionId);
-    return execution;
+  delete: async (
+    uid: number,
+    executionId: number
+  ): Promise<Execution | null> => {
+    const exec = await executionService.getById(uid, executionId);
+    if (exec === null) throw new Error("fu");
+    await execRepo.delete(executionId);
+    return exec;
   },
 };
 

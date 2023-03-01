@@ -18,7 +18,6 @@ export class CodeComment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
   @Column()
   line_number: number;
 
@@ -40,8 +39,8 @@ export class CodeComment {
   @Column({ default: false })
   is_report?: boolean;
 
-  @Field(() => [CommentAnswer])
-  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.codeComment)
+  @Field(() => [CommentAnswer], { nullable: true })
+  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.user)
   commentAnswer: CommentAnswer[];
 
   @Field(() => User)

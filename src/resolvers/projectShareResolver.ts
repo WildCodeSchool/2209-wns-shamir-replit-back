@@ -1,6 +1,6 @@
 import { Context } from "apollo-server-core";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { iProjectShare } from "../interfaces/InputType";
+import { IProjectShare } from "../interfaces/InputType";
 import { Project, User } from "../models";
 import { ProjectShare } from "../models/project_share.model";
 import projectService from "../services/projectService";
@@ -17,7 +17,7 @@ type ReqProjectShare = Omit<ProjectShare, "projectId"> & {
   // id_storage_number: string;
 };
 
-@Resolver(iProjectShare)
+@Resolver(IProjectShare)
 export class ProjectShareResolver {
   @Mutation(() => ProjectShare)
   async createProjectShare(

@@ -1,11 +1,8 @@
-import { Ctx, ID } from "type-graphql";
 import { Repository } from "typeorm";
 import { ICodeComment } from "../interfaces/InputType";
 import { FileCode, User } from "../models";
 import { CodeComment } from "../models/code_comment.model";
 import { dataSource } from "../tools/createDataSource";
-import fileService from "./fileService";
-import userService from "./userService";
 
 const codeCommentRepo: Repository<CodeComment> =
   dataSource.getRepository(CodeComment);
@@ -14,55 +11,49 @@ const userRepo: Repository<User> = dataSource.getRepository(User);
 const fileCodeRepo: Repository<FileCode> = dataSource.getRepository(FileCode);
 
 const codeCommentService = {
-  getOneByID: async (
-    id: number,
-    userId: number
-  ): Promise<CodeComment | null> => {
-    return await codeCommentRepo.findOne({
-      where: {
-        id: id,
-        user: { id: userId },
-      },
-    });
-  },
-
-  getById: async (
-    codeCommentId: number,
-    uid: number
+  getByCodeCommentId: async (
+    uid: number,
+    codeCommentId: number
   ): Promise<CodeComment | null> => {
     try {
       const user = await userRepo.findOneBy({ id: uid });
       if (user === null) throw new Error("inputs null");
+
       return await codeCommentRepo.findOne({
-        relations: { fileCode: true, user: true },
+        relations: { fileCode: true, user: true, commentAnswer: true },
         where: {
           id: codeCommentId,
-          user: { id: user.id },
+          user: user,
         },
       });
     } catch (err) {
       console.error(err);
-      throw new Error("Impossible de créer le projet");
+      throw new Error("error getbyCodeCommentID");
     }
   },
 
   getAllAllowed: async (uid: number): Promise<CodeComment[]> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    if (user === null) throw new Error("user not found");
+
     return await codeCommentRepo.find({
-      select: { id: true },
-      relations: { user: true, fileCode: true },
+      relations: { user: true, fileCode: true, commentAnswer: true },
       where: {
         fileCode: {
-          project: { id: uid, isPublic: true, projectShare: { id: uid } },
+          project: { user: user, isPublic: true },
         },
       },
     });
   },
 
-  getAll: async (uid: number, idP: number): Promise<CodeComment[]> => {
+  getByFileCodeId: async (
+    uid: number,
+    fileCodeId: number
+  ): Promise<CodeComment[]> => {
     return await codeCommentRepo.find({
-      relations: { user: true, fileCode: true },
+      relations: { user: true, fileCode: true, commentAnswer: true },
       where: {
-        fileCode: { id: idP },
+        fileCode: { id: fileCodeId },
         user: { id: uid },
       },
     });
@@ -70,12 +61,15 @@ const codeCommentService = {
   create: async (data: ICodeComment, uid: number): Promise<CodeComment> => {
     try {
       const user = await userRepo.findOneBy({ id: uid });
+      const fileCode = await fileCodeRepo.findOneBy({ id: data.fileCodeId });
 
       if (user === null) throw new Error("inputs null");
+      if (fileCode === null) throw new Error("filecode null");
 
       return await codeCommentRepo.save({
-        data,
+        ...data,
         user,
+        fileCode,
       });
     } catch (err) {
       console.error(err);
@@ -85,23 +79,14 @@ const codeCommentService = {
 
   update: async (
     data: ICodeComment,
-    userId: number,
+    uid: number,
     codeCommentId: number
   ): Promise<CodeComment | null> => {
-    console.log(codeCommentId, userId);
-
-    // const codeComId = await codeCommentRepo.find({
-    //   where: { id: codeCommentId },
-    // });
-
-    const codeComment = await codeCommentService.getById(codeCommentId, userId);
-    console.log(codeComment);
-
-    // if (codeComment !== null) {
-    //   throw new Error("comment already exists");
-    // }
-    console.log("ici");
-
+    const codeComment = await codeCommentService.getByCodeCommentId(
+      uid,
+      codeCommentId
+    );
+    if (codeComment === null) throw new Error("fu");
     await codeCommentRepo.update(codeCommentId, {
       char_length: data.char_length,
       comment: data.comment,
@@ -110,17 +95,20 @@ const codeCommentService = {
       is_report: data.is_report,
       resolved: data.resolved,
     });
-
     return await codeCommentRepo.findOneBy({
       id: codeCommentId,
     });
   },
 
-  // delete: async (codeCommentId: number): Promise<CodeComment> => {
-  //   const codeComment = await codeCommentService.getById(codeCommentId);
-  //   await repository.delete(codeCommentId);
-  //   return codeComment;
-  // },
+  delete: async (uid: number, codeCommentId: number): Promise<CodeComment> => {
+    const codeComment = await codeCommentService.getByCodeCommentId(
+      uid,
+      codeCommentId
+    );
+    if (codeComment === null) throw new Error("fu");
+    await codeCommentRepo.delete(codeCommentId);
+    return codeComment;
+  },
 };
 
 export default codeCommentService;

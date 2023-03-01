@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { iProjectShare } from "../interfaces/InputType";
+import { IProjectShare } from "../interfaces/InputType";
 import { ProjectShare } from "../models/project_share.model";
 import { dataSource } from "../tools/createDataSource";
 
@@ -36,7 +36,7 @@ const projectShareService = {
     return await repository.save(newProjectShare);
   },
   update: async (
-    projectShare: iProjectShare,
+    projectShare: IProjectShare,
     projectShareId: number
   ): Promise<ProjectShare> => {
     await repository.update(projectShareId, projectShare);

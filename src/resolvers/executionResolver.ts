@@ -1,28 +1,19 @@
 import { Context } from "apollo-server-core";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { iExecution } from "../interfaces/InputType";
+import { IExecution } from "../interfaces/InputType";
 import { Execution } from "../models/execution.model";
 import executionService from "../services/executionService";
 import { TokenPayload } from "../tools/createApolloServer";
 
-@Resolver(iExecution)
+@Resolver(Execution)
 export class ExecutionResolver {
   @Mutation(() => Execution)
   async createExecution(
-    @Arg("projectId") projectId: number,
-    @Arg("output") output: string,
-    @Arg("execution_date") execution_date: Date,
+    @Arg("data") data: IExecution,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution> {
     try {
-      const userId = ctx.id;
-
-      const executionFromDB = await executionService.create(
-        projectId,
-        userId,
-        output,
-        execution_date
-      );
+      const executionFromDB = await executionService.create(data, ctx.id);
       return executionFromDB;
     } catch (err) {
       console.error(err);
@@ -35,8 +26,7 @@ export class ExecutionResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Execution[]> {
     try {
-      const executions = await executionService.getAll();
-      return executions.filter((execution) => execution.id === ctx.id);
+      return await executionService.getAll(ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Executions");
@@ -47,13 +37,9 @@ export class ExecutionResolver {
   async getExecutionById(
     @Arg("executionId") executionId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Execution> {
+  ): Promise<Execution | null> {
     try {
-      const execution = (await executionService.getById(executionId))[0];
-
-      if (execution.user.id !== ctx.id) throw new Error("not allowed");
-
-      return execution;
+      return await executionService.getById(ctx.id, executionId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find Execution");
@@ -62,15 +48,12 @@ export class ExecutionResolver {
 
   @Mutation(() => Execution)
   async updateExecution(
-    @Arg("Execution") execution: iExecution,
+    @Arg("data") data: IExecution,
     @Arg("ExecutionId") executionId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Execution> {
+  ): Promise<Execution | null> {
     try {
-      const execution = (await executionService.getById(executionId))[0];
-      if (execution.user.id !== ctx.id) throw new Error("not allowed");
-
-      return await executionService.update(execution, executionId);
+      return await executionService.update(data, ctx.id, executionId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Execution");
@@ -81,12 +64,9 @@ export class ExecutionResolver {
   async deleteExecution(
     @Arg("ExecutionId") executionId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Execution> {
+  ): Promise<Execution | null> {
     try {
-      const execution = (await executionService.getById(executionId))[0];
-      if (execution.user.id !== ctx.id) throw new Error("not allowed");
-
-      return await executionService.delete(executionId);
+      return await executionService.delete(ctx.id, executionId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't delete Execution");

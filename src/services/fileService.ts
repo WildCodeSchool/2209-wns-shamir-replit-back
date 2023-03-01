@@ -1,11 +1,14 @@
 import { Repository } from "typeorm";
 import { dataSource } from "../tools/createDataSource";
 import { FileCode } from "../models/file.model";
-import { iFileCode } from "../interfaces/InputType";
-import { Project } from "../models";
+import { IFileCode } from "../interfaces/InputType";
+import { Project, User } from "../models";
 import { fileManager } from "../tools/fileManager";
+import projectService from "./projectService";
 
 const fileRepo: Repository<FileCode> = dataSource.getRepository(FileCode);
+const userRepo: Repository<User> = dataSource.getRepository(User);
+const projectRepo: Repository<Project> = dataSource.getRepository(Project);
 
 const fileService = {
   // CRUD Classique
@@ -33,18 +36,29 @@ const fileService = {
     }
   },
 
-  getById: async (fileId: number) => {
+  getById: async (uid: number, fileId: number): Promise<FileCode | null> => {
     try {
-      return (await fileRepo.findBy({ id: fileId }))[0];
+      const user = await userRepo.findOneBy({ id: uid });
+      if (user === null) throw new Error("inputs null");
+
+      return await fileRepo.findOne({
+        relations: { project: true, user: true },
+        where: {
+          id: fileId,
+          user: user,
+        },
+      });
     } catch (err) {
       console.error(err);
       throw new Error("N'a pas réussi à obtenir un fichier par l'id");
     }
   },
 
-  getAllFilesByProId: async (projectId: number): Promise<FileCode[]> => {
+  getAllFilesByProjId: async (projectId: number): Promise<FileCode[]> => {
     try {
-      const result = await fileRepo.findBy({ project: { id: projectId } });
+      const proj = await projectRepo.findOneBy({ id: projectId });
+      if (proj === null) throw new Error("inputs null");
+      const result = await fileRepo.findBy({ project: proj });
       return result;
     } catch (err) {
       console.error(err);
@@ -61,7 +75,7 @@ const fileService = {
     clientPath: string,
     contentData: string,
     project: Project
-  ) => {
+  ): Promise<FileCode> => {
     try {
       const id_storage_file = clientPath + fileName;
 
@@ -84,21 +98,34 @@ const fileService = {
     }
   },
 
-  update: async (fileRequest: iFileCode, fileId: number): Promise<FileCode> => {
+  update: async (
+    fileRequest: IFileCode,
+    uid: number,
+    fileId: number
+  ): Promise<FileCode | null> => {
     try {
+      const fileReq = await fileService.getById(uid, fileId);
+      if (fileReq === null) throw new Error("fu");
+
       await fileRepo.update(fileId, fileRequest);
-      return await fileService.getById(fileId);
+      return await fileRepo.findOneBy({ id: fileId });
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de modifier le fichier");
     }
   },
 
-  delete: async (fileId: number, project: Project, file: FileCode) => {
+  delete: async (uid: number, fileId: number) => {
     try {
-      await fileManager.deleteOneFile(project, file);
+      const fileReq = await fileService.getById(uid, fileId);
+      if (fileReq === null) throw new Error("fu");
+      const project = await projectRepo.findOne({
+        where: { fileCode: fileReq },
+      });
+      if (!project) throw new Error("fu");
+      await fileManager.deleteOneFile(project, fileReq);
       await fileRepo.delete(fileId);
-      return file;
+      return fileReq;
     } catch (err) {
       console.error(err);
       throw new Error("Impossible d'effacer le fichier");

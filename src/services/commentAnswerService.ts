@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { iCommentAnswer } from "../interfaces/InputType";
+import { ICommentAnswer } from "../interfaces/InputType";
 import { CommentAnswer } from "../models/comment_answer.model";
 import { dataSource } from "../tools/createDataSource";
 
@@ -31,7 +31,7 @@ const commentAnswerService = {
     return await repository.save(newCommentAnswer);
   },
   update: async (
-    commentAnswer: iCommentAnswer,
+    commentAnswer: ICommentAnswer,
     commentAnswerId: number
   ): Promise<CommentAnswer> => {
     await repository.update(commentAnswerId, commentAnswer);
