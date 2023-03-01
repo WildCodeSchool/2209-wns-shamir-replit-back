@@ -6,6 +6,8 @@ import { executeCodeController } from "./controllers/executeCodeController";
 import http from "http";
 import { createApolloServer } from "./tools/createApolloServer";
 import "reflect-metadata";
+import { authMiddleware } from "./middlewares/authMiddleware";
+import { executionCountMiddleware } from "./middlewares/executionCountMiddleware";
 
 const port = 5000;
 
@@ -16,7 +18,12 @@ async function listen(port: number) {
 
   const router = express.Router();
 
-  router.post("/executeCode", executeCodeController);
+  router.post(
+    "/executeCode",
+    authMiddleware,
+    executionCountMiddleware,
+    executeCodeController
+  );
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
