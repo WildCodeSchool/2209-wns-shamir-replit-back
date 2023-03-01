@@ -7,7 +7,7 @@ const repository: Repository<Execution> = dataSource.getRepository(Execution);
 const executionService = {
   getById: async (executionId: number): Promise<Execution[]> => {
     return await repository.find({
-      relations: { userId: true, projectId: true },
+      relations: { user: true, project: true },
       where: {
         id: executionId,
       },
@@ -16,7 +16,7 @@ const executionService = {
 
   getAll: async (): Promise<Execution[]> => {
     return await repository.find({
-      relations: { userId: true, projectId: true },
+      relations: { user: true, project: true },
     });
   },
   create: async (

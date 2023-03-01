@@ -14,8 +14,8 @@ const projectShareService = {
   getAll: async (): Promise<ProjectShare[]> => {
     return await repository.find({
       relations: {
-        userId: true,
-        projectId: true,
+        user: true,
+        project: true,
       },
     });
   },
@@ -51,7 +51,7 @@ const projectShareService = {
 
   // Recup la liste des projectShare par l'idProjet
   getUserCanEdit: async (projectId: number) => {
-    const listOfUser = await repository.findBy({ projectId: projectId });
+    const listOfUser = await repository.findBy({ project: { id: projectId } });
     const userCanEdit = listOfUser.filter((item) => item.write === true);
     return userCanEdit;
   },

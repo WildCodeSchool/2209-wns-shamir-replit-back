@@ -1,5 +1,4 @@
 import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
-import { DeleteResult } from "typeorm";
 import { iFileCode, iFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
@@ -9,18 +8,8 @@ import projectService from "../services/projectService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
 import { fileManager } from "../tools/fileManager";
-import { User } from "../models";
 import projectShareService from "../services/projectShareService";
-import { FilesCodeData, ProjToCodeFIle } from "../interfaces/IFiles";
-
-type ReqFile = Omit<File, "userId"> & {
-  userId: User;
-  id_storage_file: string;
-};
-
-type ReqProject = Omit<Project, "userId"> & {
-  userId: User;
-};
+import { ProjToCodeFIle } from "../interfaces/IFiles";
 
 @Resolver(iFileCode)
 export class FileResolver {
@@ -28,7 +17,7 @@ export class FileResolver {
   async getAllFiles(@Ctx() ctx: Context<TokenPayload>): Promise<FileCode[]> {
     try {
       const files = await fileService.getAll();
-      return files.filter((file) => file.userId === ctx.id);
+      return files.filter((file) => file.user.id === ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("N'a pas trouver les fichiers : Resolver");
@@ -42,7 +31,7 @@ export class FileResolver {
   ): Promise<FileCode> {
     try {
       const file = await fileService.getById(fileId);
-      if (file.userId !== ctx.id) throw new Error("non authorisé");
+      if (file.user.id !== ctx.id) throw new Error("non authorisé");
       return file;
     } catch (err) {
       console.error(err);
@@ -75,7 +64,7 @@ export class FileResolver {
 
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const fileName = `${timeStamp}_${updateName}_${userId}`;
-      const project: Project = (await projectService.getById(projectId))[0];
+      const project: Project = (await projectService.getByProjId(projectId))[0];
       // Création du fichier sur le serveur et dans la bdd
       return await fileService.create(
         userId,
@@ -101,7 +90,7 @@ export class FileResolver {
   ): Promise<FileCode> {
     try {
       const _file = await fileService.getById(fileId);
-      if (_file.userId !== ctx.id) throw new Error("non authorisé");
+      if (_file.user.id !== ctx.id) throw new Error("non authorisé");
 
       return await fileService.update(file, fileId);
     } catch (err) {
@@ -117,13 +106,13 @@ export class FileResolver {
   ) {
     try {
       const _file = await fileService.getById(fileId);
-      if (_file.userId !== ctx.id) throw new Error("non authorisé");
+      if (_file.user.id !== ctx.id) throw new Error("non authorisé");
 
       const file: FileCode = await fileService.getById(fileId);
 
-      const projectId = (file.projectId as unknown as Project).id;
+      const projectId = (file.project.id as unknown as Project).id;
 
-      const project: Project = (await projectService.getById(projectId))[0];
+      const project: Project = (await projectService.getByProjId(projectId))[0];
 
       return await fileService.delete(fileId, project, file);
     } catch (err) {
@@ -139,16 +128,14 @@ export class FileResolver {
   ): Promise<FileCode[]> {
     try {
       const projId = parseInt(projectId, 10);
-      const project = (await projectService.getById(
-        projId
-      )) as unknown as ReqProject[];
+      const project = await projectService.getByProjId(projId);
 
       const projectShare = await projectShareService.getUserCanEdit(projId);
       const thisUserCanEdit = projectShare.filter(
-        (share) => share.userId === ctx.id
+        (share) => share.user.id === ctx.id
       );
 
-      if (project[0].userId.id !== ctx.id && thisUserCanEdit.length === 0)
+      if (project[0].user.id !== ctx.id && thisUserCanEdit.length === 0)
         throw new Error("non authorisé");
 
       const files = await fileService.getAllFilesByProId(projId);
@@ -167,11 +154,9 @@ export class FileResolver {
   ): Promise<iFilesWithCode[]> {
     try {
       const projId = parseInt(projectId, 10);
-      const [project] = (await projectService.getById(
-        projId
-      )) as unknown as ReqProject[];
+      const [project] = await projectService.getByProjId(projId);
 
-      if (project.userId.id !== ctx.id) throw new Error("non authorisé");
+      if (project.user.id !== ctx.id) throw new Error("non authorisé");
       const files = await fileService.getAllFilesByProId(projId);
 
       const minProject: ProjToCodeFIle = {
@@ -203,11 +188,11 @@ export class FileResolver {
       // Verifier si le fichier appartient bien à l'utilisateur
       const projectShare = await projectShareService.getUserCanEdit(projectId);
       const thisUserCanEdit = projectShare.filter(
-        (share) => share.userId === ctx.id
+        (share) => share.user.id === ctx.id
       );
 
-      const _file = (await fileService.getById(fileId)) as unknown as ReqFile;
-      if (_file.userId.id !== ctx.id && thisUserCanEdit.length === 0)
+      const _file = await fileService.getById(fileId);
+      if (_file.user.id !== ctx.id && thisUserCanEdit.length === 0)
         throw new Error("non authorisé");
 
       // Verifier si le fichier existe bien dans la bdd
@@ -215,7 +200,7 @@ export class FileResolver {
       if (!_file.id_storage_file)
         throw new Error("Pas de fichier sur le serveur");
 
-      const project: Project = (await projectService.getById(projectId))[0];
+      const project: Project = (await projectService.getByProjId(projectId))[0];
 
       await fileManager.updateContentData(
         project.id_storage_number,

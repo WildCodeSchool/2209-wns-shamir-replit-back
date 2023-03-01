@@ -7,28 +7,28 @@ import { Like } from "../models";
 
 @Resolver(iLike)
 export class LikeResolver {
-  @Mutation(() => Like)
-  async createLike(
-    @Arg("projectId") projectId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Like> {
-    try {
-      const userId = ctx.id;
+  // @Mutation(() => Like)
+  // async createLike(
+  //   @Arg("projectId") projectId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<Like> {
+  //   try {
+  //     const userId = ctx.id;
 
-      const likeFromDB = await likeService.create(projectId, userId);
-      return likeFromDB;
-    } catch (error) {
-      console.error(error);
-      throw new Error("can't create like");
-    }
-  }
+  //     const likeFromDB = await likeService.create(projectId, userId);
+  //     return likeFromDB;
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error("can't create like");
+  //   }
+  // }
 
   @Query(() => [Like])
   async getAllLikes(@Ctx() ctx: Context<TokenPayload>): Promise<Like[]> {
     try {
       const likes = await likeService.getAll();
 
-      return likes.filter((like) => like.userId === ctx.id);
+      return likes.filter((like) => like.user === ctx.id);
     } catch (error) {
       console.error(error);
       throw new Error("can't get all likes");
@@ -41,11 +41,11 @@ export class LikeResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Like> {
     try {
-      const { userId } = (await likeService.getAll()).filter(
+      const { user } = (await likeService.getAll()).filter(
         (like) => like.id === likeId
       )[0];
 
-      if (userId === ctx.id) return await likeService.getById(likeId);
+      if (user === ctx.id) return await likeService.getById(likeId);
       else throw new Error("id not allowed");
     } catch (error) {
       console.error(error);
@@ -60,11 +60,11 @@ export class LikeResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Like> {
     try {
-      const { userId } = (await likeService.getAll()).filter(
+      const { user } = (await likeService.getAll()).filter(
         (_like) => _like.id === likeId
       )[0];
 
-      if (userId === ctx.id) return await likeService.update(like, likeId);
+      if (user === ctx.id) return await likeService.update(like, likeId);
       else throw new Error("id not allowed");
     } catch (e) {
       console.error(e);
@@ -79,11 +79,11 @@ export class LikeResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Like> {
     try {
-      const { userId } = (await likeService.getAll()).filter(
+      const { user } = (await likeService.getAll()).filter(
         (like) => like.id === likeId
       )[0];
 
-      if (userId === ctx.id) return await likeService.delete(likeId);
+      if (user === ctx.id) return await likeService.delete(likeId);
       else throw new Error("id not allowed");
     } catch (e) {
       console.error(e);

@@ -35,30 +35,30 @@ export class User {
   date_end_subscription?: Date;
 
   @Field(() => [CommentAnswer], { nullable: true })
-  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.userId)
+  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.user)
   commentAnswer: CommentAnswer[];
 
   @Field(() => [FileCode], { nullable: true })
-  @OneToMany(() => FileCode, (fileCode) => fileCode.userId)
+  @OneToMany(() => FileCode, (fileCode) => fileCode.user)
   fileCode: FileCode[];
 
   @Field(() => [CodeComment], { nullable: true })
-  @OneToMany(() => CodeComment, (codeComment) => codeComment.userId)
+  @OneToMany(() => CodeComment, (codeComment) => codeComment.user)
   codeComment: CodeComment[];
 
   @Field(() => [ProjectShare], { nullable: true })
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.userId)
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.user)
   projectShare: CommentAnswer[];
 
   @Field(() => [Like], { nullable: true })
-  @OneToMany(() => Like, (like) => like.projectId)
+  @OneToMany(() => Like, (like) => like.project)
   like: Like[];
 
   @Field(() => [Execution], { nullable: true })
-  @OneToMany(() => Execution, (execution) => execution.userId)
+  @OneToMany(() => Execution, (execution) => execution.user)
   execution: Execution[];
 
   @Field(() => [Project])
-  @OneToMany(() => Project, (project) => project.userId)
+  @OneToMany(() => Project, (project) => project.user)
   project: Project[];
 }

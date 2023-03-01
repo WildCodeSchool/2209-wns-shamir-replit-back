@@ -1,63 +1,54 @@
 import { Context } from "apollo-server-core";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { iCodeComment } from "../interfaces/InputType";
+import { ICodeComment } from "../interfaces/InputType";
+import { Project } from "../models";
 import { CodeComment } from "../models/code_comment.model";
 import codeCommentService from "../services/codeCommentService";
 import projectService from "../services/projectService";
 import { TokenPayload } from "../tools/createApolloServer";
 
-const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
-  (await projectService.getAll())
-    .filter(
-      (project) =>
-        project.userId === ctx.id ||
-        project.isPublic ||
-        project.projectShare.map((pshare) => pshare.userId === ctx.id)
-    )
-    .map((project) => project.file.map((file) => file.id))
-    .flat();
+// const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
+//   (await projectService.getAll())
+//     .filter(
+//       (project) =>
+//         project.userId === ctx.id ||
+//         project.isPublic ||
+//         project.projectShare.map((pshare) => pshare.userId === ctx.id)
+//     )
+//     .map((project) => project.file.map((file) => file.id))
+//     .flat();
 
-export const isAllowedcomment = (
-  codeComment: CodeComment,
-  allowedProjectFileIds: number[]
-) => {
-  const fileId = codeComment.fileId;
+// export const isAllowedcomment = (
+//   codeComment: CodeComment,
+//   allowedProjectFileIds: number[]
+// ) => {
+//   const fileId = codeComment.file.id;
 
-  return allowedProjectFileIds.includes(fileId);
-};
+//   return allowedProjectFileIds.includes(fileId);
+// };
 
-@Resolver(iCodeComment)
+//if project user is user or isPublic o
+
+@Resolver(CodeComment)
 export class CodeCommentResolver {
   @Mutation(() => CodeComment)
   async createCodeComment(
-    @Arg("fileId") fileId: number,
-    @Arg("line_number") lineNumber: number,
-    @Arg("char_number") charNumber: number,
-    @Arg("char_length") charNength: number,
-    @Arg("resolved") resolved: boolean,
-    @Arg("comment") comment: string,
-    @Arg("comment_date") commentDate: Date,
-    @Arg("is_report") isReport: boolean,
+    @Arg("data") data: ICodeComment,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CodeComment> {
     try {
+      // const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      // if (
+      //   !allowedProjectFileIds.includes(data.fileId) ||
+      //   data.userId !== ctx.id
+      // )
+      //   throw new Error("not authorized");
+      // data.userId = ctx.id;
+      // data.fileCodeId = 1;
       const userId = ctx.id;
+      const codeCommentFromDB = await codeCommentService.create(data, userId);
+      console.log(codeCommentFromDB);
 
-      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-      if (!allowedProjectFileIds.includes(fileId) || userId !== ctx.id)
-        throw new Error("not authorized");
-
-      const codeCommentFromDB = await codeCommentService.create(
-        fileId,
-        userId,
-        lineNumber,
-        charNumber,
-        charNength,
-        resolved,
-        comment,
-        commentDate,
-        isReport
-      );
       return codeCommentFromDB;
     } catch (e) {
       throw new Error("Can't createCodeComment");
@@ -69,13 +60,9 @@ export class CodeCommentResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<CodeComment[]> {
     try {
-      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      return await codeCommentService.getAllAllowed(ctx.id);
 
-      const codeComments = await codeCommentService.getAll();
-
-      return codeComments.filter((codeComment) =>
-        isAllowedcomment(codeComment, allowedProjectFileIds)
-      );
+      // const codeComments = await codeCommentService.getAll(ctx.id, allowedProjectFileIds);
     } catch (e) {
       throw new Error("Can't getAllCodeComments");
     }
@@ -85,14 +72,14 @@ export class CodeCommentResolver {
   async getCodeCommentById(
     @Arg("codeCommentId") codeCommentId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<CodeComment> {
+  ): Promise<CodeComment | null> {
     try {
-      const codeComment = await codeCommentService.getById(codeCommentId);
-      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-      if (!isAllowedcomment(codeComment, allowedProjectFileIds))
-        throw new Error("not authorized");
+      return await codeCommentService.getById(codeCommentId, ctx.id);
+      // const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      // if (!isAllowedcomment(codeComment, allowedProjectFileIds))
+      //   throw new Error("not authorized");
 
-      return codeComment;
+      // return codeComment;
     } catch (e) {
       throw new Error("Can't getCodeCommentById");
     }
@@ -100,36 +87,36 @@ export class CodeCommentResolver {
 
   @Mutation(() => CodeComment)
   async updateCodeComment(
-    @Arg("CodeComment") codeComment: iCodeComment,
+    @Arg("data") data: ICodeComment,
     @Arg("CodeCommentId") codeCommentId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<CodeComment> {
+  ): Promise<CodeComment | null> {
     try {
-      const _codeComment = await codeCommentService.getById(codeCommentId);
-      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-      if (!isAllowedcomment(_codeComment, allowedProjectFileIds))
-        throw new Error("not authorized");
-
-      return await codeCommentService.update(codeComment, codeCommentId);
+      // const _codeComment = await codeCommentService.getById(codeCommentId);
+      // const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+      // if (!isAllowedcomment(_codeComment, allowedProjectFileIds))
+      //   throw new Error("not authorized");
+      const userId = ctx.id;
+      return await codeCommentService.update(data, userId, codeCommentId);
     } catch (e) {
       throw new Error("Can't update CodeComment");
     }
   }
 
-  @Mutation(() => CodeComment)
-  async deleteCodeComment(
-    @Arg("CodeCommentId") codeCommentId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<CodeComment> {
-    try {
-      const codeComment = await codeCommentService.getById(codeCommentId);
-      const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
-      if (!isAllowedcomment(codeComment, allowedProjectFileIds))
-        throw new Error("not authorized");
+  // @Mutation(() => CodeComment)
+  // async deleteCodeComment(
+  //   @Arg("CodeCommentId") codeCommentId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<CodeComment> {
+  //   try {
+  //     const codeComment = await codeCommentService.getById(codeCommentId);
+  //     const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
+  //     if (!isAllowedcomment(codeComment, allowedProjectFileIds))
+  //       throw new Error("not authorized");
 
-      return await codeCommentService.delete(codeCommentId);
-    } catch (e) {
-      throw new Error("Can't delete CodeComment");
-    }
-  }
+  //     return await codeCommentService.delete(codeCommentId);
+  //   } catch (e) {
+  //     throw new Error("Can't delete CodeComment");
+  //   }
+  // }
 }

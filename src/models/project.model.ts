@@ -41,31 +41,25 @@ export class Project {
   id_storage_number: string;
 
   @Field(() => [FileCode], { nullable: true })
-  @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
-  file: FileCode[];
+  @OneToMany(() => FileCode, (fileCode) => fileCode.project)
+  fileCode: FileCode[];
 
   @Field(() => [ProjectShare], { nullable: true })
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.project)
   projectShare: ProjectShare[];
 
   @Field(() => [Like], { nullable: true })
-  @OneToMany(() => Like, (like) => like.projectId)
+  @OneToMany(() => Like, (like) => like.project)
   like: Like[];
 
   @Field(() => [Execution], { nullable: true })
-  @OneToMany(() => Execution, (execution) => execution.projectId)
+  @OneToMany(() => Execution, (execution) => execution.project)
   execution: Execution[];
 
-  // @Column()
-  // @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
-  // @JoinColumn({ name: "userId" })
-  // userId: User["id"];
-
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.id, {
+  @ManyToOne(() => User, (user) => user.project, {
     onDelete: "CASCADE",
-    eager: false,
+    eager: true,
   })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  user: User;
 }

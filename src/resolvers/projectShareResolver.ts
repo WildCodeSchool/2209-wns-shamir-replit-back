@@ -30,7 +30,7 @@ export class ProjectShareResolver {
   ): Promise<ProjectShare> {
     try {
       const askerId = ctx.id;
-      const [proj] = (await projectService.getAll()).filter(
+      const [proj] = (await projectService.getAll(ctx.id)).filter(
         (projet) => projet.id === projectId
       ) as unknown as ReqProject[];
 
@@ -58,7 +58,7 @@ export class ProjectShareResolver {
       const projectShares = await projectShareService.getAll();
 
       return projectShares.filter(
-        (projectShare) => projectShare.userId === ctx.id
+        (projectShare) => projectShare.user.id === ctx.id
       );
     } catch (error) {
       console.error(error);
@@ -72,11 +72,11 @@ export class ProjectShareResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<ProjectShare> {
     try {
-      const { userId } = (await projectShareService.getAll()).filter(
+      const { user } = (await projectShareService.getAll()).filter(
         (pshare) => pshare.id === projectShareId
       )[0];
 
-      if (userId === ctx.id)
+      if (user.id === ctx.id)
         return await projectShareService.getById(projectShareId);
       else throw new Error("id not allowed");
     } catch (error) {
@@ -85,52 +85,52 @@ export class ProjectShareResolver {
     }
   }
 
-  @Mutation(() => ProjectShare)
-  async updateProjectShare(
-    @Arg("ProjectShare") projectShare: iProjectShare,
-    @Arg("ProjectShareId") projectShareId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ProjectShare> {
-    try {
-      const projectId = (
-        (await projectShareService.getAll()).filter(
-          (pshare) => pshare.id === projectShareId
-        ) as unknown[] as ReqProjectShare[]
-      )[0].projectId.id;
+  // @Mutation(() => ProjectShare)
+  // async updateProjectShare(
+  //   @Arg("ProjectShare") projectShare: iProjectShare,
+  //   @Arg("ProjectShareId") projectShareId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<ProjectShare> {
+  //   try {
+  //     const projectId = (
+  //       (await projectShareService.getAll()).filter(
+  //         (pshare) => pshare.id === projectShareId
+  //       ) as unknown[] as ReqProjectShare[]
+  //     )[0].projectId.id;
 
-      const userId = (
-        (await projectService.getAll()).filter(
-          (project) => project.id === projectId
-        ) as unknown[] as ReqProject[]
-      )[0].userId.id;
+  //     const userId = (
+  //       (await projectService.getAll(ctx.id))).filter(
+  //         (project) => project.id === projectId
+  //       ) as unknown[] as ReqProject[]
+  //     )[0].userId.id;
 
-      if (userId === ctx.id)
-        return await projectShareService.update(projectShare, projectShareId);
-      else throw new Error("id not allowed");
-    } catch (e) {
-      console.error(e);
+  //     if (userId === ctx.id)
+  //       return await projectShareService.update(projectShare, projectShareId);
+  //     else throw new Error("id not allowed");
+  //   } catch (e) {
+  //     console.error(e);
 
-      throw new Error("Can't update ProjectShare");
-    }
-  }
+  //     throw new Error("Can't update ProjectShare");
+  //   }
+  // }
 
-  @Mutation(() => ProjectShare)
-  async deleteProjectShare(
-    @Arg("ProjectShareId") projectShareId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ProjectShare> {
-    try {
-      const { userId } = (await projectShareService.getAll()).filter(
-        (pshare) => pshare.id === projectShareId
-      )[0];
+  // @Mutation(() => ProjectShare)
+  // async deleteProjectShare(
+  //   @Arg("ProjectShareId") projectShareId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<ProjectShare> {
+  //   try {
+  //     const { userId } = (await projectShareService.getAll()).filter(
+  //       (pshare) => pshare.id === projectShareId
+  //     )[0];
 
-      if (userId === ctx.id)
-        return await projectShareService.delete(projectShareId);
-      else throw new Error("id not allowed");
-    } catch (e) {
-      console.error(e);
+  //     if (userId === ctx.id)
+  //       return await projectShareService.delete(projectShareId);
+  //     else throw new Error("id not allowed");
+  //   } catch (e) {
+  //     console.error(e);
 
-      throw new Error("Can't delete ProjectShare");
-    }
-  }
+  //     throw new Error("Can't delete ProjectShare");
+  //   }
+  // }
 }

@@ -12,11 +12,11 @@ export class Like {
 
   @Field(() => User)
   @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  @JoinColumn({ name: "user" })
+  user: User["id"];
 
   @Field(() => Project)
   @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "projectId" })
-  projectId: Project["id"];
+  @JoinColumn({ name: "project" })
+  project: Project["id"];
 }

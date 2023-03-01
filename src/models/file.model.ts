@@ -30,17 +30,21 @@ export class FileCode {
   @Column()
   language: string;
 
-  @Field(() => [CodeComment], { nullable: true })
-  @OneToMany(() => CodeComment, (codeComment) => codeComment.fileId)
+  @Field(() => [CodeComment])
+  @OneToMany(() => CodeComment, (codeComment) => codeComment.fileCode)
   codeComment: CodeComment[];
 
-  @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.fileCode, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  user: User;
 
-  @Column()
-  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "projectId" })
-  projectId: Project["id"];
+  @Field(() => Project)
+  @ManyToOne(() => Project, (project) => project.fileCode, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  project: Project;
 }

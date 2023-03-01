@@ -1,4 +1,4 @@
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, InputType, ObjectType, Query } from "type-graphql";
 import "reflect-metadata";
 
 @InputType()
@@ -9,6 +9,24 @@ export class iProject {
   @Field({ nullable: true })
   userId: number;
 
+  @Field({ nullable: true })
+  name: string;
+
+  @Field({ nullable: true })
+  description: string;
+
+  @Field({ nullable: true })
+  nb_views: number;
+
+  @Field({ nullable: true })
+  isPublic: boolean;
+
+  @Field({ nullable: true })
+  id_storage_number: string;
+}
+
+@InputType()
+export class IProj {
   @Field({ nullable: true })
   name: string;
 
@@ -45,17 +63,10 @@ export class iUser {
   @Field({ nullable: true })
   date_end_subscription: Date;
 }
-
 @InputType()
-export class iCodeComment {
-  @Field({ nullable: true })
-  id: number;
-
-  @Field({ nullable: true })
-  fileId: number;
-
-  @Field({ nullable: true })
-  userId: number;
+export class ICodeComment {
+  @Field({ nullable: false })
+  fileCodeId: number;
 
   @Field({ nullable: true })
   line_number: number;
@@ -71,9 +82,6 @@ export class iCodeComment {
 
   @Field({ nullable: true })
   comment: string;
-
-  @Field({ nullable: true })
-  comment_date: Date;
 
   @Field({ nullable: true })
   is_report: boolean;

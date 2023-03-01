@@ -2,7 +2,7 @@ import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { CodeCommentResolver } from "../resolvers/codeCommentResolver";
-import { CommentAnswerResolver } from "../resolvers/commentAnswerResolver";
+// import { CommentAnswerResolver } from "../resolvers/commentAnswerResolver";
 import { ExecutionResolver } from "../resolvers/executionResolver";
 import { FileResolver } from "../resolvers/fileResolver";
 import { ProjectResolver } from "../resolvers/projectResolver";
@@ -34,7 +34,7 @@ export const createApolloServer = async (
       ProjectResolver,
       ProjectShareResolver,
       CodeCommentResolver,
-      CommentAnswerResolver,
+      // CommentAnswerResolver,
       ExecutionResolver,
       FileResolver,
     ],
@@ -56,6 +56,7 @@ export const createApolloServer = async (
           } else {
             try {
               const bearer = req?.headers.authorization.split("Bearer ")[1];
+              // console.log(bearer);
 
               const userPayload = authService.verifyToken(
                 bearer

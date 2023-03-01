@@ -13,8 +13,8 @@ const fileService = {
     try {
       return await fileRepo.find({
         relations: {
-          userId: true,
-          projectId: true,
+          user: true,
+          project: true,
         },
       });
     } catch (err) {
@@ -44,7 +44,7 @@ const fileService = {
 
   getAllFilesByProId: async (projectId: number): Promise<FileCode[]> => {
     try {
-      const result = await fileRepo.findBy({ projectId: projectId })
+      const result = await fileRepo.findBy({ project: { id: projectId } });
       return result;
     } catch (err) {
       console.error(err);

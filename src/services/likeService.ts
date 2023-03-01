@@ -13,18 +13,18 @@ const likeService = {
   getAll: async (): Promise<Like[]> => {
     return await repository.find({
       relations: {
-        userId: true,
-        projectId: true,
+        user: true,
+        project: true,
       },
     });
   },
-  create: async (projectId: number, userId: number): Promise<Like> => {
-    const newLike = {
-      projectId,
-      userId,
-    };
-    return await repository.save(newLike);
-  },
+  // create: async (projectId: number, userId: number): Promise<Like> => {
+  //   const newLike = {
+  //     projectId,
+  //     userId,
+  //   };
+  //   return await repository.save(newLike);
+  // },
   update: async (like: iLike, likeId: number): Promise<Like> => {
     await repository.update(likeId, like);
     return await likeService.getById(likeId);

@@ -51,7 +51,7 @@ export class ExecutionResolver {
     try {
       const execution = (await executionService.getById(executionId))[0];
 
-      if (execution.userId !== ctx.id) throw new Error("not allowed");
+      if (execution.user.id !== ctx.id) throw new Error("not allowed");
 
       return execution;
     } catch (err) {
@@ -68,7 +68,7 @@ export class ExecutionResolver {
   ): Promise<Execution> {
     try {
       const execution = (await executionService.getById(executionId))[0];
-      if (execution.userId !== ctx.id) throw new Error("not allowed");
+      if (execution.user.id !== ctx.id) throw new Error("not allowed");
 
       return await executionService.update(execution, executionId);
     } catch (err) {
@@ -84,7 +84,7 @@ export class ExecutionResolver {
   ): Promise<Execution> {
     try {
       const execution = (await executionService.getById(executionId))[0];
-      if (execution.userId !== ctx.id) throw new Error("not allowed");
+      if (execution.user.id !== ctx.id) throw new Error("not allowed");
 
       return await executionService.delete(executionId);
     } catch (err) {

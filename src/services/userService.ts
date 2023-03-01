@@ -17,6 +17,13 @@ const userService = {
     return await repository.findOneByOrFail({ email });
   },
 
+  getUserIdById: async (userId: number): Promise<User[]> => {
+    return await repository.find({
+      select: { id: true },
+      where: { id: userId },
+    });
+  },
+
   getById: async (userId: number): Promise<User[]> => {
     return await repository.find({
       relations: {
