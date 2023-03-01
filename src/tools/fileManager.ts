@@ -1,8 +1,17 @@
 import fs from "fs";
 import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
+
 import { IFilesWithCode } from "../interfaces/InputType";
+
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
+import { ReqProject } from "../resolvers/projectResolver";
+
+type CreateOneSubFolderProps = {
+  project: ReqProject;
+  clientPath: string;
+  subFolderName: string;
+};
 
 export const fileManager = {
   // Folders functions
@@ -10,9 +19,9 @@ export const fileManager = {
   createProjectFolder: async (folderName: string) => {
     try {
       // On stock le chemin du dossier dans une variable
-      const sourceDir: string = "./projects/";
+      const sourceDir = "./projects/";
       // On créer le chemin de création du dossier
-      const pathToCreate: string = `${sourceDir}${folderName}`;
+      const pathToCreate = `${sourceDir}${folderName}`;
 
       // Fonction de NodeJS qui permet de créer un dossier avec une gestion d'erreur
       // On verifie si le dossier existe
@@ -25,8 +34,8 @@ export const fileManager = {
 
   deleteProjectFolder: async (folderName: string): Promise<void> => {
     try {
-      const sourceDir: string = "./projects/";
-      const pathToDelete: string = `${sourceDir}${folderName}`;
+      const sourceDir = "./projects/";
+      const pathToDelete = `${sourceDir}${folderName}`;
       fs.rmSync(pathToDelete, { recursive: true, force: true });
     } catch (err) {
       console.error(err);
@@ -50,11 +59,11 @@ export const fileManager = {
     });
   },
 
-  createOneSubFolder: async (
-    project: Project,
-    clientPath: string,
-    subFolderName: string
-  ) => {
+  createOneSubFolder: async ({
+    project,
+    clientPath,
+    subFolderName,
+  }: CreateOneSubFolderProps) => {
     try {
       // On nettoi le nom du sous-dossier
       const updateSubName: string = string.sanitize.keepNumber(subFolderName);
@@ -68,7 +77,7 @@ export const fileManager = {
       }
       // On verifie si le dossier existe
       if (!fs.existsSync(pathToCreate)) fs.mkdirSync(pathToCreate);
-      return project;
+      return project as unknown as Project;
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de créer le sous-dossier du projet");
@@ -82,9 +91,7 @@ export const fileManager = {
     contentData: string
   ) => {
     try {
-      let fileToCreate: string;
-
-      fileToCreate = `./projects/${project.id_storage_number}/${id_storage_file}`;
+      const fileToCreate = `./projects/${project.id_storage_number}/${id_storage_file}`;
 
       fs.writeFileSync(fileToCreate, contentData);
     } catch (err) {
@@ -112,8 +119,7 @@ export const fileManager = {
     contentData: string
   ) => {
     try {
-      let fileToUpdate: string;
-      fileToUpdate = `./projects/${projectPath}/${filepath}`;
+      const fileToUpdate = `./projects/${projectPath}/${filepath}`;
       fs.writeFileSync(fileToUpdate, contentData);
     } catch (err) {
       console.error(err);

@@ -23,8 +23,8 @@ const executionService = {
         id: executionId,
         user: user,
       },
-    });
-  },
+    }),
+
 
   getAll: async (uid: number): Promise<Execution[]> => {
     const user = await userRepo.findOneBy({ id: uid });
@@ -41,6 +41,7 @@ const executionService = {
     if (project === null) throw new Error("project null");
 
     return await execRepo.save({ ...data, user, project });
+
   },
   update: async (
     execution: IExecution,

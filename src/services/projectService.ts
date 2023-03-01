@@ -13,6 +13,7 @@ const userRepo: Repository<User> = dataSource.getRepository(User);
 const projectService = {
   // CRUD Classique
 
+
   getByProjId: async (
     uid: number,
     projectId: number
@@ -32,6 +33,7 @@ const projectService = {
 
   getProjByUserId: async (userId: number): Promise<Project[]> => {
     return await projectRepo.find({
+
       relations: {
         execution: true,
         projectShare: true,
@@ -45,6 +47,7 @@ const projectService = {
       },
     });
   },
+
 
   getAll: async (userId: number): Promise<Project[]> => {
     try {

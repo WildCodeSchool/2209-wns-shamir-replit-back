@@ -3,7 +3,7 @@ import { IFileCode, IFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
 import string from "string-sanitizer";
-import { Project } from "../models";
+import { Project, ProjectShare } from "../models";
 import projectService from "../services/projectService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
@@ -133,6 +133,7 @@ export class FileResolver {
       const projId = parseInt(projectId, 10);
       const project = await projectService.getByProjId(ctx.id, projId);
 
+
       if (!project) throw new Error("non authorisé");
       const files = await fileService.getAllFilesByProjId(projId);
 
@@ -163,6 +164,7 @@ export class FileResolver {
     try {
       // de l'id du fichier pour verifier si le fichier existe
       // Verifier si le fichier appartient bien à l'utilisateur
+
       const canEdit = await projectShareService.getUserCanEdit(
         ctx.id,
         projectId

@@ -12,6 +12,7 @@ export class UserResolver {
   async createUser(
     @Arg("data") data: IUser,
     @Ctx() ctx: Context<TokenPayload>
+
   ): Promise<User> {
     try {
       const userFromDB = await userService.create(data);
@@ -26,6 +27,7 @@ export class UserResolver {
   async getAllUsers(@Ctx() ctx: Context<TokenPayload>): Promise<User[]> {
     try {
       const users = await userService.getAll();
+
       return users.map((user) => {
         const altUser = user;
 

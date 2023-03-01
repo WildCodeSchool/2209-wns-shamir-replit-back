@@ -5,9 +5,9 @@ services:
       context: ./
       target: dev
     volumes:
-      - ./src:/src
-      - ./coverage:/coverage
-      - ./projects:/projects
+      - ./src:/back/src
+      - ./coverage:/back/coverage
+      - ./projects:/back/projects
     command: npm run start:dev
     ports:
       - "5000:5000"

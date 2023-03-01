@@ -22,8 +22,9 @@ const projectShareService = {
     });
   },
 
-  getAll: async (): Promise<ProjectShare[]> => {
-    return await repository.find({
+
+  getAll: async (): Promise<ProjectShare[]> =>
+    await repository.find({
       relations: {
         user: true,
         project: true,
@@ -42,6 +43,7 @@ const projectShareService = {
       user,
       project,
     });
+
   },
   update: async (
     data: IProjectShare,
@@ -83,6 +85,19 @@ const projectShareService = {
         user: user,
       },
     });
+
+  },
+
+  // Recup la liste des projectShare par l'idProjet
+  getUserCanView: async (projectId: number) => {
+    const listOfUser = await repository.findBy({
+      projectId: projectId, // NE MARCHE PAS
+    });
+
+    // console.log("listOfUser", listOfUser);
+
+    const userCanEdit = listOfUser;
+    return userCanEdit;
   },
 };
 

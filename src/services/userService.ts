@@ -5,6 +5,7 @@ import * as argon2 from "argon2";
 import { IUser } from "../interfaces/InputType";
 import { runInNewContext } from "vm";
 
+
 const repository: Repository<User> = dataSource.getRepository(User);
 
 const userService = {
@@ -21,6 +22,7 @@ const userService = {
 
   getById: async (userId: number): Promise<User[]> => {
     return await repository.find({
+
       relations: {
         execution: true,
         project: true,
@@ -30,11 +32,10 @@ const userService = {
         commentAnswer: true,
       },
       where: { id: userId },
-    });
-  },
+    }),
 
-  getAll: async (): Promise<User[]> => {
-    return await repository.find({
+  getAll: async (): Promise<User[]> =>
+    await repository.find({
       relations: {
         execution: true,
         project: true,
@@ -43,8 +44,7 @@ const userService = {
         codeComment: true,
         commentAnswer: true,
       },
-    });
-  },
+    }),
 
   create: async (data: IUser): Promise<User> => {
     const newUser = new User();

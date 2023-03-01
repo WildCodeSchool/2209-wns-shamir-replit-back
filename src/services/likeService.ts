@@ -39,6 +39,7 @@ const likeService = {
 
   getAll: async (): Promise<Like[]> => {
     return await likeRepo.find({
+
       relations: {
         user: true,
         project: true,
@@ -52,6 +53,7 @@ const likeService = {
     if (user === null) throw new Error("inputs null");
     if (project === null) throw new Error("filecode null");
     return await likeRepo.save({ project, user });
+
   },
 
   delete: async (uid: number, likeId: number): Promise<Like> => {

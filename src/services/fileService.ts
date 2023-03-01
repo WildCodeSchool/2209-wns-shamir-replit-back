@@ -59,6 +59,7 @@ const fileService = {
       const proj = await projectRepo.findOneBy({ id: projectId });
       if (proj === null) throw new Error("inputs null");
       const result = await fileRepo.findBy({ project: proj });
+
       return result;
     } catch (err) {
       console.error(err);

@@ -77,6 +77,7 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getAllProjects(@Ctx() ctx: Context<TokenPayload>): Promise<Project[]> {
     try {
+
       return await projectService.getAll(ctx.id);
     } catch (err) {
       console.error(err);
@@ -107,6 +108,20 @@ export class ProjectResolver {
     }
   }
 
+  @Query(() => [Project])
+  async getProjectByUserId(
+    @Arg("userId") userId: number
+    // @Ctx() ctx: Context<TokenPayload>
+  ): Promise<Project[]> {
+    try {
+      const projectByuserId = await projectService.getByUserId(userId);
+      return projectByuserId;
+    } catch (e) {
+      console.error(e);
+      throw new Error("ca marche pas ");
+    }
+  }
+
   @Mutation(() => Project)
   async addLike(
     @Arg("projectId") projectId: number,
@@ -120,6 +135,7 @@ export class ProjectResolver {
       if (alreadyLiked) throw new Error("Project already liked");
       await likeService.create(projectId, ctx.id);
       return project;
+
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");
@@ -224,15 +240,16 @@ export class ProjectResolver {
   ): Promise<Project | undefined> {
     try {
       // On stock les informations du projet dans une variable
+
       const project = await projectService.getByProjId(ctx.id, projectId);
 
       if (!project) throw new Error("userId not allowed");
 
-      return await fileManager.createOneSubFolder(
-        project,
-        clientPath,
-        subFolderName
-      );
+      return await fileManager.createOneSubFolder({
+        project: project[0],
+        clientPath: clientPath,
+        subFolderName: subFolderName,
+      });
     } catch (err) {
       console.error(err);
       throw new Error("Can't create SubFolder");
