@@ -25,6 +25,7 @@ jobs:
         run: docker compose up --build -d
           
       - name: init database
+        run: |
           docker exec -i $(docker ps --filter name=bdd-1 -q) << EOT
           psql -U ${POSTGRES_USER}
           CREATE DATABASE wildcodetest;
@@ -33,5 +34,6 @@ jobs:
           EOT
 
       - name: run tests
+        run: |
           docker exec -i $(docker ps --filter name=back-1 -q) bash
           npm run test
