@@ -49,6 +49,7 @@ const userService = {
     return await repository.save(newUser);
   },
 
+
   update: async (user: IUser, userId: number): Promise<User[]> => {
     await repository.update(userId, user);
     return await userService.getById(userId);
