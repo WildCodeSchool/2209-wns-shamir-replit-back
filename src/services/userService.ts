@@ -58,7 +58,7 @@ const userService = {
     newUser.login = login;
     return await repository.save(newUser);
   },
-  update: async (user: iUser, userId: number): Promise<User[]> => {
+  update: async (user: Partial<iUser>, userId: number): Promise<User[]> => {
     await repository.update(userId, user);
     return await userService.getById(userId);
   },
