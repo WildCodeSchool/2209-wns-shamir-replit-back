@@ -3,7 +3,7 @@ import { IFileCode, IFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
 import string from "string-sanitizer";
-import { Project, ProjectShare } from "../models";
+import { Project } from "../models";
 import projectService from "../services/projectService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
@@ -14,7 +14,7 @@ import { ProjToCodeFIle } from "../interfaces/IFiles";
 @Resolver(FileCode)
 export class FileResolver {
   @Query(() => [FileCode])
-  async getAllFiles(@Ctx() ctx: Context<TokenPayload>): Promise<FileCode[]> {
+  async getAllFiles(): Promise<FileCode[]> {
     try {
       return await fileService.getAll();
     } catch (err) {
@@ -113,8 +113,7 @@ export class FileResolver {
 
   @Query(() => [FileCode])
   async getFilesByProjectId(
-    @Arg("projectId") projectId: number,
-    @Ctx() ctx: Context<TokenPayload>
+    @Arg("projectId") projectId: number
   ): Promise<FileCode[]> {
     try {
       return await fileService.getAllFilesByProjId(projectId);
@@ -132,7 +131,6 @@ export class FileResolver {
     try {
       const projId = parseInt(projectId, 10);
       const project = await projectService.getByProjId(ctx.id, projId);
-
 
       if (!project) throw new Error("non authorisé");
       const files = await fileService.getAllFilesByProjId(projId);

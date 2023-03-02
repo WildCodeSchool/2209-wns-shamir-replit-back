@@ -1,8 +1,8 @@
-import { Context } from "apollo-server-core";
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { ILike } from "../interfaces/InputType";
-import likeService from "../services/likeService";
-import { TokenPayload } from "../tools/createApolloServer";
+// import { Context } from "apollo-server-core";
+import { Resolver } from "type-graphql";
+// import { ILike } from "../interfaces/InputType";
+// import likeService from "../services/likeService";
+// import { TokenPayload } from "../tools/createApolloServer";
 import { Like } from "../models";
 
 @Resolver(Like)

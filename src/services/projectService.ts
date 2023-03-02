@@ -1,18 +1,15 @@
 import { Repository } from "typeorm";
-import {  IProject } from "../interfaces/InputType";
-import { ProjectShare, User } from "../models";
+import { IProject } from "../interfaces/InputType";
+import { User } from "../models";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 
 const projectRepo: Repository<Project> = dataSource.getRepository(Project);
-const projectShareRepo: Repository<ProjectShare> =
-  dataSource.getRepository(ProjectShare);
 
 const userRepo: Repository<User> = dataSource.getRepository(User);
 
 const projectService = {
   // CRUD Classique
-
 
   getByProjId: async (
     uid: number,
@@ -31,9 +28,8 @@ const projectService = {
     });
   },
 
-  getProjByUserId: async (userId: number): Promise<Project[]> => {
-    return await projectRepo.find({
-
+  getProjByUserId: async (userId: number): Promise<Project[]> =>
+    await projectRepo.find({
       relations: {
         execution: true,
         projectShare: true,
@@ -45,11 +41,9 @@ const projectService = {
           id: userId,
         },
       },
-    });
-  },
+    }),
 
-
-  getAll: async (userId: number): Promise<Project[]> => {
+  getAll: async (): Promise<Project[]> => {
     try {
       return await projectRepo.find({
         relations: {

@@ -3,26 +3,21 @@ import { User } from "../models/user.model";
 import { dataSource } from "../tools/createDataSource";
 import * as argon2 from "argon2";
 import { IUser } from "../interfaces/InputType";
-import { runInNewContext } from "vm";
-
 
 const repository: Repository<User> = dataSource.getRepository(User);
 
 const userService = {
-  getByEmail: async (email: string) => {
-    return await repository.findOneByOrFail({ email });
-  },
+  getByEmail: async (email: string) =>
+    await repository.findOneByOrFail({ email }),
 
-  getUserIdById: async (userId: number): Promise<User[]> => {
-    return await repository.find({
+  getUserIdById: async (userId: number): Promise<User[]> =>
+    await repository.find({
       select: { id: true },
       where: { id: userId },
-    });
-  },
+    }),
 
-  getById: async (userId: number): Promise<User[]> => {
-    return await repository.find({
-
+  getById: async (userId: number): Promise<User[]> =>
+    await repository.find({
       relations: {
         execution: true,
         project: true,

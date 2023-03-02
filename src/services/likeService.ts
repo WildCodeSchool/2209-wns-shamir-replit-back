@@ -1,7 +1,5 @@
 import { Repository } from "typeorm";
-import { ILike } from "../interfaces/InputType";
 import { Like, Project, User } from "../models";
-import { ProjectShareResolver } from "../resolvers/projectShareResolver";
 import { dataSource } from "../tools/createDataSource";
 
 const likeRepo: Repository<Like> = dataSource.getRepository(Like);
@@ -37,15 +35,13 @@ const likeService = {
     });
   },
 
-  getAll: async (): Promise<Like[]> => {
-    return await likeRepo.find({
-
+  getAll: async (): Promise<Like[]> =>
+    await likeRepo.find({
       relations: {
         user: true,
         project: true,
       },
-    });
-  },
+    }),
   create: async (projectId: number, uid: number): Promise<Like> => {
     const user = await userRepo.findOneBy({ id: uid });
     const project = await projectRepo.findOneBy({ id: projectId });
@@ -53,7 +49,6 @@ const likeService = {
     if (user === null) throw new Error("inputs null");
     if (project === null) throw new Error("filecode null");
     return await likeRepo.save({ project, user });
-
   },
 
   delete: async (uid: number, likeId: number): Promise<Like> => {

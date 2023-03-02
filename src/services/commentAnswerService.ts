@@ -10,12 +10,10 @@ const commentAnswerService = {
   getById: async (commentAnswerId: number) =>
     (await repository.findBy({ id: commentAnswerId }))[0],
 
-
-  getAll: async (): Promise<CommentAnswer[]> => {
-    return await repository.find({
+  getAll: async (): Promise<CommentAnswer[]> =>
+    await repository.find({
       relations: { user: true, codeComment: true, comment: true },
-    });
-  },
+    }),
   create: async (
     codeCommentId: number,
     userId: number,

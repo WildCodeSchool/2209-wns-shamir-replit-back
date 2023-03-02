@@ -49,15 +49,14 @@ const codeCommentService = {
   getByFileCodeId: async (
     uid: number,
     fileCodeId: number
-  ): Promise<CodeComment[]> => {
-    return await codeCommentRepo.find({
+  ): Promise<CodeComment[]> =>
+    await codeCommentRepo.find({
       relations: { user: true, fileCode: true, commentAnswer: true },
       where: {
         fileCode: { id: fileCodeId },
         user: { id: uid },
       },
-    });
-  },
+    }),
   create: async (data: ICodeComment, uid: number): Promise<CodeComment> => {
     try {
       const user = await userRepo.findOneBy({ id: uid });
@@ -75,7 +74,6 @@ const codeCommentService = {
       console.error(err);
       throw new Error("Impossible de créer le projet");
     }
-
   },
 
   update: async (

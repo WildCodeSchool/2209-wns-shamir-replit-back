@@ -1,14 +1,12 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { IProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
-import { Like } from "../models/like.model";
 import projectService from "../services/projectService";
 import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
 import fileService from "../services/fileService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
-import { ProjectShare, User } from "../models";
 import likeService from "../services/likeService";
 
 @Resolver(Project)
@@ -75,10 +73,9 @@ export class ProjectResolver {
   }
 
   @Query(() => [Project])
-  async getAllProjects(@Ctx() ctx: Context<TokenPayload>): Promise<Project[]> {
+  async getAllProjects(): Promise<Project[]> {
     try {
-
-      return await projectService.getAll(ctx.id);
+      return await projectService.getAll();
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Projects");
@@ -108,19 +105,19 @@ export class ProjectResolver {
     }
   }
 
-  @Query(() => [Project])
-  async getProjectByUserId(
-    @Arg("userId") userId: number
-    // @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
-    try {
-      const projectByuserId = await projectService.getByUserId(userId);
-      return projectByuserId;
-    } catch (e) {
-      console.error(e);
-      throw new Error("ca marche pas ");
-    }
-  }
+  // @Query(() => [Project])
+  // async getProjectByUserId(
+  //   @Arg("userId") userId: number
+  //   // @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<Project[]> {
+  //   try {
+  //     const projectByuserId = await projectService.getByUserId(userId);
+  //     return projectByuserId;
+  //   } catch (e) {
+  //     console.error(e);
+  //     throw new Error("ca marche pas ");
+  //   }
+  // }
 
   @Mutation(() => Project)
   async addLike(
@@ -129,13 +126,12 @@ export class ProjectResolver {
   ): Promise<Project | null> {
     try {
       const project = await projectService.getByProjId(ctx.id, projectId);
-      if (!project!.isPublic)
+      if (!project || !project.isPublic)
         throw new Error("user not allowed: project not public");
       const alreadyLiked = await likeService.getByProjId(ctx.id, projectId);
       if (alreadyLiked) throw new Error("Project already liked");
       await likeService.create(projectId, ctx.id);
       return project;
-
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");
@@ -246,9 +242,9 @@ export class ProjectResolver {
       if (!project) throw new Error("userId not allowed");
 
       return await fileManager.createOneSubFolder({
-        project: project[0],
-        clientPath: clientPath,
-        subFolderName: subFolderName,
+        project,
+        clientPath,
+        subFolderName,
       });
     } catch (err) {
       console.error(err);

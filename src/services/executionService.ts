@@ -2,7 +2,6 @@ import { Repository } from "typeorm";
 import { IExecution } from "../interfaces/InputType";
 import { Project, User } from "../models";
 import { Execution } from "../models/execution.model";
-import { ProjectResolver } from "../resolvers/projectResolver";
 import { dataSource } from "../tools/createDataSource";
 
 const execRepo: Repository<Execution> = dataSource.getRepository(Execution);
@@ -23,9 +22,8 @@ const executionService = {
         id: executionId,
         user: user,
       },
-    }),
-
-
+    });
+  },
   getAll: async (uid: number): Promise<Execution[]> => {
     const user = await userRepo.findOneBy({ id: uid });
     if (user === null) throw new Error("inputs null");
@@ -41,7 +39,6 @@ const executionService = {
     if (project === null) throw new Error("project null");
 
     return await execRepo.save({ ...data, user, project });
-
   },
   update: async (
     execution: IExecution,

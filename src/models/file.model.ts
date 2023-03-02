@@ -5,7 +5,6 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
-  JoinColumn,
 } from "typeorm";
 import { CodeComment } from "./code_comment.model";
 import { Project } from "./project.model";

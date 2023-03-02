@@ -4,7 +4,6 @@ import { FileCode } from "../models/file.model";
 import { IFileCode } from "../interfaces/InputType";
 import { Project, User } from "../models";
 import { fileManager } from "../tools/fileManager";
-import projectService from "./projectService";
 
 const fileRepo: Repository<FileCode> = dataSource.getRepository(FileCode);
 const userRepo: Repository<User> = dataSource.getRepository(User);

@@ -9,11 +9,7 @@ import { TokenPayload } from "../tools/createApolloServer";
 @Resolver(IUser)
 export class UserResolver {
   @Mutation(() => User)
-  async createUser(
-    @Arg("data") data: IUser,
-    @Ctx() ctx: Context<TokenPayload>
-
-  ): Promise<User> {
+  async createUser(@Arg("data") data: IUser): Promise<User> {
     try {
       const userFromDB = await userService.create(data);
       return userFromDB;
