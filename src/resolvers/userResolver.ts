@@ -87,7 +87,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => User)
+  @Mutation(() => [User])
   async updateUser(
     @Arg("User") User: iUser,
     @Ctx() ctx: Context<TokenPayload>
@@ -101,7 +101,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => User)
+  @Mutation(() => [User])
   async deleteUser(@Ctx() ctx: Context<TokenPayload>): Promise<User[]> {
     try {
       const userId = ctx.id;

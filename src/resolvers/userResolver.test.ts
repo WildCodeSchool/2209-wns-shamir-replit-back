@@ -1,17 +1,20 @@
 import { ApolloServer } from "apollo-server-express";
 import { User } from "../models";
-import { createApolloServer } from "../tools/createApolloServer";
+import { createApolloServer, TokenPayload } from "../tools/createApolloServer";
 import { queries } from "../tools/queries";
+import { Token } from "graphql";
 
 describe("User resolver", () => {
   let server: ApolloServer;
   const userEmail = "email@test.test";
   const userPassword = "test";
+  const userLogin = "michel";
   const userUpdatedEmail = "updatedEmail@test.test";
   let userId: number;
+  let token: TokenPayload;
 
   beforeAll(async () => {
-    server = await createApolloServer();
+    server = await createApolloServer({});
     await server.start();
   });
 
@@ -21,6 +24,7 @@ describe("User resolver", () => {
       variables: {
         password: userPassword,
         email: userEmail,
+        login: userLogin,
       },
     });
 
@@ -28,6 +32,8 @@ describe("User resolver", () => {
     expect(response.data?.createUser).toBeDefined();
 
     userId = response?.data?.createUser.id;
+    token = { email: userEmail, id: userId };
+    server.requestOptions.context = token;
   });
 
   test("retrieve token", async () => {
@@ -38,7 +44,6 @@ describe("User resolver", () => {
         email: userEmail,
       },
     });
-
     expect(response.errors).toBeUndefined();
     expect(response.data?.getToken).toBeDefined();
   });
@@ -87,7 +92,7 @@ describe("User resolver", () => {
     expect(response.errors).toBeUndefined();
     expect(response.data?.getUserById).toBeDefined();
 
-    const user = response.data?.getUserById as User;
+    const user = response.data?.getUserById[0] as User;
 
     expect(user.email).toEqual(userEmail);
   });
@@ -96,7 +101,6 @@ describe("User resolver", () => {
     const responseUpdateUser = await server.executeOperation({
       query: queries.updateUser,
       variables: {
-        userId,
         user: { email: userUpdatedEmail },
       },
     });
@@ -104,7 +108,7 @@ describe("User resolver", () => {
     expect(responseUpdateUser.errors).toBeUndefined();
     expect(responseUpdateUser.data?.updateUser).toBeDefined();
 
-    const updatedUser = responseUpdateUser.data?.updateUser as User;
+    const updatedUser = responseUpdateUser.data?.updateUser[0] as User;
 
     expect(updatedUser.email).toEqual(userUpdatedEmail);
 
@@ -115,7 +119,7 @@ describe("User resolver", () => {
       },
     });
 
-    const getUserByIdUser = responseGetUserById.data?.getUserById as User;
+    const getUserByIdUser = responseGetUserById.data?.getUserById[0] as User;
 
     expect(getUserByIdUser.email).toEqual(userUpdatedEmail);
   });
@@ -123,15 +127,12 @@ describe("User resolver", () => {
   test("should delete user", async () => {
     const responseDeleteUser = await server.executeOperation({
       query: queries.deleteUser,
-      variables: {
-        userId,
-      },
     });
 
     expect(responseDeleteUser.errors).toBeUndefined();
     expect(responseDeleteUser.data?.deleteUser).toBeDefined();
 
-    const deletedUser = responseDeleteUser.data?.deleteUser as User;
+    const deletedUser = responseDeleteUser.data?.deleteUser[0] as User;
 
     expect(deletedUser.id).toEqual(userId);
 
