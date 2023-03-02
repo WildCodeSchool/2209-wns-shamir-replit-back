@@ -2,7 +2,7 @@
 
 to ensure tests are working !
 
-docker exec -ti bdd-container sh
+docker exec -ti bdd-container bash
 
 then 
 

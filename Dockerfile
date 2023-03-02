@@ -16,4 +16,5 @@ RUN npm install
 COPY src /back/src
 COPY .env /back/
 COPY tsconfig.json /back/
+COPY jest.config.js /back/
 CMD ["ts-node-dev", "src/index.ts"]
