@@ -6,6 +6,7 @@ import { executeCodeController } from "./controllers/executeCodeController";
 import http from "http";
 import { createApolloServer } from "./tools/createApolloServer";
 import "reflect-metadata";
+import { projectController } from "./controllers/projectController";
 
 const port = 5000;
 
@@ -17,6 +18,7 @@ async function listen(port: number) {
   const router = express.Router();
 
   router.post("/executeCode", executeCodeController);
+  router.get("/download/:projectId", projectController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 

@@ -3,6 +3,7 @@ import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 import { ReqProject } from "../resolvers/projectResolver";
+import { zip } from "zip-a-folder";
 
 type CreateOneSubFolderProps = {
   project: ReqProject;
@@ -146,6 +147,16 @@ export const fileManager = {
       throw new Error(
         "Impossible de recupérer le code d'un ou de plusieurs fichiers"
       );
+    }
+  },
+
+  createZipFolder: async (folderName: string) => {
+    try {
+      await zip(`./projects/${folderName}`, `./archives/${folderName}.zip`);
+      return `./archives/${folderName}.zip`;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de zipper le dossier");
     }
   },
 };

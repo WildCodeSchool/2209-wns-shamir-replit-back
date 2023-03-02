@@ -24,7 +24,8 @@
     "string-sanitizer": "^2.0.2",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.3.10",
-    "vm2": "^3.9.11"
+    "vm2": "^3.9.11",
+    "zip-a-folder": "^1.1.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
