@@ -1,12 +1,8 @@
 import { ExpressControllerFunction } from "../interfaces";
-import { Execution, User } from "../models";
+import { IExecution } from "../interfaces/InputType";
+import { Execution } from "../models";
 import executionService from "../services/executionService";
 import userService from "../services/userService";
-
-type ReqExecution = Omit<Execution, "userId"> & {
-  userId: User;
-  // id_storage_number: string;
-};
 
 const compareDate = (date1: Date, date2: Date) =>
   date1.getFullYear() === date2.getFullYear() &&
@@ -39,13 +35,10 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
       date_end_subscription.getTime() < execution_date.getTime()
     ) {
       // check nb executions in free mode
-      const executions =
-        (await executionService.getAll()) as unknown as ReqExecution[];
+      const executions: Execution[] = await executionService.getAll(userId);
 
-      const nbExecutions = executions.filter(
-        (execution) =>
-          execution.userId.id === userId &&
-          compareDate(execution.execution_date, execution_date)
+      const nbExecutions = executions.filter((execution) =>
+        compareDate(execution.execution_date, execution_date)
       ).length;
 
       console.log("nbExecutions", nbExecutions);
@@ -60,9 +53,13 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
       }
     }
 
-    const output = "";
+    const data: IExecution = {
+      output: "",
+      projectId: projectId,
+      userId: userId,
+    };
 
-    await executionService.create(projectId, userId, output, execution_date);
+    await executionService.create(data, userId);
 
     if (next) return next();
   }

@@ -98,11 +98,9 @@ export const fileManager = {
     }
   },
 
-  deleteOneFile: async (project: Project | null, file: FileCode) => {
+  deleteOneFile: async (project: Project, file: FileCode) => {
     try {
-      const pathToDelete = `./projects/${project!.id_storage_number}${
-        file.id_storage_file
-      }`;
+      const pathToDelete = `./projects/${project.id_storage_number}${file.id_storage_file}`;
 
       fs.unlinkSync(pathToDelete);
     } catch (err) {
