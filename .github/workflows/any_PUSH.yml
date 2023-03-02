@@ -24,10 +24,10 @@ jobs:
       - name: run docker
         run: |
           docker compose up --build -d
-          docker exec -ti $(docker ps --filter name=bdd-1 -q)
+          docker exec -ti $(docker ps --filter name=bdd-1 -q) bash
           psql -U ${POSTGRES_USER}
           CREATE DATABASE wildcodetest;
           exit
           exit
-          docker exec -ti $(docker ps --filter name=back-1 -q)
+          docker exec -ti $(docker ps --filter name=back-1 -q) bash
           npm run test
