@@ -8,6 +8,7 @@ import { createApolloServer } from "./tools/createApolloServer";
 import "reflect-metadata";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { executionCountMiddleware } from "./middlewares/executionCountMiddleware";
+import { stripeController } from "./controllers/stripeController";
 
 const port = 5000;
 
@@ -24,6 +25,8 @@ async function listen(port: number) {
     executionCountMiddleware,
     executeCodeController
   );
+
+  router.post("/stripe", authMiddleware, stripeController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
