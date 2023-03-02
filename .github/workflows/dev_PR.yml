@@ -19,7 +19,7 @@ jobs:
         run: |
           npm install
           npm run lint
-          
+
   running-tests:
     runs-on: ubuntu-22.04
     steps:
@@ -39,7 +39,7 @@ jobs:
 
       - name: init database
         run: |
-          docker exec -i $(docker ps --filter name=bdd-1 -q) psql -U wildcode -c 'CREATE DATABASE wildcodetest;'
+          docker exec -i $(docker ps --filter name=bdd-1 -q) psql -U $POSTGRES_USER -c 'CREATE DATABASE $POSTGRES_DB_TEST;'
 
       - name: run tests
         run: |
