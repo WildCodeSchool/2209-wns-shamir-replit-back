@@ -21,13 +21,17 @@ jobs:
       - name: ls
         run: ls -al
 
-      - name: run docker
-        run: |
-          docker compose up --build -d
-          docker exec -i $(docker ps --filter name=bdd-1 -q) bash
+      - name: launch containers
+        run: docker compose up --build -d
+          
+      - name: init database
+          docker exec -i $(docker ps --filter name=bdd-1 -q) << EOT
           psql -U ${POSTGRES_USER}
           CREATE DATABASE wildcodetest;
           exit
           exit
+          EOT
+
+      - name: run tests
           docker exec -i $(docker ps --filter name=back-1 -q) bash
           npm run test
