@@ -1,0 +1,25 @@
+name: "push on any branch > run test"
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 12
+
+      - name: run docker
+        run: |
+          docker compose up --build &
+          docker exec -ti $(docker ps --filter name=bdd-1 -q)
+          psql -U ${POSTGRES_USER}
+          CREATE DATABASE wildcodetest;
+          exit
+          exit
+          docker exec -ti $(docker ps --filter name=back-1 -q)
+          npm run test
