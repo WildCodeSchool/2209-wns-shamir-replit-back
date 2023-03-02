@@ -20,12 +20,18 @@ export type TokenPayload = {
   id: number;
 };
 
-export const createApolloServer = async (
+type CreateApolloServerProps = {
   httpServer?: http.Server<
     typeof http.IncomingMessage,
     typeof http.ServerResponse
-  >
-) => {
+  >;
+  forceToken?: TokenPayload;
+};
+
+export const createApolloServer = async ({
+  httpServer,
+  forceToken,
+}: CreateApolloServerProps) => {
   await dataSource.initialize();
 
   const schema = await buildSchema({
@@ -46,28 +52,29 @@ export const createApolloServer = async (
 
   return new ApolloServer({
     schema,
-    context: httpServer
-      ? ({ req }) => {
-          if (
-            req.headers.authorization === undefined ||
-            process.env.JWT_SECRET_KEY === undefined
-          ) {
-            return {};
-          } else {
-            try {
-              const bearer = req?.headers.authorization.split("Bearer ")[1];
-
-              const userPayload = authService.verifyToken(
-                bearer
-              ) as TokenPayload;
-              return userPayload;
-            } catch (e) {
-              console.error("err", e);
+    context:
+      forceToken || httpServer
+        ? ({ req }) => {
+            if (
+              req.headers.authorization === undefined ||
+              process.env.JWT_SECRET_KEY === undefined
+            ) {
               return {};
+            } else {
+              try {
+                const bearer = req?.headers.authorization.split("Bearer ")[1];
+
+                const userPayload = authService.verifyToken(
+                  bearer
+                ) as TokenPayload;
+                return userPayload;
+              } catch (e) {
+                console.error("err", e);
+                return {};
+              }
             }
           }
-        }
-      : undefined,
+        : undefined,
     plugins,
   });
 };
