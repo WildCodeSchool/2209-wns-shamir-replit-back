@@ -13,8 +13,13 @@ jobs:
       - uses: docker-practice/actions-setup-docker@master
         timeout-minutes: 12
 
+      - name: dot env creation
+        if: ${{ success() }}
+        run: |
+          echo "${{secrets.DOT_ENV}}" > .env
+
       - name: ls
-        run: ls
+        run: ls -al
 
       - name: run docker
         run: |
