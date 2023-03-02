@@ -26,7 +26,7 @@ jobs:
 
       - name: init database
         run: |
-          docker exec -i $(docker ps --filter name=bdd-1 -q) psql -U ${POSTGRES_USER} & CREATE DATABASE wildcodetest; & exit & exit
+          docker exec -i $(docker ps --filter name=bdd-1 -q) 'psql -U ${POSTGRES_USER} & CREATE DATABASE wildcodetest; & exit & exit'
 
       - name: run tests
         run: |
