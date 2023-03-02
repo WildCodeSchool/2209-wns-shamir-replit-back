@@ -2,13 +2,7 @@ import { Field, InputType, ObjectType } from "type-graphql";
 import "reflect-metadata";
 
 @InputType()
-export class iProject {
-  @Field({ nullable: true })
-  id: number;
-
-  @Field({ nullable: true })
-  userId: number;
-
+export class IProject {
   @Field({ nullable: true })
   name: string;
 
@@ -26,10 +20,7 @@ export class iProject {
 }
 
 @InputType()
-export class iUser {
-  @Field({ nullable: true })
-  id: number;
-
+export class IUser {
   @Field({ nullable: true })
   email: string;
 
@@ -45,17 +36,10 @@ export class iUser {
   @Field({ nullable: true })
   date_end_subscription: Date;
 }
-
 @InputType()
-export class iCodeComment {
-  @Field({ nullable: true })
-  id: number;
-
-  @Field({ nullable: true })
-  fileId: number;
-
-  @Field({ nullable: true })
-  userId: number;
+export class ICodeComment {
+  @Field({ nullable: false })
+  fileCodeId: number;
 
   @Field({ nullable: true })
   line_number: number;
@@ -73,22 +57,13 @@ export class iCodeComment {
   comment: string;
 
   @Field({ nullable: true })
-  comment_date: Date;
-
-  @Field({ nullable: true })
   is_report: boolean;
 }
 
 @InputType()
-export class iProjectShare {
-  @Field({ nullable: true })
-  id: number;
-
+export class IProjectShare {
   @Field({ nullable: true })
   projectId: number;
-
-  @Field({ nullable: true })
-  userId: number;
 
   @Field({ nullable: true })
   read: boolean;
@@ -101,10 +76,7 @@ export class iProjectShare {
 }
 
 @InputType()
-export class iLike {
-  @Field({ nullable: true })
-  id: number;
-
+export class ILike {
   @Field({ nullable: true })
   projectId: number;
 
@@ -113,10 +85,7 @@ export class iLike {
 }
 
 @InputType()
-export class iFileCode {
-  @Field({ nullable: true })
-  id: number;
-
+export class IFileCode {
   @Field({ nullable: true })
   projectId: number;
 
@@ -134,28 +103,19 @@ export class iFileCode {
 }
 
 @InputType()
-export class iExecution {
-  @Field({ nullable: true })
-  id: number;
-
-  @Field({ nullable: true })
+export class IExecution {
+  @Field({ nullable: false })
   projectId: number;
 
-  @Field({ nullable: true })
+  @Field({ nullable: false })
   userId: number;
 
-  @Field({ nullable: true })
-  execution_date: Date;
-
-  @Field({ nullable: true })
+  @Field({ nullable: false })
   output: string;
 }
 
 @InputType()
-export class iCommentAnswer {
-  @Field({ nullable: true })
-  id: number;
-
+export class ICommentAnswer {
   @Field({ nullable: true })
   codeCommentId: number;
 
@@ -164,17 +124,11 @@ export class iCommentAnswer {
 
   @Field({ nullable: true })
   comment: string;
-
-  @Field({ nullable: true })
-  answer_date: Date;
 }
 
 @InputType()
 @ObjectType()
-export class iFilesWithCode {
-  @Field({ nullable: true })
-  id: number;
-
+export class IFilesWithCode {
   @Field({ nullable: true })
   projectId: number;
 

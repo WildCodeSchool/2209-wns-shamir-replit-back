@@ -1,67 +1,36 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { iProject } from "../interfaces/InputType";
+import { IProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
-import { Like } from "../models/like.model";
 import projectService from "../services/projectService";
 import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
 import fileService from "../services/fileService";
 import { Context } from "apollo-server-core";
 import { TokenPayload } from "../tools/createApolloServer";
-import { ProjectShare, User } from "../models";
 import likeService from "../services/likeService";
 
-export type ReqProject = Omit<Project, "userId"> & {
-  userId: User;
-};
-
-type ReqLike = Omit<Like, "userId" | "projectId"> & {
-  userId: User;
-  projectId: Project;
-};
-
-type ReqShare = Omit<Project, "userId" | "projectShare"> & {
-  userId: User;
-  projectShare: (Omit<ProjectShare, "userId"> & {
-    userId: User;
-  })[];
-};
-
-@Resolver(iProject)
+@Resolver(Project)
 export class ProjectResolver {
   @Mutation(() => Project)
   async createProject(
-    @Arg("name") name: string,
-    @Arg("description") description: string,
-    @Arg("isPublic") isPublic: boolean,
+    @Arg("data") data: IProject,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Project> {
     try {
       const userId = ctx.id;
-
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
-      const updateName = string.sanitize.keepNumber(name);
+      const updateName = string.sanitize.keepNumber(data.name);
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const folderName = `${timeStamp}_${updateName}_${userId}`;
-
       // On crée le projet dans la base de données
-      const projectFromDB = await projectService.create(
-        userId,
-        name,
-        description,
-        isPublic,
-        folderName
-      );
+      const projectFromDB = await projectService.create(data, userId);
       // Création du dossier du projet sur le server
       await fileManager.createProjectFolder(folderName);
-
       // On supprime les espaces et les caractères spéciaux du nom du projet
-
       const fileName = `${timeStamp}_index_${userId}`;
       // On crée le nom du fichier avec le timestamp, le nom du projet et l'id de l'utilisateur
-
       await fileService.create(
         userId,
         projectFromDB.id,
@@ -72,7 +41,6 @@ export class ProjectResolver {
         "console.log('Enter Text')",
         projectFromDB
       );
-
       return projectFromDB;
     } catch (err) {
       console.error(err);
@@ -83,18 +51,9 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getPublicProjects(
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ReqProject[]> {
+  ): Promise<Project[]> {
     try {
-      const projects =
-        (await projectService.getAll()) as unknown as ReqProject[];
-
-      return projects
-        .filter((project) => project.isPublic && project.userId.id !== ctx.id)
-        .sort((proA, proB) => {
-          if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
-          if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
-          return 0;
-        });
+      return await projectService.getAllPublicProj(ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find public Projects");
@@ -104,23 +63,9 @@ export class ProjectResolver {
   @Query(() => [Project])
   async getSharedWithMeProjects(
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ReqShare[]> {
+  ): Promise<Project[]> {
     try {
-      const projects = (await projectService.getAll()) as unknown as ReqShare[];
-
-      return projects
-        .filter(
-          (project) =>
-            project.userId.id !== ctx.id &&
-            project.projectShare
-              .map((pshare) => pshare.userId.id)
-              .includes(ctx.id)
-        )
-        .sort((proA, proB) => {
-          if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
-          if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
-          return 0;
-        });
+      return await projectService.getAllPublicProj(ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find shared with me Projects");
@@ -128,20 +73,9 @@ export class ProjectResolver {
   }
 
   @Query(() => [Project])
-  async getAllProjects(
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ReqProject[]> {
+  async getAllProjects(): Promise<Project[]> {
     try {
-      const projects =
-        (await projectService.getAll()) as unknown as ReqProject[];
-
-      return projects
-        .filter((project) => project.userId.id === ctx.id)
-        .sort((proA, proB) => {
-          if (proA.name.toLowerCase() > proB.name.toLowerCase()) return 1;
-          if (proA.name.toLowerCase() < proB.name.toLowerCase()) return -1;
-          return 0;
-        });
+      return await projectService.getAll();
     } catch (err) {
       console.error(err);
       throw new Error("Can't find all Projects");
@@ -152,10 +86,9 @@ export class ProjectResolver {
   async getProjectById(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<Project | null> {
     try {
-      const projects = await projectService.getById(projectId);
-      return projects.filter((project) => project.userId === ctx.id);
+      return await projectService.getByProjId(ctx.id, projectId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find Project");
@@ -163,43 +96,42 @@ export class ProjectResolver {
   }
 
   @Query(() => [Project])
-  async getProjectByUserId(
-    @Arg("userId") userId: number
-    // @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  async getProjectByUserId(@Arg("userId") userId: number): Promise<Project[]> {
     try {
-      const projectByuserId = await projectService.getByUserId(userId);
-      return projectByuserId;
-    } catch (e) {
-      console.error(e);
-      throw new Error("ca marche pas ");
+      return await projectService.getProjByUserId(userId);
+    } catch (err) {
+      console.error(err);
+      throw new Error("Can't find Project");
     }
   }
+
+  // @Query(() => [Project])
+  // async getProjectByUserId(
+  //   @Arg("userId") userId: number
+  //   // @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<Project[]> {
+  //   try {
+  //     const projectByuserId = await projectService.getByUserId(userId);
+  //     return projectByuserId;
+  //   } catch (e) {
+  //     console.error(e);
+  //     throw new Error("ca marche pas ");
+  //   }
+  // }
 
   @Mutation(() => Project)
   async addLike(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project> {
+  ): Promise<Project | null> {
     try {
-      const [_project] = (await projectService.getById(
-        projectId
-      )) as unknown as ReqShare[];
-
-      if (
-        !_project.isPublic &&
-        _project.userId.id !== ctx.id &&
-        !_project.projectShare.filter((pshare) => pshare.userId.id === ctx.id)
-          .length
-      )
-        throw new Error("userId not allowed");
-
-      const alreadyLiked =
-        _project.like.filter((lik) => lik.userId === ctx.id).length > 0;
-
-      if (!alreadyLiked) await likeService.create(projectId, ctx.id);
-
-      return (await projectService.getById(projectId))[0];
+      const project = await projectService.getByProjId(ctx.id, projectId);
+      if (!project || !project.isPublic)
+        throw new Error("user not allowed: project not public");
+      const alreadyLiked = await likeService.getByProjId(ctx.id, projectId);
+      if (alreadyLiked) throw new Error("Project already liked");
+      await likeService.create(projectId, ctx.id);
+      return project;
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");
@@ -210,84 +142,62 @@ export class ProjectResolver {
   async removeLike(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ReqShare> {
+  ): Promise<Project | null> {
     try {
-      const [_project] = (await projectService.getById(
-        projectId
-      )) as unknown as ReqShare[];
+      const project = await projectService.getByProjId(ctx.id, projectId);
+      if (!project) throw new Error("Project don't exist");
 
-      if (
-        !_project.isPublic &&
-        _project.userId.id !== ctx.id &&
-        !_project.projectShare.filter((pshare) => pshare.userId.id === ctx.id)
-          .length
-      )
-        throw new Error("userId not allowed");
+      if (!project.isPublic)
+        throw new Error("user not allowed: project not public");
 
-      const likes = (await likeService.getAll()) as unknown as ReqLike[];
+      const like = await likeService.getByProjId(ctx.id, projectId);
+      if (!like) throw new Error("like doesn't exist");
 
-      const filteredLike = likes.filter(
-        (like) => like.userId.id === ctx.id && like.projectId.id === projectId
-      );
-
-      const alreadyLiked = filteredLike.length > 0;
-
-      if (alreadyLiked) {
-        likeService.delete(filteredLike[0].id);
-        return {
-          ..._project,
-          like: [
-            ..._project.like.filter((like) => like.id === filteredLike[0].id),
-          ],
-        };
-      }
-      return _project;
+      await likeService.delete(ctx.id, like.id);
+      return project;
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");
     }
   }
 
-  @Mutation(() => [Project])
+  @Mutation(() => Project)
   async addView(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<Project> {
     try {
-      const [_project] = (await projectService.getById(
-        projectId
-      )) as unknown as ReqShare[];
+      const project = await projectService.getByProjId(ctx.id, projectId);
+      if (!project) throw new Error("Project don't exist");
 
-      if (
-        !_project.isPublic &&
-        _project.userId.id !== ctx.id &&
-        !_project.projectShare.filter((pshare) => pshare.userId.id === ctx.id)
-          .length
-      )
-        throw new Error("userId not allowed");
-      return await projectService.update(
-        { nb_views: _project.nb_views + 1 },
-        projectId
-      );
+      if (!project.isPublic)
+        throw new Error("user not allowed: project not public");
+
+      const data: IProject = {
+        description: project.description,
+        id_storage_number: project.id_storage_number,
+        isPublic: project.isPublic,
+        name: project.name,
+        nb_views: project.nb_views + 1,
+      };
+
+      return await projectService.update(data, ctx.id, projectId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");
     }
   }
 
-  @Mutation(() => [Project])
+  @Mutation(() => Project)
   async updateProject(
-    @Arg("project") project: iProject,
+    @Arg("data") data: IProject,
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  ): Promise<Project | null> {
     try {
-      const [_project] = (await projectService.getById(
-        projectId
-      )) as unknown as ReqProject[];
-
-      if (_project.userId.id !== ctx.id) throw new Error("userId not allowed");
-      return await projectService.update(project, projectId);
+      const project = await projectService.getByProjId(ctx.id, projectId);
+      if (!project) throw new Error("Project don't exist");
+      return await projectService.update(data, ctx.id, projectId);
     } catch (err) {
       console.error(err);
       throw new Error("Can't update Project");
@@ -298,17 +208,15 @@ export class ProjectResolver {
   async deleteProject(
     @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
-  ): Promise<ReqProject> {
+  ): Promise<Project> {
     try {
-      const [project] = (await projectService.getById(
-        projectId
-      )) as unknown as ReqProject[];
+      const project = await projectService.getByProjId(ctx.id, projectId);
 
-      if (project.userId.id !== ctx.id) throw new Error("userId not allowed");
+      if (!project) throw new Error("userId not allowed");
 
       // Suppression du dossier du projet sur le server
       await fileManager.deleteProjectFolder(project.id_storage_number);
-      await projectService.delete(projectId);
+      await projectService.delete(ctx.id, projectId);
       return project;
     } catch (err) {
       console.error(err);
@@ -328,17 +236,15 @@ export class ProjectResolver {
   ): Promise<Project | undefined> {
     try {
       // On stock les informations du projet dans une variable
-      const project = (await projectService.getById(
-        projectId
-      )) as unknown as ReqProject[];
 
-      if (project[0].userId.id !== ctx.id)
-        throw new Error("userId not allowed");
+      const project = await projectService.getByProjId(ctx.id, projectId);
+
+      if (!project) throw new Error("userId not allowed");
 
       return await fileManager.createOneSubFolder({
-        project: project[0],
-        clientPath: clientPath,
-        subFolderName: subFolderName,
+        project,
+        clientPath,
+        subFolderName,
       });
     } catch (err) {
       console.error(err);

@@ -1,71 +1,97 @@
 import { Repository } from "typeorm";
-import { iProjectShare } from "../interfaces/InputType";
+import { IProjectShare } from "../interfaces/InputType";
+import { User, Project } from "../models";
 import { ProjectShare } from "../models/project_share.model";
 import { dataSource } from "../tools/createDataSource";
 
 const repository: Repository<ProjectShare> =
   dataSource.getRepository(ProjectShare);
+const userRepo: Repository<User> = dataSource.getRepository(User);
+const projectRepo: Repository<Project> = dataSource.getRepository(Project);
 
 const projectShareService = {
-  getById: async (projectShareId: number) =>
-    (await repository.findBy({ id: projectShareId }))[0],
+  getById: async (uid: number, projectShareId: number) => {
+    const user = await userRepo.findOneBy({ id: uid });
+    if (user === null) throw new Error("inputs null");
+    return await repository.findOne({
+      relations: { project: true, user: true },
+      where: {
+        id: projectShareId,
+        user: user,
+      },
+    });
+  },
 
   getAll: async (): Promise<ProjectShare[]> =>
     await repository.find({
       relations: {
-        userId: true,
-        projectId: true,
+        user: true,
+        project: true,
       },
     }),
-  create: async (
-    projectId: number,
-    userId: number,
-    read: boolean,
-    write: boolean,
-    comment: boolean
-  ): Promise<ProjectShare> => {
-    const newProjectShare = {
-      projectId,
-      userId,
-      read,
-      write,
-      comment,
-    };
-    return await repository.save(newProjectShare);
+
+  create: async (data: IProjectShare, uid: number): Promise<ProjectShare> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    const project = await projectRepo.findOneBy({ id: data.projectId });
+
+    if (user === null) throw new Error("inputs null");
+    if (project === null) throw new Error("filecode null");
+
+    return await repository.save({
+      ...data,
+      user,
+      project,
+    });
   },
   update: async (
-    projectShare: iProjectShare,
+    data: IProjectShare,
+    uid: number,
     projectShareId: number
   ): Promise<ProjectShare> => {
-    await repository.update(projectShareId, projectShare);
-    return await projectShareService.getById(projectShareId);
+    const projectShare = await projectShareService.getById(uid, projectShareId);
+    if (projectShare === null) throw new Error("you have no rights");
+    await repository.update(projectShareId, { ...data });
+    return projectShare;
   },
 
-  delete: async (projectShareId: number): Promise<ProjectShare> => {
-    const projectShare = await projectShareService.getById(projectShareId);
+  delete: async (
+    uid: number,
+    projectShareId: number
+  ): Promise<ProjectShare> => {
+    const projectShare = await projectShareService.getById(uid, projectShareId);
+    if (projectShare === null) throw new Error("you have no rights");
     await repository.delete(projectShareId);
     return projectShare;
   },
 
   // Recup la liste des projectShare par l'idProjet
-  getUserCanEdit: async (projectId: number) => {
-    const listOfUser = await repository.findBy({
-      projectId: projectId, // NE MARCHE PAS
+  getUserCanEdit: async (
+    uid: number,
+    projectId: number
+  ): Promise<ProjectShare[]> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    const project = await projectRepo.findOneBy({ id: projectId });
+
+    if (user === null) throw new Error("inputs null");
+    if (project === null) throw new Error("inputs null");
+
+    return await repository.find({
+      relations: { project: true, user: true },
+      where: {
+        write: true,
+        project: project,
+        user: user,
+      },
     });
-    const userCanEdit = listOfUser.filter((item) => item.write === true);
-    return userCanEdit;
   },
 
   // Recup la liste des projectShare par l'idProjet
   getUserCanView: async (projectId: number) => {
-    const listOfUser = await repository.findBy({
-      projectId: projectId, // NE MARCHE PAS
+    const project = await projectRepo.findOneBy({ id: projectId });
+    if (project === null) throw new Error("inputs null");
+    return await repository.findBy({
+      project: project,
     });
-
-    // console.log("listOfUser", listOfUser);
-
-    const userCanEdit = listOfUser;
-    return userCanEdit;
   },
 };
 

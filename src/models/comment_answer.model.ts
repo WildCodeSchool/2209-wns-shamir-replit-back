@@ -5,7 +5,6 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   CreateDateColumn,
-  JoinColumn,
 } from "typeorm";
 import { CodeComment } from "./code_comment.model";
 import { User } from "./user.model";
@@ -23,13 +22,17 @@ export class CommentAnswer {
   @CreateDateColumn()
   answer_date: Date;
 
-  @Column()
-  @ManyToOne(() => CodeComment, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "codeCommentId" })
-  codeCommentId: CodeComment["id"];
+  @Field(() => CodeComment)
+  @ManyToOne(() => CodeComment, (codeComment) => codeComment.commentAnswer, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  codeComment: CodeComment;
 
-  @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.commentAnswer, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  user: User;
 }

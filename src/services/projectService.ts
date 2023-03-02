@@ -1,81 +1,140 @@
 import { Repository } from "typeorm";
-import { iProject } from "../interfaces/InputType";
+import { IProject } from "../interfaces/InputType";
+import { User } from "../models";
 import { Project } from "../models/project.model";
 import { dataSource } from "../tools/createDataSource";
 
-const repository: Repository<Project> = dataSource.getRepository(Project);
+const projectRepo: Repository<Project> = dataSource.getRepository(Project);
+
+const userRepo: Repository<User> = dataSource.getRepository(User);
 
 const projectService = {
   // CRUD Classique
 
-  getById: async (projectId: number): Promise<Project[]> =>
-    await repository.find({
+  getByProjId: async (
+    uid: number,
+    projectId: number
+  ): Promise<Project | null> => {
+    const user = await userRepo.findOneBy({ id: uid });
+    if (user === null) throw new Error("inputs null");
+    return await projectRepo.findOne({
       relations: {
         execution: true,
         projectShare: true,
-        userId: true,
+        user: true,
         like: true,
       },
-      where: { id: projectId },
-    }),
+      where: { id: projectId, user: user },
+    });
+  },
 
-  getByUserId: async (userId: number): Promise<Project[]> =>
-    await repository.find({
+  getProjByUserId: async (userId: number): Promise<Project[]> =>
+    await projectRepo.find({
       relations: {
-        userId: true,
+        execution: true,
+        projectShare: true,
+        user: true,
+        like: true,
       },
-      where: { userId: userId },
+      where: {
+        user: {
+          id: userId,
+        },
+      },
     }),
 
   getAll: async (): Promise<Project[]> => {
     try {
-      return await repository.find({
-        relations: { userId: true, like: true, projectShare: true },
+      return await projectRepo.find({
+        relations: {
+          user: true,
+          like: true,
+          projectShare: true,
+          execution: true,
+          fileCode: true,
+        },
       });
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de récupérer les projets");
     }
   },
-  create: async (
-    userId: number,
-    name: string,
-    description: string,
-    isPublic: boolean,
-    idStorageNumber: string
-  ): Promise<Project> => {
+
+  getAllPublicProj: async (uid: number): Promise<Project[]> => {
     try {
-      const newProject = {
-        userId,
-        name,
-        description,
-        isPublic,
-        nb_views: 0,
-        id_storage_number: idStorageNumber,
-      };
-      return await repository.save(newProject);
+      const user = await userRepo.findOneBy({ id: uid });
+      if (user === null) throw new Error("user not found");
+      return await projectRepo.find({
+        relations: {
+          user: true,
+          like: true,
+          projectShare: true,
+          execution: true,
+          fileCode: true,
+        },
+        where: { isPublic: true, user: user },
+        order: { name: "ASC" },
+      });
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de récupérer les projets");
+    }
+  },
+
+  getSharedWithMeProj: async (uid: number): Promise<Project[]> => {
+    try {
+      const user = await userRepo.findOneBy({ id: uid });
+      if (user === null) throw new Error("user not found");
+
+      return await projectRepo.find({
+        relations: {
+          user: true,
+          like: true,
+          projectShare: true,
+          execution: true,
+          fileCode: true,
+        },
+        where: { projectShare: { user: user } },
+        order: { name: "ASC" },
+      });
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de récupérer les projets");
+    }
+  },
+
+  create: async (data: IProject, uid: number): Promise<Project> => {
+    try {
+      const user = await userRepo.findOneBy({ id: uid });
+      if (user === null) throw new Error("inputs null");
+      return await projectRepo.save({ ...data });
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de créer le projet");
     }
   },
   update: async (
-    project: Partial<iProject>,
+    project: IProject,
+    uid: number,
     projectId: number
-  ): Promise<Project[]> => {
+  ): Promise<Project> => {
     try {
-      await repository.update(projectId, project);
-      return await projectService.getById(projectId);
+      const proj = await projectService.getByProjId(uid, projectId);
+      if (proj === null) throw new Error("fu");
+
+      await projectRepo.update(projectId, { ...project });
+      return proj;
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de mettre à jour le projet");
     }
   },
 
-  delete: async (projectId: number): Promise<Project> => {
+  delete: async (uid: number, projectId: number): Promise<Project> => {
     try {
-      const [project] = await projectService.getById(projectId);
-      await repository.delete(projectId);
+      const project = await projectService.getByProjId(uid, projectId);
+      if (project === null) throw new Error("fu");
+      await projectRepo.delete(projectId);
       return project;
     } catch (err) {
       console.error(err);
