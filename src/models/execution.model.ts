@@ -1,5 +1,12 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Project } from "./project.model";
 import { User } from "./user.model";
 
@@ -10,15 +17,21 @@ export class Execution {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @CreateDateColumn()
   execution_date: Date;
 
+  @Field()
   @Column()
   output?: string;
-  
-  @ManyToOne(() => User, (user) => user.execution)
-  user: User;
 
-  @ManyToOne(() => Project, (project) => project.execution)
-  project: Project;
+  @Column()
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
+
+  @Column()
+  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "projectId" })
+  projectId: Project["id"];
 }

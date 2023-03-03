@@ -1,5 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Project } from "./project.model";
 import { User } from "./user.model";
 
@@ -10,18 +16,35 @@ export class ProjectShare {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   read: boolean;
 
+  @Field()
   @Column()
   write: boolean;
 
+  @Field()
   @Column()
-  comment: boolean
-  
-  @ManyToOne(() => User, (user) => user.projectShare)
-  user: User;
-  
-  @ManyToOne(() => Project, (project) => project.projectShare)
-  project: Project;
+  comment: boolean;
+
+  // @Column()
+  // @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "userId" })
+  // userId: User["id"];
+
+  // @Column()
+  // @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "projectId" })
+  // projectId: Project["id"];
+
+  @Field(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
+
+  @Field(() => Project)
+  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "projectId" })
+  projectId: Project["id"];
 }

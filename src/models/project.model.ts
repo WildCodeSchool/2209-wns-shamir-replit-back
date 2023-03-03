@@ -1,7 +1,15 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Execution } from "./execution.model";
 import { FileCode } from "./file.model";
+import { Like } from "./like.model";
 import { ProjectShare } from "./project_share.model";
 import { User } from "./user.model";
 
@@ -12,34 +20,52 @@ export class Project {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   name: string;
 
+  @Field({ nullable: true })
   @Column()
   description?: string;
 
-  @Column()
-  nb_likes: number;
-  
+  @Field()
   @Column()
   nb_views: number;
 
+  @Field()
   @Column()
-  public: boolean;
+  isPublic: boolean;
 
+  @Field()
   @Column()
   id_storage_number: string;
-  
-  @OneToMany(() => FileCode, (fileCode) => fileCode.project)
-  file: File[];
-  
-  @OneToMany(() => ProjectShare, (projectShare) => projectShare.project)
+
+  @Field(() => [FileCode], { nullable: true })
+  @OneToMany(() => FileCode, (fileCode) => fileCode.projectId)
+  file: FileCode[];
+
+  @Field(() => [ProjectShare], { nullable: true })
+  @OneToMany(() => ProjectShare, (projectShare) => projectShare.projectId)
   projectShare: ProjectShare[];
-  
-  @OneToMany(() => Execution, (execution) => execution.project)
+
+  @Field(() => [Like], { nullable: true })
+  @OneToMany(() => Like, (like) => like.projectId)
+  like: Like[];
+
+  @Field(() => [Execution], { nullable: true })
+  @OneToMany(() => Execution, (execution) => execution.projectId)
   execution: Execution[];
 
-  @ManyToOne(() => User, (user) => user.project)
-  user: User;
-  
+  // @Column()
+  // @ManyToOne((type) => User, { onDelete: "CASCADE", eager: true })
+  // @JoinColumn({ name: "userId" })
+  // userId: User["id"];
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.id, {
+    onDelete: "CASCADE",
+    eager: false,
+  })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 }

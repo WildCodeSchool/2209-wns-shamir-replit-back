@@ -8,22 +8,20 @@ export default {
    * @param hashedPassword hashed password
    * @returns
    */
-  verifyPassword: async (password: string, hashedPassword: string) => {
-    return await argon2.verify(hashedPassword, password);
-  },
-
+  verifyPassword: async (password: string, hashedPassword: string) =>
+    await argon2.verify(hashedPassword, password),
   /**
    * Return a signed payload.
    * @param payload payload to sign
    * @returns
    */
-  signJwt: (payload: any) => {
+  signJwt: (payload: string | object | Buffer) => {
     if (process.env.JWT_SECRET_KEY === undefined) {
       throw new Error();
     }
 
     return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-      expiresIn: 60 * 60,
+      expiresIn: "7d",
     });
   },
 
@@ -40,6 +38,7 @@ export default {
     return jwt.verify(token, process.env.JWT_SECRET_KEY);
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   hasRole: (email: string, role: string) => {
     // Récup le user en DB
     // Vérifier les rôles

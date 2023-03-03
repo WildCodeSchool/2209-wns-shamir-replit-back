@@ -1,59 +1,42 @@
-import { ApolloServer, gql } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import { dataSource } from "./tools/utils";
-import { buildSchema } from "type-graphql";
-import { UserResolver } from "./resolvers/userResolvers";
-import authService from "./services/authService";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import http from "http";
-import * as dotenv from 'dotenv'
+import * as dotenv from "dotenv";
 import { executeCodeController } from "./controllers/executeCodeController";
+import http from "http";
+import { createApolloServer } from "./tools/createApolloServer";
+import "reflect-metadata";
+import { projectController } from "./controllers/projectController";
+import { authMiddleware } from "./middlewares/authMiddleware";
+import { executionCountMiddleware } from "./middlewares/executionCountMiddleware";
+import { stripeController } from "./controllers/stripeController";
+import tasks from "./tasks";
 
 const port = 5000;
 
 dotenv.config();
 
-
 async function listen(port: number) {
   const app = express();
-  
+
+  tasks.initScheduledJobs();
+
   const router = express.Router();
 
-  router.post("/executeCode", executeCodeController);
+  router.post(
+    "/executeCode",
+    authMiddleware,
+    executionCountMiddleware,
+    executeCodeController
+  );
+  router.get("/download/:projectId", authMiddleware, projectController);
+  router.post("/stripe", authMiddleware, stripeController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
   const httpServer = http.createServer(app);
-  
-  await dataSource.initialize();
-  const schema = await buildSchema({
-    resolvers: [UserResolver],
-  });
 
-  const server = new ApolloServer({
-    schema,
-    context: ({ req }) => {
-      if (
-        req.headers.authorization === undefined ||
-        process.env.JWT_SECRET_KEY === undefined
-      ) {
-        return {};
-      } else {
-        try {
-          const bearer = req.headers.authorization.split("Bearer ")[1];
-          const userPayload = authService.verifyToken(bearer);
-
-          return { user: userPayload };
-        } catch (e) {
-          console.log(e);
-          return {};
-        }
-      }
-    },
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  });
+  const server = await createApolloServer({ httpServer });
 
   await server.start();
 

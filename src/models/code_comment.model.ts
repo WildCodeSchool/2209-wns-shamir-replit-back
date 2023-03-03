@@ -1,6 +1,14 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, OneToMany, ManyToOne } from "typeorm";
-import {CommentAnswer} from "./comment_answer.model"
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
+import { CommentAnswer } from "./comment_answer.model";
 import { FileCode } from "./file.model";
 import { User } from "./user.model";
 
@@ -21,25 +29,32 @@ export class CodeComment {
   @Column()
   char_length: number;
 
-  @Column({default: false})
+  @Column({ default: false })
   resolved: boolean;
 
-  @Column("varchar", {length: 300})
+  @Column("varchar", { length: 300 })
   comment: string;
 
   @CreateDateColumn()
   comment_date: Date;
 
-  @Column({default: false})
+  @Column({ default: false })
   is_report?: boolean;
 
-  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.codeComment)
+  @Field(() => [CommentAnswer], { nullable: true })
+  @OneToMany(
+    () => CommentAnswer,
+    (commentAnswer) => commentAnswer.codeCommentId
+  )
   commentAnswer: CommentAnswer[];
 
-  @ManyToOne(() => FileCode, (fileCode) => fileCode.codeComment)
-  file: FileCode;
+  @Column()
+  @ManyToOne(() => FileCode, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "fileId" })
+  fileId: FileCode["id"];
 
-  @ManyToOne(() => User, (user) => user.project)
-  user: User;
-
+  @Column()
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
+  @JoinColumn({ name: "userId" })
+  userId: User["id"];
 }
