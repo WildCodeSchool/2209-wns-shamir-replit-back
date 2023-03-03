@@ -1,6 +1,3 @@
 #!/bin/bash
 
-echo boloss
-docker images --format "{{.Repository}}:{{.Tag}}"
-echo boloss
-docker image push backend-wildcode_back:latest
+docker image push 2209-wns-shamir-replit-back-back:latest
