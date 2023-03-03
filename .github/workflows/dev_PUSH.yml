@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  docker:
+  push-to-dockerhub:
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -24,4 +24,5 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
+          secrets: ${{secrets.DOT_ENV}}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/wildcode-back:latest
