@@ -22,5 +22,4 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: "{{defaultContext}}:server"
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/wildcode-back:latest
