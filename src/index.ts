@@ -16,6 +16,8 @@ const port = 5000;
 
 dotenv.config();
 
+console.log("hello");
+
 async function listen(port: number) {
   const app = express();
 
