@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  push-on-dockerhub:
+  push-to-dockerhub:
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
