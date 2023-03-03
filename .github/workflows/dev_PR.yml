@@ -19,3 +19,30 @@ jobs:
         run: |
           npm install
           npm run lint
+
+  running-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 12
+
+      - name: dot env creation
+        if: ${{ success() }}
+        run: |
+          echo "${{secrets.DOT_ENV}}" > .env
+
+      - name: launch containers
+        run: docker compose up --build -d
+
+      - name: init database
+        run: |
+          docker cp .github/workflows/dev_PR_dbinit.sh $(docker ps --filter name=bdd-1 -q):/root/dev_PR_dbinit.sh
+          docker exec -i $(docker ps --filter name=bdd-1 -q) chmod +x /root/dev_PR_dbinit.sh
+          docker exec -i $(docker ps --filter name=bdd-1 -q) /root/dev_PR_dbinit.sh
+
+      - name: run tests
+        run: |
+          docker exec -i $(docker ps --filter name=back-1 -q) npm run test

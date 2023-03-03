@@ -1,0 +1,3 @@
+#!/bin/bash
+
+psql -U $POSTGRES_USER -c "CREATE DATABASE $POSTGRES_DB_TEST;"
