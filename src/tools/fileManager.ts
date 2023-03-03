@@ -151,12 +151,35 @@ export const fileManager = {
   },
 
   createZipFolder: async (folderName: string) => {
+    const date = Date.now();
     try {
-      await zip(`./projects/${folderName}`, `./archives/${folderName}.zip`);
-      return `./archives/${folderName}.zip`;
+      await zip(
+        `./projects/${folderName}`,
+        `./archives/${date}_${folderName}.zip`
+      );
+      return `./archives/${date}_${folderName}.zip`;
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de zipper le dossier");
+    }
+  },
+
+  deleteZipFolder: async () => {
+    try {
+      const pathToZip = `./archives/`;
+      const start = Date.now();
+      fs.readdir(pathToZip, (err, files) => {
+        files.forEach((file) => {
+          if (file === ".gitignore") return;
+          const fileCreationDate = parseInt(file.split("_")[0]);
+          const remainingTime = (start - fileCreationDate) / 1000 / 60;
+          if (remainingTime > 5)
+            fs.rmSync(`${pathToZip}/${file}`, { recursive: true, force: true });
+        });
+      });
+    } catch (err) {
+      console.error(err);
+      throw new Error("Impossible de supprimer le dossier zip");
     }
   },
 };

@@ -10,6 +10,7 @@ import { projectController } from "./controllers/projectController";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { executionCountMiddleware } from "./middlewares/executionCountMiddleware";
 import { stripeController } from "./controllers/stripeController";
+import tasks from "./tasks";
 
 const port = 5000;
 
@@ -17,6 +18,8 @@ dotenv.config();
 
 async function listen(port: number) {
   const app = express();
+
+  tasks.initScheduledJobs();
 
   const router = express.Router();
 
@@ -26,7 +29,7 @@ async function listen(port: number) {
     executionCountMiddleware,
     executeCodeController
   );
-  router.get("/download/:projectId", projectController);
+  router.get("/download/:projectId", authMiddleware, projectController);
   router.post("/stripe", authMiddleware, stripeController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);

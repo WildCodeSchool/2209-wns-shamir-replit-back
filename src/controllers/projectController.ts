@@ -1,35 +1,50 @@
-import { Request, Response } from "express";
 import projectService from "../services/projectService";
+import { ExpressControllerFunction } from "../interfaces";
 import { fileManager } from "../tools/fileManager";
+import projectShareService from "../services/projectShareService";
+import { User, ProjectShare } from "../models";
 
-export const projectController = async (req: Request, res: Response) => {
+type ReqShare = Omit<ProjectShare, "userId" | "projectShare"> & {
+  userId: User;
+};
+
+export const projectController: ExpressControllerFunction = async (
+  req,
+  res
+) => {
   try {
-    console.log(req);
-    // Choper l'id du projet
-    const { projectId } = req.params;
-    const pid = parseInt(projectId, 10);
-    // Choper les infos tu projet (getbyid)
-    const [projet] = await projectService.getById(pid);
+    const { token } = req;
+    if (token) {
+      const { projectId } = req.params;
+      const pid = parseInt(projectId, 10);
 
-    // Obtenir le path du dossier projet
-    const fileName: string = projet.id_storage_number;
+      const [projet] = await projectService.getById(pid);
+      const projectShare = (await projectShareService.getUserCanView(
+        pid
+      )) as unknown as ReqShare[];
+      const canView = projectShare.filter(
+        (item) => item.userId.id === token.id
+      );
+      console.log("view", canView);
+      if (
+        (projet.isPublic === false && projet.userId !== token.id) ||
+        canView.length === 0
+      )
+        throw new Error("Vous n'avez pas accès à ce projet");
+      const fileName: string = projet.id_storage_number;
 
-    // Convertir l'ensemble du projet en archive Zip
-    const pathZip = await fileManager.createZipFolder(fileName);
-    // Lancer le download de l'archive coté client avec le path et le nom de l'archive
-    res.download(pathZip, (err) => {
-      if (err) {
-        res.send({
-          error: err,
-          msg: "Problem downloading the file",
-        });
-      }
-    });
-
-    // Supprimer l'archive
-
-    // PROJET
-    // const project: iProject = await projectService.getById(projectId);
+      const pathZip = await fileManager.createZipFolder(fileName);
+      res.download(pathZip, (err) => {
+        if (err) {
+          res.send({
+            error: err,
+            msg: "Problem downloading the file",
+          });
+        }
+      });
+    } else {
+      res.status(500).send("Internal server error");
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal server error");

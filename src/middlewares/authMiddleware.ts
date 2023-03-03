@@ -7,11 +7,7 @@ export const authMiddleware: ExpressControllerFunction = async (
   res,
   next
 ) => {
-  console.log("authMiddleware", next);
-
   const Authorization = req?.headers.authorization;
-
-  console.log("Authorization");
 
   if (Authorization && Authorization.includes("Bearer ")) {
     const bearer = Authorization.split("Bearer ")[1];
