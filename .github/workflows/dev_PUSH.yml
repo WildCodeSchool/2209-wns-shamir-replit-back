@@ -29,7 +29,6 @@ jobs:
       - name: build image
         run: docker compose build
 
-      - name: push image
-        run: |
-        chmod +x .github/workflows/dev_PUSH_push.sh
-        .github/workflows/dev_PUSH_push.sh
+      - name: run push script
+        run: ./.github/workflows/dev_PUSH_push.sh
+        shell: bash
