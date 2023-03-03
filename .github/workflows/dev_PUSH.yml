@@ -30,4 +30,6 @@ jobs:
         run: docker compose build
 
       - name: push image
-        run: docker image push $(docker images --format "{{.Repository}}:{{.Tag}}")
+        run: |
+        chmod +x .github/workflows/dev_PUSH_push.sh
+        .github/workflows/dev_PUSH_push.sh
