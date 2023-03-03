@@ -8,6 +8,7 @@ services:
       - ./src:/back/src
       - ./coverage:/back/coverage
       - ./projects:/back/projects
+      - ./archives:/back/archives
     command: npm run start:dev
     ports:
       - "5000:5000"

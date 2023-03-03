@@ -19,13 +19,15 @@
     "express": "^4.18.2",
     "graphql": "^15.8.0",
     "jsonwebtoken": "^8.5.1",
+    "node-cron": "^3.0.2",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "string-sanitizer": "^2.0.2",
     "stripe": "^11.12.0",
     "type-graphql": "^1.1.1",
     "typeorm": "^0.3.10",
-    "vm2": "^3.9.11"
+    "vm2": "^3.9.11",
+    "zip-a-folder": "^1.1.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
@@ -33,6 +35,7 @@
     "@types/jest": "^29.2.4",
     "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^18.11.9",
+    "@types/node-cron": "^3.0.7",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",
     "cross-env": "^7.0.3",
