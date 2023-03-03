@@ -30,7 +30,7 @@ jobs:
         run: docker compose build
 
       - name: run push script
-        run: |
-        chmod +x ./.github/workflows/dev_PUSH_push.sh
-        ./.github/workflows/dev_PUSH_push.sh
         shell: bash
+        run: |
+        chmod +x .github/workflows/dev_PUSH_push.sh
+        .github/workflows/dev_PUSH_push.sh
