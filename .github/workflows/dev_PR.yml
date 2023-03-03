@@ -39,7 +39,9 @@ jobs:
 
       - name: init database
         run: |
-          docker exec -i $(docker ps --filter name=bdd-1 -q) psql -U $POSTGRES_USER -c 'CREATE DATABASE $POSTGRES_DB_TEST;'
+          docker cp .github/workflows/dev_PR_dbinit.sh $(docker ps --filter name=bdd-1 -q):/root/dev_PR_dbinit.sh
+          docker exec -i $(docker ps --filter name=bdd-1 -q) chmod +x /root/dev_PR_dbinit.sh
+          docker exec -i $(docker ps --filter name=bdd-1 -q) /root/dev_PR_dbinit.sh
 
       - name: run tests
         run: |
