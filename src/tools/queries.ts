@@ -2,23 +2,21 @@ import { gql } from "apollo-server-express";
 
 export const queries = {
   createUser: gql`
-    mutation CreateUser($password: String!, $email: String!) {
-      createUser(password: $password, email: $email) {
+    mutation CreateUser($login: String!, $password: String!, $email: String!) {
+      createUser(login: $login, password: $password, email: $email) {
         id
-        login
         email
-        date_end_subscription
+        login
         date_start_subscription
+        date_end_subscription
       }
     }
   `,
   getAllUsers: gql`
     query GetAllUsers {
       getAllUsers {
-        date_end_subscription
-        date_start_subscription
-        email
         id
+        email
         login
       }
     }
@@ -26,29 +24,32 @@ export const queries = {
   getUserById: gql`
     query GetUserById($userId: Float!) {
       getUserById(userId: $userId) {
-        email
         id
+        email
         login
-        date_end_subscription
         date_start_subscription
+        date_end_subscription
       }
     }
   `,
   updateUser: gql`
-    mutation Mutation($userId: Float!, $user: iUser!) {
-      updateUser(userId: $userId, User: $user) {
-        date_end_subscription
-        date_start_subscription
+    mutation UpdateUser($user: iUser!) {
+      updateUser(User: $user) {
         email
-        id
         login
+        date_start_subscription
+        date_end_subscription
       }
     }
   `,
   deleteUser: gql`
-    mutation Mutation($userId: Float!) {
-      deleteUser(userId: $userId) {
+    mutation DeleteUser {
+      deleteUser {
         id
+        email
+        login
+        date_start_subscription
+        date_end_subscription
       }
     }
   `,

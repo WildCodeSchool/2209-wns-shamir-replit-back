@@ -36,7 +36,7 @@ async function listen(port: number) {
 
   const httpServer = http.createServer(app);
 
-  const server = await createApolloServer(httpServer);
+  const server = await createApolloServer({ httpServer });
 
   await server.start();
 
