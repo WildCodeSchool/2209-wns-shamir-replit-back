@@ -18,8 +18,6 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
   res,
   next
 ) => {
-  console.log("executionCountMiddleware");
-
   const userId = req.token?.id;
 
   if (userId) {
@@ -48,8 +46,6 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
           compareDate(execution.execution_date, execution_date)
       ).length;
 
-      console.log("nbExecutions", nbExecutions);
-
       req.nbExecutions = nbExecutions;
 
       if (nbExecutions >= 50) {
@@ -66,8 +62,6 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
 
     if (next) return next();
   }
-
-  console.log("boloss");
 
   res.sendStatus(500);
 };

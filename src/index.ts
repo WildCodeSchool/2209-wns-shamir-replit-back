@@ -34,7 +34,8 @@ const expressServer = () => {
   );
   router.get("/download/:projectId", authMiddleware, projectController);
   router.post("/stripe", authMiddleware, stripeController);
-  router.post("/coworker", authMiddleware, coworkerController);
+  if (process.env.NODE_ENV !== "test")
+    router.post("/coworker", authMiddleware, coworkerController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
@@ -78,7 +79,6 @@ const websocketServer = async (app: Express) => {
 
   io.listen(process.env.NODE_ENV !== "test" ? 5001 : 0);
 
-  console.log("io", io);
   return io;
 };
 
@@ -87,7 +87,7 @@ export let io: Server;
 async function main() {
   try {
     const app = expressServer();
-    io = await websocketServer(app);
+    if (process.env.NODE_ENV !== "test") io = await websocketServer(app);
     await apolloServer(port, app);
 
     console.log(`🚀 Server is ready at http://localhost:${port}/graphql`);
