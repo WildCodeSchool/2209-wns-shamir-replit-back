@@ -11,7 +11,9 @@ import { authMiddleware } from "./middlewares/authMiddleware";
 import { executionCountMiddleware } from "./middlewares/executionCountMiddleware";
 import { Server } from "socket.io";
 import { stripeController } from "./controllers/stripeController";
+import { coworkerController } from "./controllers/coworkerController";
 import tasks from "./tasks";
+import { ioManager } from "./websocket/ioManager";
 
 const port = 5000;
 
@@ -32,6 +34,7 @@ const expressServer = () => {
   );
   router.get("/download/:projectId", authMiddleware, projectController);
   router.post("/stripe", authMiddleware, stripeController);
+  router.post("/coworker", authMiddleware, coworkerController);
 
   app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
 
@@ -68,6 +71,7 @@ const websocketServer = async (app: Express) => {
 
     // upon disconnection
     socket.on("disconnect", (reason) => {
+      ioManager.clearCoworkers(socket.id);
       console.log(`socket ${socket.id} disconnected due to ${reason}`);
     });
   });

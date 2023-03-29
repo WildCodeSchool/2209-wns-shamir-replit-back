@@ -5,9 +5,26 @@ type EditorSocketProps = {
   socketIds: string[] | undefined;
 };
 
+type CoworkerSocketProps = {
+  socketIds: string[];
+  coworker: Coworker;
+};
+
+export type Coworker = {
+  name: string;
+  project_id: number;
+  userId: number;
+  startLineNumber: number;
+  startColumn: number;
+  endLineNumber: number;
+  endColumn: number;
+  socketIds: string[];
+};
+
+let coworkers: Coworker[] = [];
+
 export const ioManager = {
   editorSocket: async ({ project_id, socketIds }: EditorSocketProps) => {
-    console.log("should update socket");
     const sockets = await io.fetchSockets();
     sockets.map((socket) => {
       const socketProjectId = socket.handshake.query.project_id;
@@ -19,6 +36,30 @@ export const ioManager = {
         socket.emit("refresh editor");
       }
     });
+  },
+  coworkerSocket: async ({ socketIds, coworker }: CoworkerSocketProps) => {
+    coworkers = [
+      ...coworkers.filter((cw) => cw.userId !== coworker.userId),
+      { ...coworker, socketIds },
+    ];
+
+    const sockets = await io.fetchSockets();
+    sockets.map((socket) => {
+      const socketProjectId = socket.handshake.query.project_id;
+
+      if (
+        socketProjectId === coworker.project_id.toString() &&
+        !socketIds?.includes(socket.id)
+      ) {
+        socket.emit(
+          "refresh cursor",
+          coworkers.filter((cw) => cw.project_id === parseInt(socketProjectId))
+        );
+      }
+    });
+  },
+  clearCoworkers: (socketId: string) => {
+    coworkers = coworkers.filter((cw) => !cw.socketIds.includes(socketId));
   },
 };
 
