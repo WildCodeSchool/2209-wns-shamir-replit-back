@@ -8,3 +8,5 @@ then
 
 psql -U ${POSTGRES_USER}
 CREATE DATABASE ${POSTGRES_DB_TEST};
+
+yo
