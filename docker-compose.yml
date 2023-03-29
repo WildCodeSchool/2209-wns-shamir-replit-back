@@ -12,6 +12,7 @@ services:
     command: npm run start:dev
     ports:
       - "5000:5000"
+      - "5001:5001"
     environment:
       NODE_ENV: development
       DEBUG: nodejs-docker-express:*

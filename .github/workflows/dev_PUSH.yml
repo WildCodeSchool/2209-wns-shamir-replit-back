@@ -31,3 +31,50 @@ jobs:
 
       - name: run push script
         run: bash .github/workflows/dev_PUSH_push.sh
+
+  deploy-on-wild-server:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: install packages
+        run: |
+          apt-get update --allow-releaseinfo-change
+          apt-get install openssh-client -y
+
+      - name: setup openSSH config
+        if: ${{ success() }}
+        run: |
+          cd ~
+          mkdir .ssh
+          cd .ssh/
+          echo "${{secrets.WILD_SSH_PEM}}" > WILD_SSH_PEM
+          chmod 400 WILD_SSH_PEM
+
+      - name: dot env creation
+        if: ${{ success() }}
+        run: |
+          cd ~
+          mkdir dotenv
+          cd dotenv/
+          echo "${{secrets.DOT_ENV}}" > .env
+
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: scp dot env files
+        if: ${{ success() }}
+        run: |
+          scp -r -p -o StrictHostKeyChecking=accept-new -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev ~/dotenv wns_student@shamir5.wns.wilders.dev:~ || echo
+
+      - name: scp bash script
+        if: ${{ success() }}
+        run: |
+          scp -r -p -o StrictHostKeyChecking=accept-new -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev .github/workflows/deployQA.sh wns_student@shamir5.wns.wilders.dev:~ || echo
+
+      - name: connect SSH & run deploy script
+        if: ${{ success() }}
+        run: |
+          ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev /bin/bash -s << EOT
+          chmod +x ~/deployQA.sh
+          ~/deployQA.sh > ~/logs/log.deploy.$( date +"%s") 2>&1 & disown
+          exit
+          EOT

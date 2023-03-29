@@ -250,7 +250,8 @@ export class FileResolver {
       await fileManager.updateContentData(
         project.id_storage_number,
         _file.id_storage_file,
-        contentData
+        contentData,
+        projectId
       );
       const result = {
         success: true,
