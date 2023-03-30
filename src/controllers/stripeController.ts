@@ -57,8 +57,6 @@ export const stripeController: ExpressControllerFunction = async (req, res) => {
         userId
       );
 
-      console.log("payment", payment);
-
       res.send({
         message: "payment sucessful",
         success: true,

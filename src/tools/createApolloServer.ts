@@ -21,10 +21,9 @@ export type TokenPayload = {
 };
 
 type CreateApolloServerProps = {
-  httpServer?: http.Server<
-    typeof http.IncomingMessage,
-    typeof http.ServerResponse
-  >;
+  httpServer?:
+    | http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
+    | undefined;
   forceToken?: TokenPayload;
 };
 
@@ -33,7 +32,6 @@ export const createApolloServer = async ({
   forceToken,
 }: CreateApolloServerProps) => {
   await dataSource.initialize();
-
   const schema = await buildSchema({
     resolvers: [
       UserResolver,
