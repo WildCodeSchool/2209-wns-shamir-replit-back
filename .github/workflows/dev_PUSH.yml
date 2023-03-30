@@ -6,8 +6,11 @@ on:
       - dev
 
 jobs:
-  deploy-on-wild-server:
+  copy-deploy-scripts-on-wild-server:
     runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:22.04
+      options: --privileged
     steps:
       - name: install packages
         run: |
