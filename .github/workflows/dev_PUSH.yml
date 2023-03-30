@@ -45,12 +45,12 @@ jobs:
       - name: scp bash script
         if: ${{ success() }}
         run: |
-          scp -r -p -o StrictHostKeyChecking=accept-new -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev .github/workflows/deploy.sh wns_student@shamir5.wns.wilders.dev:~/wildcode/back || echo
+          scp -r -p -o StrictHostKeyChecking=accept-new -P 2269 -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev .github/workflows/deploy.sh wns_student@shamir5.wns.wilders.dev:~/wildcode/back || echo
 
       - name: scp docker-compose
         if: ${{ success() }}
         run: |
-          scp -r -p -o StrictHostKeyChecking=accept-new -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev docker-compose.prod.yml wns_student@shamir5.wns.wilders.dev:~/wildcode/back || echo
+          scp -r -p -o StrictHostKeyChecking=accept-new -P 2269 -i ~/.ssh/WILD_SSH_PEM wns_student@shamir5.wns.wilders.dev docker-compose.prod.yml wns_student@shamir5.wns.wilders.dev:~/wildcode/back || echo
 
       # - name: connect SSH & run deploy script
       #   if: ${{ success() }}
