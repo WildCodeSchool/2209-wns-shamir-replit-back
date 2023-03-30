@@ -5,7 +5,8 @@
     "start:dev": "ts-node-dev src/index.ts",
     "test": "export NODE_ENV=test && npm run migrate && jest --passWithNoTests --testTimeout=10000 --forceExit && export NODE_ENV=development",
     "seqtest": "export NODE_ENV=test && npm run migrate && jest --passWithNoTests --testTimeout=10000 --runInBand --forceExit && export NODE_ENV=development",
-    "start": "node src/index.js",
+    "start": "node dist/index.js",
+    "build": "tsc --project tsconfig.build.json",
     "migrate": "ts-node-dev src/tools/dropDatabase.ts",
     "lint": "npx eslint 'src/**'"
   },

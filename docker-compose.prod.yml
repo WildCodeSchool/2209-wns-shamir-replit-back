@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  back:
+    build:
+      context: ./
+      target: production
+    volumes:
+      - ./projects:/back/projects
+      - ./archives:/back/archives
+    command: npm run start
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      NODE_ENV: production
+      DEBUG: nodejs-docker-express:*
+    restart: always
+    depends_on:
+      bdd:
+        condition: service_healthy
+
+  bdd:
+    image: postgres:15.1-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB_TEST: ${POSTGRES_DB_TEST}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./postgres/home:/root
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
