@@ -1,12 +1,14 @@
 import { ExpressControllerFunction } from "../interfaces";
-import { Execution, User } from "../models";
+import { IExecution } from "../interfaces/InputType";
+// import { Execution, User } from "../models";
 import executionService from "../services/executionService";
+import projectService from "../services/projectService";
 import userService from "../services/userService";
 
-type ReqExecution = Omit<Execution, "userId"> & {
-  userId: User;
-  // id_storage_number: string;
-};
+// type ReqExecution = Omit<Execution, "userId"> & {
+//   userId: User;
+//   // id_storage_number: string;
+// };
 
 const compareDate = (date1: Date, date2: Date) =>
   date1.getFullYear() === date2.getFullYear() &&
@@ -25,7 +27,10 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
     const execution_date = new Date();
 
     const user = await userService.getById(userId);
-    if (!user.length) throw new Error("user not found");
+    if (!user) throw new Error("user not found");
+
+    const project = await projectService.getByProjId(userId, projectId);
+    if (!project) throw new Error("project not found");
 
     const date_end_subscription = user[0].date_end_subscription;
     const date_start_subscription = user[0].date_start_subscription;
@@ -37,12 +42,11 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
       date_end_subscription.getTime() < execution_date.getTime()
     ) {
       // check nb executions in free mode
-      const executions =
-        (await executionService.getAll()) as unknown as ReqExecution[];
+      const executions = await executionService.getAll(userId);
 
       const nbExecutions = executions.filter(
         (execution) =>
-          execution.userId.id === userId &&
+          execution.user.id === userId &&
           compareDate(execution.execution_date, execution_date)
       ).length;
 
@@ -57,8 +61,9 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
     }
 
     const output = "";
+    const executionData: IExecution = { projectId, userId, output };
 
-    await executionService.create(projectId, userId, output, execution_date);
+    await executionService.create(executionData, userId);
 
     if (next) return next();
   }

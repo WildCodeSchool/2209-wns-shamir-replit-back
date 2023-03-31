@@ -18,15 +18,16 @@ export const projectController: ExpressControllerFunction = async (
       const { projectId } = req.params;
       const pid = parseInt(projectId, 10);
 
-      const [projet] = await projectService.getById(pid);
+      const projet = await projectService.getByProjId(token.id, pid);
       const projectShare = (await projectShareService.getUserCanView(
         pid
       )) as unknown as ReqShare[];
       const canView = projectShare.filter(
         (item) => item.userId.id === token.id
       );
+      if (!projet) throw new Error("project dont exist");
       if (
-        (projet.isPublic === false && projet.userId !== token.id) ||
+        (projet.isPublic === false && projet.user.id !== token.id) ||
         canView.length === 0
       )
         throw new Error("Vous n'avez pas accès à ce projet");

@@ -2,7 +2,7 @@ import { io } from "../index";
 
 type EditorSocketProps = {
   project_id: number;
-  socketIds: string[] | undefined;
+  socketIds: string[];
 };
 
 type CoworkerSocketProps = {
@@ -26,7 +26,7 @@ let coworkers: Coworker[] = [];
 export const ioManager = {
   editorSocket: async ({ project_id, socketIds }: EditorSocketProps) => {
     const sockets = await io.fetchSockets();
-    sockets.map((socket) => {
+    sockets.map((socket: any) => {
       const socketProjectId = socket.handshake.query.project_id;
 
       if (
@@ -44,7 +44,7 @@ export const ioManager = {
     ];
 
     const sockets = await io.fetchSockets();
-    sockets.map((socket) => {
+    sockets.map((socket: any) => {
       const socketProjectId = socket.handshake.query.project_id;
 
       if (

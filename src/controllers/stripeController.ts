@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { ExpressControllerFunction } from "../interfaces";
+import { IUser } from "../interfaces/InputType";
 import userService from "../services/userService";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -51,11 +52,12 @@ export const stripeController: ExpressControllerFunction = async (req, res) => {
           user.date_end_subscription.getTime() + subscriptionTime
         );
       }
+      const userData: IUser = {
+        date_start_subscription,
+        date_end_subscription,
+      };
 
-      await userService.update(
-        { date_start_subscription, date_end_subscription },
-        userId
-      );
+      await userService.update(userData, userId);
 
       res.send({
         message: "payment sucessful",

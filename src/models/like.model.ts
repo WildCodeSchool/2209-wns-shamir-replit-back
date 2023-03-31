@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Project } from "./project.model";
 import { User } from "./user.model";
 
@@ -11,12 +11,18 @@ export class Like {
   id: number;
 
   @Field(() => User)
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  @ManyToOne(() => User, (user) => user.like, {
+    onDelete: "CASCADE",
+    eager: true,
+    nullable: false,
+  })
+  user: User;
 
   @Field(() => Project)
-  @ManyToOne(() => Project, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "projectId" })
-  projectId: Project["id"];
+  @ManyToOne(() => Project, (project) => project.like, {
+    onDelete: "CASCADE",
+    eager: true,
+    nullable: false,
+  })
+  project: Project;
 }

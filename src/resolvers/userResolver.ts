@@ -1,21 +1,17 @@
 import { Context } from "apollo-server-core";
 import { Arg, Mutation, Query, Resolver, Ctx } from "type-graphql";
-import { iUser } from "../interfaces/InputType";
+import { IUser } from "../interfaces/InputType";
 import { User } from "../models/user.model";
 import authService from "../services/authService";
 import userService from "../services/userService";
 import { TokenPayload } from "../tools/createApolloServer";
 
-@Resolver(iUser)
+@Resolver(IUser)
 export class UserResolver {
   @Mutation(() => User)
-  async createUser(
-    @Arg("email") email: string,
-    @Arg("password") password: string,
-    @Arg("login") login: string
-  ): Promise<User> {
+  async createUser(@Arg("data") data: IUser): Promise<User> {
     try {
-      const userFromDB = await userService.create(email, password, login);
+      const userFromDB = await userService.create(data);
       return userFromDB;
     } catch (err) {
       console.error(err);
@@ -87,9 +83,9 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => [User])
+  @Mutation(() => User)
   async updateUser(
-    @Arg("User") User: iUser,
+    @Arg("User") User: IUser,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<User[]> {
     try {
@@ -101,7 +97,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => [User])
+  @Mutation(() => User)
   async deleteUser(@Ctx() ctx: Context<TokenPayload>): Promise<User[]> {
     try {
       const userId = ctx.id;

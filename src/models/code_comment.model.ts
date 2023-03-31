@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   OneToMany,
   ManyToOne,
-  JoinColumn,
 } from "typeorm";
 import { CommentAnswer } from "./comment_answer.model";
 import { FileCode } from "./file.model";
@@ -19,7 +18,6 @@ export class CodeComment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field()
   @Column()
   line_number: number;
 
@@ -42,19 +40,22 @@ export class CodeComment {
   is_report?: boolean;
 
   @Field(() => [CommentAnswer], { nullable: true })
-  @OneToMany(
-    () => CommentAnswer,
-    (commentAnswer) => commentAnswer.codeCommentId
-  )
+  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.user)
   commentAnswer: CommentAnswer[];
 
-  @Column()
-  @ManyToOne(() => FileCode, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "fileId" })
-  fileId: FileCode["id"];
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.codeComment, {
+    onDelete: "CASCADE",
+    eager: true,
+    nullable: false,
+  })
+  user: User;
 
-  @Column()
-  @ManyToOne(() => User, { onDelete: "CASCADE", eager: true })
-  @JoinColumn({ name: "userId" })
-  userId: User["id"];
+  @Field(() => FileCode)
+  @ManyToOne(() => FileCode, (fildeCode) => fildeCode.codeComment, {
+    onDelete: "CASCADE",
+    eager: true,
+    nullable: false,
+  })
+  fileCode: FileCode;
 }

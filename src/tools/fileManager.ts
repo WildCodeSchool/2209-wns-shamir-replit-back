@@ -2,12 +2,13 @@ import fs from "fs";
 import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
-import { ReqProject } from "../resolvers/projectResolver";
+// import { ReqProject } from "../resolvers/projectResolver";
 import { zip } from "zip-a-folder";
 import { ioManager } from "../websocket/ioManager";
+import { IProject } from "../interfaces/InputType";
 
 type CreateOneSubFolderProps = {
-  project: ReqProject;
+  project: IProject;
   clientPath: string;
   subFolderName: string;
 };
