@@ -114,12 +114,12 @@ export const fileManager = {
     projectPath: string,
     filepath: string,
     contentData: string,
-    project_id: number
+    project_id: number,
+    socketIds: string[]
   ) => {
     try {
       const fileToUpdate = `./projects/${projectPath}/${filepath}`;
 
-      const socketIds: string[] = [];
       await ioManager.editorSocket({ project_id, socketIds });
 
       fs.writeFileSync(fileToUpdate, contentData);

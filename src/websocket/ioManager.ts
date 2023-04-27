@@ -25,6 +25,8 @@ let coworkers: Coworker[] = [];
 
 export const ioManager = {
   editorSocket: async ({ project_id, socketIds }: EditorSocketProps) => {
+    console.log(socketIds);
+
     const sockets = await io.fetchSockets();
     sockets.map((socket) => {
       const socketProjectId = socket.handshake.query.project_id;

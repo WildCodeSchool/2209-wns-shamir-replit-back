@@ -221,6 +221,7 @@ export class FileResolver {
     @Arg("projectId") projectId: number,
     @Arg("fileId") fileId: number,
     @Arg("contentData") contentData: string,
+    @Arg("socketIds") socketIds: string,
     @Ctx() ctx: Context<TokenPayload>
   ) {
     try {
@@ -251,7 +252,8 @@ export class FileResolver {
         project.id_storage_number,
         _file.id_storage_file,
         contentData,
-        projectId
+        projectId,
+        JSON.parse(socketIds)
       );
       const result = {
         success: true,
