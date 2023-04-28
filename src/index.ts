@@ -37,7 +37,15 @@ const expressServer = () => {
   if (process.env.NODE_ENV !== "test")
     router.post("/coworker", authMiddleware, coworkerController);
 
-  app.use("/api", cors<cors.CorsRequest>(), bodyParser.json(), router);
+  app.use(
+    "/api",
+    cors<cors.CorsRequest>({
+      origin: "*",
+      credentials: false,
+    }),
+    bodyParser.json(),
+    router
+  );
 
   return app;
 };
