@@ -12,6 +12,15 @@ type CreateOneSubFolderProps = {
   subFolderName: string;
 };
 
+type UpdateContentDataProps = {
+  projectPath: string;
+  filepath: string;
+  contentData: string;
+  project_id: number;
+  socketIds: string[];
+  userEmail: string;
+};
+
 export const fileManager = {
   // Folders functions
 
@@ -110,17 +119,18 @@ export const fileManager = {
     }
   },
 
-  updateContentData: async (
-    projectPath: string,
-    filepath: string,
-    contentData: string,
-    project_id: number
-  ) => {
+  updateContentData: async ({
+    projectPath,
+    filepath,
+    contentData,
+    project_id,
+    socketIds,
+    userEmail,
+  }: UpdateContentDataProps) => {
     try {
       const fileToUpdate = `./projects/${projectPath}/${filepath}`;
 
-      const socketIds: string[] = [];
-      await ioManager.editorSocket({ project_id, socketIds });
+      await ioManager.editorSocket({ project_id, socketIds, userEmail });
 
       fs.writeFileSync(fileToUpdate, contentData);
     } catch (err) {
