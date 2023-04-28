@@ -248,13 +248,16 @@ export class FileResolver {
 
       const project: Project = (await projectService.getById(projectId))[0];
 
-      await fileManager.updateContentData(
-        project.id_storage_number,
-        _file.id_storage_file,
+      const userEmail = ctx.email;
+
+      await fileManager.updateContentData({
+        projectPath: project.id_storage_number,
+        filepath: _file.id_storage_file,
         contentData,
-        projectId,
-        JSON.parse(socketIds)
-      );
+        project_id: projectId,
+        socketIds: JSON.parse(socketIds),
+        userEmail,
+      });
       const result = {
         success: true,
       };
