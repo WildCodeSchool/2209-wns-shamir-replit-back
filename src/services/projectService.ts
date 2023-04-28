@@ -24,7 +24,7 @@ const projectService = {
         user: true,
         like: true,
       },
-      where: { id: projectId, user: user },
+      where: { id: projectId },
     });
   },
 

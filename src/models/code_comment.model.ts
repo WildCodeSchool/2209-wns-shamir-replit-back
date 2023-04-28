@@ -18,29 +18,36 @@ export class CodeComment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Field()
+  @Column({ nullable: true })
   line_number: number;
 
-  @Column()
+  @Field()
+  @Column({ nullable: true })
   char_number: number;
 
-  @Column()
+  @Field()
+  @Column({ nullable: true })
   char_length: number;
 
-  @Column({ default: false })
+  @Field()
+  @Column({ default: false, nullable: true })
   resolved: boolean;
 
+  @Field()
   @Column("varchar", { length: 300 })
   comment: string;
 
+  @Field()
   @CreateDateColumn()
   comment_date: Date;
 
-  @Column({ default: false })
+  @Field()
+  @Column({ default: false, nullable: true })
   is_report?: boolean;
 
   @Field(() => [CommentAnswer], { nullable: true })
-  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.user)
+  @OneToMany(() => CommentAnswer, (commentAnswer) => commentAnswer.codeComment)
   commentAnswer: CommentAnswer[];
 
   @Field(() => User)

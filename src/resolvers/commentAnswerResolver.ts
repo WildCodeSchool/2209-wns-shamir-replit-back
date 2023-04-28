@@ -1,13 +1,8 @@
-// import { Context } from "apollo-server-core";
-// import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-// import { iCommentAnswer } from "../interfaces/InputType";
-// import { CodeComment } from "../models";
-// import { CommentAnswer } from "../models/comment_answer.model";
-// import codeCommentService from "../services/codeCommentService";
-// import commentAnswerService from "../services/commentAnswerService";
-// import projectService from "../services/projectService";
-// import { TokenPayload } from "../tools/createApolloServer";
-// import { isAllowedcomment } from "./codeCommentResolver";
+import { Context } from "apollo-server-core";
+import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
+import { CommentAnswer } from "../models/comment_answer.model";
+import commentAnswerService from "../services/commentAnswerService";
+import { TokenPayload } from "../tools/createApolloServer";
 
 // const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
 //   (await projectService.getAll())
@@ -35,6 +30,21 @@
 //   );
 // };
 
+@Resolver(CommentAnswer)
+export class CommentAnswerResolver {
+  @Mutation(() => CommentAnswer)
+  async createCommentAnswer(
+    @Arg("codeCommentId") codeCommentId: number,
+    @Arg("comment") comment: string,
+    @Ctx() ctx: Context<TokenPayload>
+  ): Promise<CommentAnswer> {
+    try {
+      return await commentAnswerService.create(codeCommentId, comment, ctx.id);
+    } catch (e) {
+      throw new Error("Can't createCodeComment");
+    }
+  }
+}
 // @Resolver(iCommentAnswer)
 // export class CommentAnswerResolver {
 //   @Mutation(() => CommentAnswer)
@@ -162,4 +172,4 @@
 //       throw new Error("Can't delete CommentAnswer");
 //     }
 //   }
-// }
+//}

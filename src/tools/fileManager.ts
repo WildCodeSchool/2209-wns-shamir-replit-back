@@ -131,30 +131,58 @@ export const fileManager = {
   },
 
   getArrayCodeFile: async (project: ProjToCodeFIle, files: FileCode[]) => {
-    try {
-      let tempPath: string;
+    const codeData: FilesCodeData[] = [];
 
-      const codeData: FilesCodeData[] = files.map((item) => {
-        const fileWithCode: FilesCodeData = {
-          id: item.id,
+    for (const file of files) {
+      try {
+        const filePath = `./projects/${project.path}/${file.id_storage_file}`;
+        const code = await fs.promises.readFile(filePath, { encoding: "utf8" });
+
+        codeData.push({
+          id: file.id,
           projectId: project.projectId,
-          name: item.name,
-          language: item.language,
-          code: "",
-        };
-
-        tempPath = `./projects/${project.path}/${item.id_storage_file}`;
-        const result = fs.readFileSync(tempPath, { encoding: "utf8" });
-        fileWithCode.code = result;
-        return fileWithCode;
-      });
-
-      return codeData;
-    } catch (err) {
-      throw new Error(
-        "Impossible de recupérer le code d'un ou de plusieurs fichiers"
-      );
+          name: file.name,
+          language: file.language,
+          code,
+        });
+      } catch (error) {
+        console.error(`Error reading file ${file.id_storage_file}:`, error);
+        throw new Error(
+          `Unable to retrieve code for file ${file.id_storage_file}`
+        );
+      }
     }
+
+    return codeData;
+    // try {
+    //   let tempPath: string;
+    //   console.log("proj, files", project, files);
+
+    //   const codeData: FilesCodeData[] = files.map((item) => {
+    //     const fileWithCode: FilesCodeData = {
+    //       id: item.id,
+    //       projectId: project.projectId,
+    //       name: item.name,
+    //       language: item.language,
+    //       code: "",
+    //     };
+    //     console.log(item.id_storage_file);
+
+    //     tempPath = `./projects/${project.path}/${item.id_storage_file}`;
+    //     const result = fs.readFileSync(tempPath, { encoding: "utf8" });
+    //     console.log("resou", result);
+
+    //     fileWithCode.code = result;
+    //     return fileWithCode;
+    //   });
+    //   console.log("codedata", codeData);
+
+    //   return codeData;
+    // } catch (err) {
+    //   throw new Error(
+    //     "Impossible de recupérer le code d'un ou de plusieurs fichiers"
+    //   );
+    // }
   },
 
   createZipFolder: async (folderName: string) => {

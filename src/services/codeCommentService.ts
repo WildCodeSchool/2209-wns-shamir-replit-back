@@ -11,19 +11,19 @@ const userRepo: Repository<User> = dataSource.getRepository(User);
 const fileCodeRepo: Repository<FileCode> = dataSource.getRepository(FileCode);
 
 const codeCommentService = {
-  getByCodeCommentId: async (
-    uid: number,
-    codeCommentId: number
-  ): Promise<CodeComment | null> => {
+  //get all comments and their answer
+  getAllComment: async (
+    fileId: number
+    // codeCommentId: number
+  ): Promise<CodeComment[]> => {
     try {
-      const user = await userRepo.findOneBy({ id: uid });
-      if (user === null) throw new Error("inputs null");
+      const file = await fileCodeRepo.findOneBy({ id: fileId });
+      if (file === null) throw new Error("inputs null");
 
-      return await codeCommentRepo.findOne({
+      return await codeCommentRepo.find({
         relations: { fileCode: true, user: true, commentAnswer: true },
         where: {
-          id: codeCommentId,
-          user: user,
+          fileCode: file,
         },
       });
     } catch (err) {
@@ -32,6 +32,27 @@ const codeCommentService = {
     }
   },
 
+  // getByCodeCommentById: async (
+  //   projectId: number
+  // ): Promise<CodeComment | null> => {
+  //   try {
+  //     const proj = await projectRepo.findOneBy({ id: uid });
+  //     if (user === null) throw new Error("inputs null");
+
+  //     return await codeCommentRepo.findOne({
+  //       relations: { fileCode: true, user: true, commentAnswer: true },
+  //       where: {
+  //         id: codeCommentId,
+  //         user: user,
+  //       },
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //     throw new Error("error getbyCodeCommentID");
+  //   }
+  // },
+
+  //get all authorised comments (project must be public or shared with user)
   getAllAllowed: async (uid: number): Promise<CodeComment[]> => {
     const user = await userRepo.findOneBy({ id: uid });
     if (user === null) throw new Error("user not found");
@@ -57,6 +78,8 @@ const codeCommentService = {
         user: { id: uid },
       },
     }),
+
+  //CRUD
   create: async (data: ICodeComment, uid: number): Promise<CodeComment> => {
     try {
       const user = await userRepo.findOneBy({ id: uid });
@@ -76,38 +99,38 @@ const codeCommentService = {
     }
   },
 
-  update: async (
-    data: ICodeComment,
-    uid: number,
-    codeCommentId: number
-  ): Promise<CodeComment | null> => {
-    const codeComment = await codeCommentService.getByCodeCommentId(
-      uid,
-      codeCommentId
-    );
-    if (codeComment === null) throw new Error("fu");
-    await codeCommentRepo.update(codeCommentId, {
-      char_length: data.char_length,
-      comment: data.comment,
-      char_number: data.char_number,
-      comment_date: new Date(),
-      is_report: data.is_report,
-      resolved: data.resolved,
-    });
-    return await codeCommentRepo.findOneBy({
-      id: codeCommentId,
-    });
-  },
+  // update: async (
+  //   data: ICodeComment,
+  //   uid: number,
+  //   codeCommentId: number
+  // ): Promise<CodeComment | null> => {
+  //   const codeComment = await codeCommentService.getByCodeCommentId(
+  //     uid,
+  //     codeCommentId
+  //   );
+  //   if (codeComment === null) throw new Error("fu");
+  //   await codeCommentRepo.update(codeCommentId, {
+  //     char_length: data.char_length,
+  //     comment: data.comment,
+  //     char_number: data.char_number,
+  //     comment_date: new Date(),
+  //     is_report: data.is_report,
+  //     resolved: data.resolved,
+  //   });
+  //   return await codeCommentRepo.findOneBy({
+  //     id: codeCommentId,
+  //   });
+  // },
 
-  delete: async (uid: number, codeCommentId: number): Promise<CodeComment> => {
-    const codeComment = await codeCommentService.getByCodeCommentId(
-      uid,
-      codeCommentId
-    );
-    if (codeComment === null) throw new Error("fu");
-    await codeCommentRepo.delete(codeCommentId);
-    return codeComment;
-  },
+  // delete: async (uid: number, codeCommentId: number): Promise<CodeComment> => {
+  //   const codeComment = await codeCommentService.getByCodeCommentId(
+  //     uid,
+  //     codeCommentId
+  //   );
+  //   if (codeComment === null) throw new Error("fu");
+  //   await codeCommentRepo.delete(codeCommentId);
+  //   return codeComment;
+  // },
 };
 
 export default codeCommentService;

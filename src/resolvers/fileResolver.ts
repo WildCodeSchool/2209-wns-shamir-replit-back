@@ -125,15 +125,14 @@ export class FileResolver {
 
   @Query(() => [IFilesWithCode])
   async getCodeFiles(
-    @Arg("projectId") projectId: string,
+    @Arg("projectId") projectId: number,
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<IFilesWithCode[]> {
     try {
-      const projId = parseInt(projectId, 10);
-      const project = await projectService.getByProjId(ctx.id, projId);
+      const project = await projectService.getByProjId(ctx.id, projectId);
 
       if (!project) throw new Error("non authorisé");
-      const files = await fileService.getAllFilesByProjId(projId);
+      const files = await fileService.getAllFilesByProjId(projectId);
 
       const minProject: ProjToCodeFIle = {
         projectId: project.id,

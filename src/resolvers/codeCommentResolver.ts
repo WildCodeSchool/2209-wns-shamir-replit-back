@@ -20,50 +20,50 @@ export class CodeCommentResolver {
   }
 
   @Query(() => [CodeComment])
-  async getAllCodeComments(
-    @Ctx() ctx: Context<TokenPayload>
+  async getAllCodeComment(
+    @Arg("fileId") fileId: number
   ): Promise<CodeComment[]> {
     try {
-      return await codeCommentService.getAllAllowed(ctx.id);
+      return await codeCommentService.getAllComment(fileId);
     } catch (e) {
       throw new Error("Can't getAllCodeComments");
     }
   }
 
-  @Query(() => CodeComment)
-  async getCodeCommentById(
-    @Arg("codeCommentId") codeCommentId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<CodeComment | null> {
-    try {
-      return await codeCommentService.getByCodeCommentId(ctx.id, codeCommentId);
-    } catch (e) {
-      throw new Error("Can't getCodeCommentById");
-    }
-  }
+  // @Query(() => CodeComment)
+  // async getCodeCommentByProjectId(
+  //   @Arg("projectId") projectId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<CodeComment | null> {
+  //   try {
+  //     return await codeCommentService.getByCodeCommentProjectId(projectId);
+  //   } catch (e) {
+  //     throw new Error("Can't getCodeCommentById");
+  //   }
+  // }
 
-  @Mutation(() => CodeComment)
-  async updateCodeComment(
-    @Arg("data") data: ICodeComment,
-    @Arg("CodeCommentId") codeCommentId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<CodeComment | null> {
-    try {
-      return await codeCommentService.update(data, ctx.id, codeCommentId);
-    } catch (e) {
-      throw new Error("Can't update CodeComment");
-    }
-  }
+  // @Mutation(() => CodeComment)
+  // async updateCodeComment(
+  //   @Arg("data") data: ICodeComment,
+  //   @Arg("CodeCommentId") codeCommentId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<CodeComment | null> {
+  //   try {
+  //     return await codeCommentService.update(data, ctx.id, codeCommentId);
+  //   } catch (e) {
+  //     throw new Error("Can't update CodeComment");
+  //   }
+  // }
 
-  @Mutation(() => CodeComment)
-  async deleteCodeComment(
-    @Arg("CodeCommentId") codeCommentId: number,
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<CodeComment | null> {
-    try {
-      return await codeCommentService.delete(ctx.id, codeCommentId);
-    } catch (e) {
-      throw new Error("Can't delete CodeComment");
-    }
-  }
+  // @Mutation(() => CodeComment)
+  // async deleteCodeComment(
+  //   @Arg("CodeCommentId") codeCommentId: number,
+  //   @Ctx() ctx: Context<TokenPayload>
+  // ): Promise<CodeComment | null> {
+  //   try {
+  //     return await codeCommentService.delete(ctx.id, codeCommentId);
+  //   } catch (e) {
+  //     throw new Error("Can't delete CodeComment");
+  //   }
+  // }
 }

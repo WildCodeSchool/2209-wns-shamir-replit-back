@@ -53,7 +53,7 @@ export class ICodeComment {
   @Field({ nullable: true })
   resolved: boolean;
 
-  @Field({ nullable: true })
+  @Field({ nullable: false })
   comment: string;
 
   @Field({ nullable: true })
