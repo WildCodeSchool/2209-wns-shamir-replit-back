@@ -2,7 +2,8 @@ import { io } from "../index";
 
 type EditorSocketProps = {
   project_id: number;
-  socketIds: string[];
+  socketIds: string[] | undefined;
+  userEmail: string;
 };
 
 type CoworkerSocketProps = {
@@ -24,16 +25,22 @@ export type Coworker = {
 let coworkers: Coworker[] = [];
 
 export const ioManager = {
-  editorSocket: async ({ project_id, socketIds }: EditorSocketProps) => {
+  editorSocket: async ({
+    project_id,
+    socketIds,
+    userEmail,
+  }: EditorSocketProps) => {
     const sockets = await io.fetchSockets();
     sockets.map((socket: any) => {
       const socketProjectId = socket.handshake.query.project_id;
+      const socketUserEmail = socket.handshake.query.userEmail;
 
       if (
         socketProjectId === project_id.toString() &&
-        !socketIds?.includes(socket.id)
+        !socketIds?.includes(socket.id) &&
+        userEmail !== socketUserEmail
       ) {
-        socket.emit("refresh editor");
+        socket.emit("refresh editor", userEmail);
       }
     });
   },

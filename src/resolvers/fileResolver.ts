@@ -156,6 +156,7 @@ export class FileResolver {
     @Arg("projectId") projectId: number,
     @Arg("fileId") fileId: number,
     @Arg("contentData") contentData: string,
+    @Arg("socketIds") socketIds: string,
     @Ctx() ctx: Context<TokenPayload>
   ) {
     try {
@@ -178,12 +179,16 @@ export class FileResolver {
       const project = await projectService.getByProjId(ctx.id, projectId);
       if (!project) throw new Error("proj dont exist");
 
-      await fileManager.updateContentData(
-        project.id_storage_number,
-        file.id_storage_file,
+      const userEmail = ctx.email;
+
+      await fileManager.updateContentData({
+        projectPath: project.id_storage_number,
+        filepath: _file.id_storage_file,
         contentData,
-        projectId
-      );
+        project_id: projectId,
+        socketIds: JSON.parse(socketIds),
+        userEmail,
+      });
       const result = {
         success: true,
       };
