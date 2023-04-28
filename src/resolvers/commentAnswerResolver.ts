@@ -8,6 +8,7 @@ import commentAnswerService from "../services/commentAnswerService";
 import projectService from "../services/projectService";
 import { TokenPayload } from "../tools/createApolloServer";
 import { isAllowedcomment } from "./codeCommentResolver";
+import sanitizer from "sanitizer";
 
 const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
   (await projectService.getAll())
@@ -56,7 +57,7 @@ export class CommentAnswerResolver {
       const commentAnswerFromDB = await commentAnswerService.create(
         codeCommentId,
         userId,
-        comment,
+        sanitizer.sanitize(comment),
         answerDate
       );
       return commentAnswerFromDB;
@@ -128,12 +129,15 @@ export class CommentAnswerResolver {
           codeComments,
           allowedProjectFileIds
         )
-      )
+      ) {
+        if (commentAnswer.comment)
+          commentAnswer.comment = sanitizer.sanitize(commentAnswer.comment);
+
         return await commentAnswerService.update(
           commentAnswer,
           commentAnswerId
         );
-      else throw new Error("not allowed");
+      } else throw new Error("not allowed");
     } catch (e) {
       throw new Error("Can't update CommentAnswer");
     }

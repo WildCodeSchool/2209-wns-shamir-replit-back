@@ -2,7 +2,6 @@ import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
 import { iFileCode, iFilesWithCode } from "../interfaces/InputType";
 import { FileCode } from "../models/file.model";
 import fileService from "../services/fileService";
-import string from "string-sanitizer";
 import { Project, ProjectShare } from "../models";
 import projectService from "../services/projectService";
 import { Context } from "apollo-server-core";
@@ -69,11 +68,11 @@ export class FileResolver {
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
-      const updateName = string.sanitize.keepNumber(name);
+      const updateName = name.replace(/[^a-zA-Z1-9]/g, "");
 
       const updateClientPath = clientPath
         .split("/")
-        .map((str) => string.sanitize.keepNumber(str))
+        .map((str) => str.replace(/[^a-zA-Z1-9]/g, ""))
         .join("/")
         .replace(/\/+/g, "/");
 
@@ -222,6 +221,7 @@ export class FileResolver {
     @Arg("fileId") fileId: number,
     @Arg("contentData") contentData: string,
     @Arg("socketIds") socketIds: string,
+    @Arg("updatedLines") updatedLines: string,
     @Ctx() ctx: Context<TokenPayload>
   ) {
     try {
@@ -256,6 +256,7 @@ export class FileResolver {
         contentData,
         project_id: projectId,
         socketIds: JSON.parse(socketIds),
+        updatedLines: JSON.parse(updatedLines),
         userEmail,
       });
       const result = {

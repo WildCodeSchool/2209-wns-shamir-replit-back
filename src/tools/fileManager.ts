@@ -1,5 +1,4 @@
 import fs from "fs";
-import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 import { ReqProject } from "../resolvers/projectResolver";
@@ -19,6 +18,7 @@ type UpdateContentDataProps = {
   project_id: number;
   socketIds: string[];
   userEmail: string;
+  updatedLines: number[];
 };
 
 export const fileManager = {
@@ -74,7 +74,8 @@ export const fileManager = {
   }: CreateOneSubFolderProps) => {
     try {
       // On nettoi le nom du sous-dossier
-      const updateSubName: string = string.sanitize.keepNumber(subFolderName);
+      const updateSubName: string = subFolderName.replace(/[^a-zA-Z1-9]/g, "");
+
       // On créer un variable qui contiendra le chemin de création du sous-dossier
       let pathToCreate: string;
       // On Créer une gestion d'arborescence pour les sous-dossiers
@@ -126,13 +127,26 @@ export const fileManager = {
     project_id,
     socketIds,
     userEmail,
+    updatedLines,
   }: UpdateContentDataProps) => {
     try {
       const fileToUpdate = `./projects/${projectPath}/${filepath}`;
 
+      const oldCodeLines = fs
+        .readFileSync(fileToUpdate, { encoding: "utf8" })
+        .split("\n");
+
+      const newCodeLines = contentData.split("\n");
+
+      const newCode = oldCodeLines
+        .map((oldLine, lineIndex) =>
+          updatedLines.includes(lineIndex) ? newCodeLines[lineIndex] : oldLine
+        )
+        .join("\n");
+
       await ioManager.editorSocket({ project_id, socketIds, userEmail });
 
-      fs.writeFileSync(fileToUpdate, contentData);
+      fs.writeFileSync(fileToUpdate, newCode);
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de modifier le fichier");

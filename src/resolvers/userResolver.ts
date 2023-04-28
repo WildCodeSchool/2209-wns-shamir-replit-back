@@ -5,6 +5,7 @@ import { User } from "../models/user.model";
 import authService from "../services/authService";
 import userService from "../services/userService";
 import { TokenPayload } from "../tools/createApolloServer";
+import sanitizer from "sanitizer";
 
 @Resolver(iUser)
 export class UserResolver {
@@ -15,7 +16,11 @@ export class UserResolver {
     @Arg("login") login: string
   ): Promise<User> {
     try {
-      const userFromDB = await userService.create(email, password, login);
+      const userFromDB = await userService.create(
+        sanitizer.sanitize(email),
+        password,
+        sanitizer.sanitize(login)
+      );
       return userFromDB;
     } catch (err) {
       console.error(err);
@@ -94,6 +99,10 @@ export class UserResolver {
   ): Promise<User[]> {
     try {
       const userId = ctx.id;
+
+      if (User.email) User.email = sanitizer.sanitize(User.email);
+      if (User.login) User.login = sanitizer.sanitize(User.login);
+
       return await userService.update(User, userId);
     } catch (err) {
       console.error(err);
