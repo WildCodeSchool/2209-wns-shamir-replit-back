@@ -138,11 +138,16 @@ export const fileManager = {
 
       const newCodeLines = contentData.split("\n");
 
-      const newCode = oldCodeLines
-        .map((oldLine, lineIndex) =>
-          updatedLines.includes(lineIndex) ? newCodeLines[lineIndex] : oldLine
-        )
-        .join("\n");
+      const newCode =
+        updatedLines.length === newCodeLines.length
+          ? contentData
+          : oldCodeLines
+              .map((oldLine, lineIndex) =>
+                updatedLines.includes(lineIndex)
+                  ? newCodeLines[lineIndex]
+                  : oldLine
+              )
+              .join("\n");
 
       await ioManager.editorSocket({ project_id, socketIds, userEmail });
 
