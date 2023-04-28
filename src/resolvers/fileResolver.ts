@@ -221,6 +221,7 @@ export class FileResolver {
     @Arg("fileId") fileId: number,
     @Arg("contentData") contentData: string,
     @Arg("socketIds") socketIds: string,
+    @Arg("updatedLines") updatedLines: string,
     @Ctx() ctx: Context<TokenPayload>
   ) {
     try {
@@ -255,6 +256,7 @@ export class FileResolver {
         contentData,
         project_id: projectId,
         socketIds: JSON.parse(socketIds),
+        updatedLines: JSON.parse(updatedLines),
         userEmail,
       });
       const result = {

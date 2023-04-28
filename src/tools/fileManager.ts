@@ -18,6 +18,7 @@ type UpdateContentDataProps = {
   project_id: number;
   socketIds: string[];
   userEmail: string;
+  updatedLines: number[];
 };
 
 export const fileManager = {
@@ -126,13 +127,26 @@ export const fileManager = {
     project_id,
     socketIds,
     userEmail,
+    updatedLines,
   }: UpdateContentDataProps) => {
     try {
       const fileToUpdate = `./projects/${projectPath}/${filepath}`;
 
+      const oldCodeLines = fs
+        .readFileSync(fileToUpdate, { encoding: "utf8" })
+        .split("\n");
+
+      const newCodeLines = contentData.split("\n");
+
+      const newCode = oldCodeLines
+        .map((oldLine, lineIndex) =>
+          updatedLines.includes(lineIndex) ? newCodeLines[lineIndex] : oldLine
+        )
+        .join("\n");
+
       await ioManager.editorSocket({ project_id, socketIds, userEmail });
 
-      fs.writeFileSync(fileToUpdate, contentData);
+      fs.writeFileSync(fileToUpdate, newCode);
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de modifier le fichier");
