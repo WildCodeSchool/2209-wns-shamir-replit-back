@@ -5,6 +5,7 @@ import { CodeComment } from "../models/code_comment.model";
 import codeCommentService from "../services/codeCommentService";
 import projectService from "../services/projectService";
 import { TokenPayload } from "../tools/createApolloServer";
+import sanitizer from "sanitizer";
 
 const getAllowedProjectFileIds = async (ctx: TokenPayload) =>
   (await projectService.getAll())
@@ -54,7 +55,7 @@ export class CodeCommentResolver {
         charNumber,
         charNength,
         resolved,
-        comment,
+        sanitizer.sanitize(comment),
         commentDate,
         isReport
       );
@@ -109,6 +110,9 @@ export class CodeCommentResolver {
       const allowedProjectFileIds = await getAllowedProjectFileIds(ctx);
       if (!isAllowedcomment(_codeComment, allowedProjectFileIds))
         throw new Error("not authorized");
+
+      if (codeComment.comment)
+        codeComment.comment = sanitizer.sanitize(codeComment.comment);
 
       return await codeCommentService.update(codeComment, codeCommentId);
     } catch (e) {

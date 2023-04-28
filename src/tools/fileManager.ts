@@ -1,5 +1,4 @@
 import fs from "fs";
-import string from "string-sanitizer";
 import { FileCode, Project } from "../models";
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 import { ReqProject } from "../resolvers/projectResolver";
@@ -74,7 +73,8 @@ export const fileManager = {
   }: CreateOneSubFolderProps) => {
     try {
       // On nettoi le nom du sous-dossier
-      const updateSubName: string = string.sanitize.keepNumber(subFolderName);
+      const updateSubName: string = subFolderName.replace(/[^a-zA-Z1-9]/g, "");
+
       // On créer un variable qui contiendra le chemin de création du sous-dossier
       let pathToCreate: string;
       // On Créer une gestion d'arborescence pour les sous-dossiers
