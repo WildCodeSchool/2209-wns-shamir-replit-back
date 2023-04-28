@@ -4,11 +4,21 @@ import { FileCode, Project } from "../models";
 import { ProjToCodeFIle, FilesCodeData } from "../interfaces/IFiles";
 import { ReqProject } from "../resolvers/projectResolver";
 import { zip } from "zip-a-folder";
+import { ioManager } from "../websocket/ioManager";
 
 type CreateOneSubFolderProps = {
   project: ReqProject;
   clientPath: string;
   subFolderName: string;
+};
+
+type UpdateContentDataProps = {
+  projectPath: string;
+  filepath: string;
+  contentData: string;
+  project_id: number;
+  socketIds: string[];
+  userEmail: string;
 };
 
 export const fileManager = {
@@ -109,13 +119,19 @@ export const fileManager = {
     }
   },
 
-  updateContentData: async (
-    projectPath: string,
-    filepath: string,
-    contentData: string
-  ) => {
+  updateContentData: async ({
+    projectPath,
+    filepath,
+    contentData,
+    project_id,
+    socketIds,
+    userEmail,
+  }: UpdateContentDataProps) => {
     try {
       const fileToUpdate = `./projects/${projectPath}/${filepath}`;
+
+      await ioManager.editorSocket({ project_id, socketIds, userEmail });
+
       fs.writeFileSync(fileToUpdate, contentData);
     } catch (err) {
       console.error(err);

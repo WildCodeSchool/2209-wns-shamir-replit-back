@@ -16,6 +16,7 @@
     "sourceType": "module"
   },
   "plugins": ["prettier"],
+  "ignorePatterns": ["node_modules/**"],
   "rules": {
     "prettier/prettier": ["error"],
     "arrow-body-style": ["error", "as-needed"],

@@ -1,20 +1,16 @@
 version: '3.8'
 services:
   back:
-    build:
-      context: ./
-      target: dev
+    image: gnos28/wildcode-back
     volumes:
-      - ./src:/back/src
-      - ./coverage:/back/coverage
       - ./projects:/back/projects
       - ./archives:/back/archives
-    command: npm run start:dev
+    command: npm run start
     ports:
       - "5000:5000"
       - "5001:5001"
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DEBUG: nodejs-docker-express:*
     restart: always
     depends_on:
@@ -43,12 +39,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
 
 volumes:
   postgres-data:
