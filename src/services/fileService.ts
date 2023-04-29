@@ -88,6 +88,7 @@ const fileService = {
       };
 
       if (clientPath) fileManager.createFolderTree(project, clientPath);
+      console.log("proj :", project);
 
       await fileManager.createOneFile(project, id_storage_file, contentData);
 

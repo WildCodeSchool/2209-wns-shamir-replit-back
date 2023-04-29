@@ -32,8 +32,8 @@ export const executionCountMiddleware: ExpressControllerFunction = async (
     const project = await projectService.getByProjId(userId, projectId);
     if (!project) throw new Error("project not found");
 
-    const date_end_subscription = user[0].date_end_subscription;
-    const date_start_subscription = user[0].date_start_subscription;
+    const date_end_subscription = user.date_end_subscription;
+    const date_start_subscription = user.date_start_subscription;
 
     if (
       !date_end_subscription ||

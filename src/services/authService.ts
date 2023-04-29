@@ -8,8 +8,13 @@ export default {
    * @param hashedPassword hashed password
    * @returns
    */
-  verifyPassword: async (password: string, hashedPassword: string) =>
-    await argon2.verify(hashedPassword, password),
+  verifyPassword: async (password: string, hashedPassword: string) => {
+    console.log(password, hashedPassword);
+    console.log(await argon2.verify(hashedPassword, password));
+
+    return await argon2.verify(hashedPassword, password);
+  },
+
   /**
    * Return a signed payload.
    * @param payload payload to sign

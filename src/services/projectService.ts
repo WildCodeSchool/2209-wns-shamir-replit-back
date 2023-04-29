@@ -60,10 +60,8 @@ const projectService = {
     }
   },
 
-  getAllPublicProj: async (uid: number): Promise<Project[]> => {
+  getAllPublicProj: async (): Promise<Project[]> => {
     try {
-      const user = await userRepo.findOneBy({ id: uid });
-      if (user === null) throw new Error("user not found");
       return await projectRepo.find({
         relations: {
           user: true,
@@ -72,7 +70,7 @@ const projectService = {
           execution: true,
           fileCode: true,
         },
-        where: { isPublic: true, user: user },
+        where: { isPublic: true },
         order: { name: "ASC" },
       });
     } catch (err) {
@@ -107,7 +105,7 @@ const projectService = {
     try {
       const user = await userRepo.findOneBy({ id: uid });
       if (user === null) throw new Error("inputs null");
-      return await projectRepo.save({ ...data });
+      return await projectRepo.save({ ...data, user });
     } catch (err) {
       console.error(err);
       throw new Error("Impossible de créer le projet");

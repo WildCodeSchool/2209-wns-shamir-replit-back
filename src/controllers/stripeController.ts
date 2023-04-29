@@ -32,7 +32,8 @@ export const stripeController: ExpressControllerFunction = async (req, res) => {
     if (payment.status === "succeeded") {
       const todayTime = new Date().getTime();
 
-      const [user] = await userService.getById(userId);
+      const user = await userService.getById(userId);
+      if (!user) throw new Error("User undefined - Stripe");
 
       let date_start_subscription: undefined | Date = undefined;
       let date_end_subscription: undefined | Date = undefined;

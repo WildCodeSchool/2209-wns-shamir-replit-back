@@ -101,7 +101,6 @@ export const fileManager = {
   ) => {
     try {
       const fileToCreate = `./projects/${project.id_storage_number}/${id_storage_file}`;
-
       fs.writeFileSync(fileToCreate, contentData);
     } catch (err) {
       console.error(err);

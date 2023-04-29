@@ -20,23 +20,23 @@ export class Project {
   id: number;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Field()
-  @Column()
+  @Column({ default: 0 })
   nb_views: number;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   isPublic: boolean;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   id_storage_number: string;
 
   @Field(() => [FileCode], { nullable: true })

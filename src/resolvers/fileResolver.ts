@@ -183,7 +183,7 @@ export class FileResolver {
 
       await fileManager.updateContentData({
         projectPath: project.id_storage_number,
-        filepath: _file.id_storage_file,
+        filepath: file.id_storage_file,
         contentData,
         project_id: projectId,
         socketIds: JSON.parse(socketIds),

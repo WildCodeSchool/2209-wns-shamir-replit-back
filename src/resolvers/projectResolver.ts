@@ -25,6 +25,7 @@ export class ProjectResolver {
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const folderName = `${timeStamp}_${updateName}_${userId}`;
       // On crée le projet dans la base de données
+      if (!data.id_storage_number) data.id_storage_number = folderName;
       const projectFromDB = await projectService.create(data, userId);
       // Création du dossier du projet sur le server
       await fileManager.createProjectFolder(folderName);
@@ -49,11 +50,9 @@ export class ProjectResolver {
   }
 
   @Query(() => [Project])
-  async getPublicProjects(
-    @Ctx() ctx: Context<TokenPayload>
-  ): Promise<Project[]> {
+  async getPublicProjects(): Promise<Project[]> {
     try {
-      return await projectService.getAllPublicProj(ctx.id);
+      return await projectService.getAllPublicProj();
     } catch (err) {
       console.error(err);
       throw new Error("Can't find public Projects");
@@ -65,7 +64,7 @@ export class ProjectResolver {
     @Ctx() ctx: Context<TokenPayload>
   ): Promise<Project[]> {
     try {
-      return await projectService.getAllPublicProj(ctx.id);
+      return await projectService.getSharedWithMeProj(ctx.id);
     } catch (err) {
       console.error(err);
       throw new Error("Can't find shared with me Projects");
@@ -126,8 +125,7 @@ export class ProjectResolver {
   ): Promise<Project | null> {
     try {
       const project = await projectService.getByProjId(ctx.id, projectId);
-      if (!project || !project.isPublic)
-        throw new Error("user not allowed: project not public");
+      if (!project) throw new Error("user not allowed: project not public");
       const alreadyLiked = await likeService.getByProjId(ctx.id, projectId);
       if (alreadyLiked) throw new Error("Project already liked");
       await likeService.create(projectId, ctx.id);
@@ -169,9 +167,6 @@ export class ProjectResolver {
     try {
       const project = await projectService.getByProjId(ctx.id, projectId);
       if (!project) throw new Error("Project don't exist");
-
-      if (!project.isPublic)
-        throw new Error("user not allowed: project not public");
 
       const data: IProject = {
         description: project.description,

@@ -36,6 +36,24 @@ export class IUser {
   @Field({ nullable: true })
   date_end_subscription?: Date;
 }
+
+@InputType()
+export class CreateUser {
+  @Field()
+  email: string;
+
+  @Field()
+  password: string;
+
+  @Field()
+  login: string;
+
+  @Field({ nullable: true })
+  date_start_subscription?: Date;
+
+  @Field({ nullable: true })
+  date_end_subscription?: Date;
+}
 @InputType()
 export class ICodeComment {
   @Field({ nullable: false })
