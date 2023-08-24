@@ -3,7 +3,6 @@ import { iProject } from "../interfaces/InputType";
 import { Project } from "../models/project.model";
 import { Like } from "../models/like.model";
 import projectService from "../services/projectService";
-import string from "string-sanitizer";
 import { fileManager } from "../tools/fileManager";
 import fileService from "../services/fileService";
 import { Context } from "apollo-server-core";
@@ -42,7 +41,7 @@ export class ProjectResolver {
       // On Stock un timestamp pour avoir un nom unique
       const timeStamp = Date.now();
       // On supprime les espaces et les caractères spéciaux du nom du projet
-      const updateName = string.sanitize.keepNumber(name);
+      const updateName = name.replace(/[^a-zA-Z1-9]/g, "");
       // On crée le nom du dossier avec le timestamp, le nom du projet et l'id de l'utilisateur
       const folderName = `${timeStamp}_${updateName}_${userId}`;
 

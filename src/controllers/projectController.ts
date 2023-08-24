@@ -25,7 +25,6 @@ export const projectController: ExpressControllerFunction = async (
       const canView = projectShare.filter(
         (item) => item.userId.id === token.id
       );
-      console.log("view", canView);
       if (
         (projet.isPublic === false && projet.userId !== token.id) ||
         canView.length === 0

@@ -5,10 +5,15 @@ COPY package*.json /back
 EXPOSE 5000
 
 FROM base as production
-ENV NODE_ENV=production
-RUN npm ci
-COPY . /
-CMD ["node", "src/index.js"]
+RUN npm install
+COPY src /back/src
+COPY tsconfig.json /back/
+COPY tsconfig.build.json /back/
+COPY .env /back/
+RUN npm install -g typescript ts-node
+# RUN npm install -g pm2
+RUN npm run build
+CMD ["node", "dist/index.js"]
 
 FROM base as dev
 ENV NODE_ENV=development
